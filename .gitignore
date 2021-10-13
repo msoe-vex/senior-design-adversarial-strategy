@@ -1,3 +1,9 @@
+# User-defined files
+
+
+# Virtual environment directories
+py-venv/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
