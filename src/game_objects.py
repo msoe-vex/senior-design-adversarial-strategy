@@ -1,3 +1,4 @@
+import math
 from abc import ABC, abstractmethod
 from enum import Enum
 from serialization import ISerializable
@@ -48,6 +49,11 @@ class Pose2D(ISerializable):
         self.x = x
         self.y = y
         self.__classname = type(self).__name__
+
+    def distTo(self, pose):
+        x_dist = (pose.x - self.x) ** 2
+        y_dist = (pose.y - self.y) ** 2
+        return math.sqrt(x_dist + y_dist)
 
 
 class Ring(ISerializable):
@@ -166,6 +172,28 @@ class Robot(ITippable, ISerializable):
         return self.__is_tipped
 
 
+class HostRobot(Robot, ISerializable):
+    def __init__(self, color, pos, is_tipped):
+        super().__init__(color, pos, is_tipped)
+
+        self.__classname = type(self).__name__
+
+
+class PartnerRobot(Robot, ISerializable):
+    def __init__(self, color, pos, is_tipped):
+        super().__init__(color, pos, is_tipped)
+
+        self.__classname = type(self).__name__
+
+
+class OpposingRobot(Robot, ISerializable):
+    def __init__(self, color, pos, is_tipped):
+        super().__init__(color, pos, is_tipped)
+
+        self.__classname = type(self).__name__
+
+
+@DeprecationWarning
 class RedRobot(Robot, ISerializable):
     def __init__(self, pos, is_tipped):
         super().__init__(Color.RED, pos, is_tipped)
@@ -173,6 +201,7 @@ class RedRobot(Robot, ISerializable):
         self.__classname = type(self).__name__
 
 
+@DeprecationWarning
 class BlueRobot(Robot, ISerializable):
     def __init__(self, pos, is_tipped):
         super().__init__(Color.BLUE, pos, is_tipped)
