@@ -1,4 +1,3 @@
-import math
 from abc import ABC, abstractmethod
 from enum import Enum
 from serialization import ISerializable
@@ -25,101 +24,87 @@ class IScorable(ABC):
         pass
 
 
-class Color(Enum, ISerializable):
+class Color(str, Enum):
     RED = 1
     BLUE = 2
     NEUTRAL = 3
 
 
-class GoalLevel(Enum, ISerializable):
+class GoalLevel(str, Enum):
     ROBOT = 0
     BASE = 1
     LOW = 3
     HIGH = 10
 
 
-class PlatformState(Enum, ISerializable):
+class PlatformState(str, Enum):
     LEFT = 1
     RIGHT = 2
     LEVEL = 3
 
 
-class Pose2D(ISerializable):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.__classname = type(self).__name__
-
-    def distTo(self, pose):
-        x_dist = (pose.x - self.x) ** 2
-        y_dist = (pose.y - self.y) ** 2
-        return math.sqrt(x_dist + y_dist)
-
-
 class Ring(ISerializable):
-    def __init__(self, pos, dist):
-        self.__position = pos
-        self.__distance = dist
-        self.__classname = type(self).__name__
+    def __init__(self, pos):
+        self.position = pos
+        self.classname = type(self).__name__
 
     def get_position(self):
-        return self.__position
-
-    def get_distance(self):
-        return self.__distance
+        return self.position
 
 
 class RingContainer(ISerializable):
-    def __init__(self, level, max_storage):
+    def __init__(self, level, max_storage=4):
         self.level = level
-        self.__max_storage = max_storage
-        self.__rings = []
-        self.__classname = type(self).__name__
+        self.max_storage = max_storage
+        self.rings = []
+        self.classname = type(self).__name__
 
     def add_ring(self, ring):
-        self.__rings.append(ring)
+        self.rings.append(ring)
 
     def get_utilization(self):
-        return len(self.__rings)
+        return len(self.rings)
 
     def get_max_storage(self):
-        return self.__max_storage
+        return self.max_storage
 
     def get_remaining_utilization(self):
-        return self.__max_storage - self.get_utilization()
+        return self.max_storage - self.get_utilization()
 
 
 class Goal(ITippable, IScorable, ISerializable):
-    def __init__(self, color, pos, dist, is_tipped, current_zone):
+    def __init__(self, color, pos, is_tipped=False):
         self.color = color
-        self.__ring_containers = {}
-        self.__position = pos
-        self.__distance = dist
-        self.__is_tipped = is_tipped
-        self.__current_zone = current_zone
-        self.__classname = type(self).__name__
+        self.ring_containers = {}
+        self.position = pos
+        self.is_tipped = is_tipped
+        self.classname = type(self).__name__
+
+        if self.position.y <= 48:
+            self.current_zone = Color.RED
+        elif self.position.y >= 96:
+            self.current_zone = Color.BLUE
+        else:
+            self.current_zone = Color.NEUTRAL
 
     def get_position(self):
-        return self.__position
-
-    def get_distance(self):
-        return self.__distance
+        return self.position
 
     def get_ring_container(self, level):
-        return self.__ring_containers[level]
+        return self.ring_containers[level]
 
     def get_ring_score(self):
         score = 0
-        for level in self.__ring_containers:
+        for level in self.ring_containers:
             score += level.value * \
                 self.get_ring_container(level).get_utilization()
         return score
 
     def is_tipped(self):
-        return self.__is_tipped
+        return self.is_tipped
 
     def get_current_score(self, color):
-        if self.__current_zone == color \
+        if self.current_zone == color \
                 or self.color == Color.NEUTRAL:
             return 20 + self.get_ring_score()
         else:
@@ -127,114 +112,114 @@ class Goal(ITippable, IScorable, ISerializable):
 
 
 class RedGoal(Goal, ISerializable):
-    def __init__(self, pos, dist, is_tipped, current_zone):
-        super().__init__(Color.RED, pos, dist, is_tipped, current_zone)
+    def __init__(self, pos, is_tipped=False):
+        super().__init__(Color.RED, pos, is_tipped)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
 
 
 class NeutralGoal(Goal, ISerializable):
-    def __init__(self, pos, dist, is_tipped, current_zone):
-        super().__init__(Color.NEUTRAL, pos, dist, is_tipped, current_zone)
+    def __init__(self, pos, is_tipped=False):
+        super().__init__(Color.NEUTRAL, pos, is_tipped)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
 
 
 class BlueGoal(Goal, ISerializable):
-    def __init__(self, pos, dist, is_tipped, current_zone):
-        super().__init__(Color.BLUE, pos, dist, is_tipped, current_zone)
+    def __init__(self, pos, is_tipped=False):
+        super().__init__(Color.BLUE, pos, is_tipped)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
 
 
 class Robot(ITippable, ISerializable):
-    def __init__(self, color, pos, is_tipped):
+    def __init__(self, color, pos, is_tipped=False):
         self.color = color
-        self.__rings = []
-        self.__goals = []
-        self.__position = pos
-        self.__is_tipped = is_tipped
-        self.__classname = type(self).__name__
+        self.rings = []
+        self.goals = []
+        self.position = pos
+        self.is_tipped = is_tipped
+        self.classname = type(self).__name__
 
     def get_position(self):
-        return self.__position
+        return self.position
 
     def get_rings(self):
-        return self.__rings
+        return self.rings
 
     def add_goal(self, goal):
-        self.__goals.append(goal)
+        self.goals.append(goal)
 
     def get_goals(self):
-        return self.__goals
+        return self.goals
 
     def is_tipped(self):
-        return self.__is_tipped
+        return self.is_tipped
 
 
 class HostRobot(Robot, ISerializable):
-    def __init__(self, color, pos, is_tipped):
+    def __init__(self, color, pos, is_tipped=False):
         super().__init__(color, pos, is_tipped)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
 
 
 class PartnerRobot(Robot, ISerializable):
-    def __init__(self, color, pos, is_tipped):
+    def __init__(self, color, pos, is_tipped=False):
         super().__init__(color, pos, is_tipped)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
 
 
 class OpposingRobot(Robot, ISerializable):
-    def __init__(self, color, pos, is_tipped):
+    def __init__(self, color, pos, is_tipped=False):
         super().__init__(color, pos, is_tipped)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
 
 
 @DeprecationWarning
 class RedRobot(Robot, ISerializable):
-    def __init__(self, pos, is_tipped):
+    def __init__(self, pos, is_tipped=False):
         super().__init__(Color.RED, pos, is_tipped)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
 
 
 @DeprecationWarning
 class BlueRobot(Robot, ISerializable):
-    def __init__(self, pos, is_tipped):
+    def __init__(self, pos, is_tipped=False):
         super().__init__(Color.BLUE, pos, is_tipped)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
 
 
 class Platform(IScorable, ISerializable):
     def __init__(self, color, state):
         self.color = color
-        self.__state = state
-        self.__rings = []
-        self.__goals = []
-        self.__robots = []
-        self.__classname = type(self).__name__
+        self.state = state
+        self.rings = []
+        self.goals = []
+        self.robots = []
+        self.classname = type(self).__name__
 
     def get_rings(self):
-        return self.__rings
+        return self.rings
 
     def add_goal(self, goal):
-        self.__goals.append(goal)
+        self.goals.append(goal)
 
     def get_goals(self):
-        return self.__goals
+        return self.goals
 
     def add_robot(self, robot):
-        self.__robots.append(robot)
+        self.robots.append(robot)
 
     def get_robots(self):
-        return self.__robots
+        return self.robots
 
     def get_current_score(self, color):
-        if self.__state == PlatformState.LEVEL:
+        if self.state == PlatformState.LEVEL:
             robots = list(filter(lambda rob: rob.color ==
                           color, self.get_robots()))
             goals = list(filter(lambda goal: goal.color ==
@@ -245,14 +230,14 @@ class Platform(IScorable, ISerializable):
 
 
 class RedPlatform(Platform, ISerializable):
-    def __init__(self, state):
+    def __init__(self, state=PlatformState.LEVEL):
         super().__init__(Color.RED, state)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
 
 
 class BluePlatform(Platform, ISerializable):
-    def __init__(self, state):
+    def __init__(self, state=PlatformState.LEVEL):
         super().__init__(Color.BLUE, state)
 
-        self.__classname = type(self).__name__
+        self.classname = type(self).__name__
