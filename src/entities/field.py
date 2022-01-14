@@ -1,11 +1,13 @@
 import json
 from typing import List
 from dataclasses import dataclass, field
+from __future__ import annotations
+from entities.enumerations import Color
 from entities.interfaces import ISerializable
 from entities.math_utils import Pose2D
-from entities.platforms import PlatformState, RedPlatform, BluePlatform
-from entities.scoring_elements import GoalLevel, Goal, Ring, RingContainer
-from entities.robots import Robot
+from entities.platforms import Platform, PlatformState, RedPlatform, BluePlatform
+from entities.scoring_elements import BlueGoal, GoalLevel, Goal, NeutralGoal, RedGoal, Ring, RingContainer
+from entities.robots import HostRobot, OpposingRobot, PartnerRobot, RedRobot, Robot, RobotID
 
 
 @dataclass
@@ -16,23 +18,24 @@ class Field(ISerializable):
     blue_platform: BluePlatform = BluePlatform(PlatformState.LEVEL)
     robots: List[Robot] = field(default_factory=list)
 
-    def __parse_rings(self, ring_dict: dict) -> None:
+    def __parse_position(self, position_dict: dict) -> Pose2D:
+        x = position_dict["x"]
+        y = position_dict["y"]
+        return Pose2D(x, y)
+
+    def __parse_rings(self, ring_dict: dict) -> List[Ring]:
+        rings = []
         for ring in ring_dict:
-            x = ring["position"]["x"]
-            y = ring["position"]["y"]
-            pose = Pose2D(x, y)
-            self.rings.append(Ring(pose))
+            pose = self.__parse_position(ring["position"])
+            rings.append(Ring(pose))
+
+        return rings
 
     def __parse_ring_container(self, ring_container_dict: dict) -> RingContainer:
         level = ring_container_dict["level"]
         max_storage = ring_container_dict["max_storage"]
 
-        rings = []
-        for ring in ring_container_dict["rings"]:
-            x = ring["position"]["x"]
-            y = ring["position"]["y"]
-            pose = Pose2D(x, y)
-            rings.append(pose)
+        rings = self.__parse_rings(ring_container_dict["rings"])
 
         return RingContainer(level, max_storage, rings)
 
@@ -56,39 +59,76 @@ class Field(ISerializable):
 
         return ring_containers
 
-    def __parse_goals(self, goal_dict: dict) -> None:
+    def __parse_goals(self, goal_dict: dict) -> List[Goal]:
+        goals = []
         for goal in goal_dict:
             color = goal["color"]         
 
-            x = goal["position"]["x"]
-            y = goal["position"]["y"]
-            pose = Pose2D(x, y)
+            pose = self.__parse_position(goal["position"])
 
             ring_containers = self.__parse_ring_containers(goal["ring_containers"])
 
             tipped = goal["tipped"]
 
-            self.goals.append(Goal(color, pose, ring_containers, tipped))
+            if color == Color.RED:
+                goals.append(RedGoal(pose, ring_containers=ring_containers, tipped=tipped))
+            elif color == Color.BLUE:
+                goals.append(BlueGoal(pose, ring_containers=ring_containers, tipped=tipped))
+            else:
+                goals.append(NeutralGoal(pose, ring_containers=ring_containers, tipped=tipped))
 
-    def __parse_red_platform(self, red_platform_dict: dict) -> None:
-        pass # TODO
+        return goals
 
-    def __parse_blue_platform(self, blue_platform_dict: dict) -> None:
-        pass # TODO
+    def __parse_robots(self, robots_dict: dict) -> Robot:
+        robots = []
+        for robot in robots_dict:
+            color = robot["color"]
 
-    def __parse_robots(self, robots_dict: dict) -> None:
-        pass # TODO
+            id = robot["id"]
+
+            pose = self.__parse_position(robot["position"])
+
+            rings = self.__parse_ring_containers(robot["rings"])
+
+            goals = self.__parse_goals(robot["goals"])
+
+            tipped = robot["tipped"]
+
+            if id == RobotID.SELF:
+                robots.append(HostRobot(color, pose, rings=rings, goals=goals, tipped=tipped))
+            elif id == RobotID.PARTNER:
+                robots.append(PartnerRobot(color, pose, rings=rings, goals=goals, tipped=tipped))
+            else:
+                robots.append(OpposingRobot(color, pose, rings=rings, goals=goals, tipped=tipped))
+
+        return robots
+
+    def __parse_platform(self, platform_dict: dict) -> Platform:
+        color = platform_dict["color"]
+
+        goals = self.__parse_goals(platform_dict["goals"])
+
+        rings = self.__parse_rings(platform_dict["rings"])
+
+        robots = self.__parse_robots(platform_dict["robots"])
+
+        state = platform_dict["state"]
+
+        if color == Color.RED:
+            return RedPlatform(state, rings=rings, goals=goals, robots=robots)
+        else:
+            return BluePlatform(state, rings=rings, goals=goals, robots=robots)
 
     def parse_representation(self, representation: str):
-        self.__parse_rings(representation["rings"])
+        self.rings = self.__parse_rings(representation["rings"])
 
-        self.__parse_goals(representation["goals"])
+        self.goals = self.__parse_goals(representation["goals"])
 
-        self.__parse_red_platform(representation["red_platform"])
+        self.red_platform = self.__parse_platform(representation["red_platform"])
         
-        self.__parse_blue_platform(representation["blue_platform"])
+        self.blue_platform = self.__parse_platform(representation["blue_platform"])
 
-        self.__parse_robots(representation["robots"])
+        self.robots = self.__parse_robots(representation["robots"])
 
     def as_json(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

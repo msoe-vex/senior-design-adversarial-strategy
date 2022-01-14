@@ -33,11 +33,11 @@ class Platform(AbstractDataClass, IScorable, ISerializable):
 
 @dataclass
 class RedPlatform(Platform, ISerializable):
-    def __init__(self, state: PlatformState = PlatformState.LEVEL):
-        super().__init__(Color.RED, state)
+    def __init__(self, state: PlatformState = PlatformState.LEVEL, **kwargs):
+        super().__init__(Color.RED, state, kwargs)
 
 
 @dataclass
 class BluePlatform(Platform, ISerializable):
-    def __init__(self, state: PlatformState = PlatformState.LEVEL):
-        super().__init__(Color.BLUE, state)
+    def __init__(self, state: PlatformState = PlatformState.LEVEL, **kwargs):
+        super().__init__(Color.BLUE, state, kwargs)

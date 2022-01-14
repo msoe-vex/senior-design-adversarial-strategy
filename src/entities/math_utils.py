@@ -1,7 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import math
 from entities.interfaces import ISerializable
-from dataclasses import dataclass
+from __future__ import annotations
 
 
 @dataclass
@@ -9,7 +9,7 @@ class Pose2D(ISerializable):
     x: float
     y: float
 
-    def distTo(self, pose: "Pose2D") -> float:
+    def distTo(self, pose: Pose2D) -> float:
         x_dist = (pose.x - self.x) ** 2
         y_dist = (pose.y - self.y) ** 2
         return math.sqrt(x_dist + y_dist)

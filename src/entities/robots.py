@@ -29,31 +29,31 @@ class Robot(AbstractDataClass, ITippable, ISerializable):
 
 @dataclass
 class HostRobot(Robot, ISerializable):
-    def __init__(self, color: Color, pos: Pose2D, tipped: bool = False):
-        super().__init__(color, RobotID.SELF, pos, tipped)
+    def __init__(self, color: Color, pos: Pose2D, **kwargs):
+        super().__init__(color, RobotID.SELF, pos, kwargs)
 
 
 @dataclass
 class PartnerRobot(Robot, ISerializable):
-    def __init__(self, color: Color, pos: Pose2D, tipped: bool = False):
-        super().__init__(color, RobotID.PARTNER, pos, tipped)
+    def __init__(self, color: Color, pos: Pose2D, **kwargs):
+        super().__init__(color, RobotID.PARTNER, pos, kwargs)
 
 
 @dataclass
 class OpposingRobot(Robot, ISerializable):
-    def __init__(self, color: Color, pos: Pose2D, tipped: bool = False):
-        super().__init__(color, RobotID.OPPOSING, pos, tipped)
+    def __init__(self, color: Color, pos: Pose2D, **kwargs):
+        super().__init__(color, RobotID.OPPOSING, pos, kwargs)
 
 
 @DeprecationWarning
 @dataclass
 class RedRobot(Robot, ISerializable):
-    def __init__(self, pos: Pose2D, tipped: bool = False):
-        super().__init__(Color.RED, pos, tipped)
+    def __init__(self, pos: Pose2D, **kwargs):
+        super().__init__(Color.RED, pos, kwargs)
 
 
 @DeprecationWarning
 @dataclass
 class BlueRobot(Robot, ISerializable):
-    def __init__(self, pos: Pose2D, tipped: bool = False):
-        super().__init__(Color.BLUE, pos, tipped)
+    def __init__(self, pos: Pose2D, **kwargs):
+        super().__init__(Color.BLUE, pos, kwargs)

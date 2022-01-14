@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import List
 from entities.math_utils import Pose2D
 from enum import Enum
+from __future__ import annotations
 from entities.interfaces import ITippable, IScorable, ISerializable
 from entities.class_utils import AbstractDataClass
 from entities.enumerations import Color
@@ -71,23 +72,17 @@ class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
 
 @dataclass
 class RedGoal(Goal, ISerializable):
-    def __init__(
-        self, pos: Pose2D, ring_containers: RingContainer = {}, tipped: bool = False
-    ):
-        super().__init__(Color.RED, pos, ring_containers, tipped)
+    def __init__(self, pos: Pose2D, **kwargs):
+        super().__init__(Color.RED, pos, kwargs)
 
 
 @dataclass
 class NeutralGoal(Goal, ISerializable):
-    def __init__(
-        self, pos: Pose2D, ring_containers: RingContainer = {}, tipped: bool = False
-    ):
-        super().__init__(Color.NEUTRAL, pos, ring_containers, tipped)
+    def __init__(self, pos: Pose2D, **kwargs):
+        super().__init__(Color.NEUTRAL, pos, kwargs)
 
 
 @dataclass
 class BlueGoal(Goal, ISerializable):
-    def __init__(
-        self, pos: Pose2D, ring_containers: RingContainer = {}, tipped: bool = False
-    ):
-        super().__init__(Color.BLUE, pos, ring_containers, tipped)
+    def __init__(self, pos: Pose2D, **kwargs):
+        super().__init__(Color.BLUE, pos, kwargs)
