@@ -9,11 +9,6 @@ class Pose2D(ISerializable):
     x: float
     y: float
 
-    classname: str = field(init=False)
-
-    def __post_init__(self):
-        self.classname = type(self).__name__
-
     def distTo(self, pose: "Pose2D") -> float:
         x_dist = (pose.x - self.x) ** 2
         y_dist = (pose.y - self.y) ** 2
