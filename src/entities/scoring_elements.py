@@ -16,10 +16,6 @@ class GoalLevel(str, Enum):
 @dataclass
 class Ring(ISerializable):
     position: Pose2D
-    classname: str = field(init=False)
-
-    def __post_init__(self):
-        self.classname = type(self).__name__
 
 
 @dataclass
@@ -27,10 +23,6 @@ class RingContainer(ISerializable):
     level: GoalLevel
     max_storage: int = 4
     rings: List[Ring] = field(default_factory=list)
-    classname: str = field(init=False)
-
-    def __post_init__(self):
-        self.classname = type(self).__name__
 
     def add_ring(self, ring: Ring) -> None:
         self.rings.append(ring)
@@ -49,7 +41,6 @@ class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
     ring_containers: dict[GoalLevel, RingContainer] = field(default_factory=dict)
     tipped: bool = False
     current_zone: Color = field(init=False)
-    classname: str = field(init=False)
 
     def __post_init__(self):
         if self.position.y <= 48:
@@ -58,8 +49,6 @@ class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
             self.current_zone = Color.BLUE
         else:
             self.current_zone = Color.NEUTRAL
-
-        self.classname = type(self).__name__
 
     def is_tipped(self) -> bool:
         return self.tipped
@@ -87,8 +76,6 @@ class RedGoal(Goal, ISerializable):
     ):
         super().__init__(Color.RED, pos, ring_containers, tipped)
 
-        self.classname = type(self).__name__
-
 
 @dataclass
 class NeutralGoal(Goal, ISerializable):
@@ -97,8 +84,6 @@ class NeutralGoal(Goal, ISerializable):
     ):
         super().__init__(Color.NEUTRAL, pos, ring_containers, tipped)
 
-        self.classname = type(self).__name__
-
 
 @dataclass
 class BlueGoal(Goal, ISerializable):
@@ -106,5 +91,3 @@ class BlueGoal(Goal, ISerializable):
         self, pos: Pose2D, ring_containers: RingContainer = {}, tipped: bool = False
     ):
         super().__init__(Color.BLUE, pos, ring_containers, tipped)
-
-        self.classname = type(self).__name__

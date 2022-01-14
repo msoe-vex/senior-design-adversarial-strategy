@@ -15,46 +15,80 @@ class Field(ISerializable):
     red_platform: RedPlatform = RedPlatform(PlatformState.LEVEL)
     blue_platform: BluePlatform = BluePlatform(PlatformState.LEVEL)
     robots: List[Robot] = field(default_factory=list)
-    classname: str = field(init=False)
 
-    def __post_init__(self):
-        self.classname = type(self).__name__
-
-    def __parse_ring_container(self, ring_container_dict: dict) -> RingContainer:
-        pass
-
-    def parse_representation(self, representation: str):
-        for ring in representation["rings"]:
+    def __parse_rings(self, ring_dict: dict) -> None:
+        for ring in ring_dict:
             x = ring["position"]["x"]
             y = ring["position"]["y"]
             pose = Pose2D(x, y)
             self.rings.append(Ring(pose))
 
-        for goal in representation["goals"]:
-            color = goal["color"]
+    def __parse_ring_container(self, ring_container_dict: dict) -> RingContainer:
+        level = ring_container_dict["level"]
+        max_storage = ring_container_dict["max_storage"]
 
-            ring_containers = {}
+        rings = []
+        for ring in ring_container_dict["rings"]:
+            x = ring["position"]["x"]
+            y = ring["position"]["y"]
+            pose = Pose2D(x, y)
+            rings.append(pose)
 
-            base_ring_container = goal["ring_containers"].get("BASE")
+        return RingContainer(level, max_storage, rings)
 
-            if base_ring_container:
-                ring_containers[GoalLevel.BASE] = self.__parse_ring_container()
+    def __parse_ring_containers(self, ring_containers_dict: dict) -> dict[GoalLevel, RingContainer]:
+        ring_containers = {}
 
-            low_ring_container = goal["ring_containers"].get("LOW")
+        base_ring_container = ring_containers_dict.get("BASE")
 
-            if low_ring_container:
-                pass
+        if base_ring_container:
+            ring_containers[GoalLevel.BASE] = self.__parse_ring_container(base_ring_container)
 
-            high_ring_container = goal["ring_containers"].get("HIGH")
+        low_ring_container =ring_containers_dict.get("LOW")
 
-            if high_ring_container:
-                pass
+        if low_ring_container:
+            ring_containers[GoalLevel.LOW] = self.__parse_ring_container(low_ring_container)
+
+        high_ring_container = ring_containers_dict.get("HIGH")
+
+        if high_ring_container:
+            ring_containers[GoalLevel.HIGH] = self.__parse_ring_container(high_ring_container)
+
+        return ring_containers
+
+    def __parse_goals(self, goal_dict: dict) -> None:
+        for goal in goal_dict:
+            color = goal["color"]         
 
             x = goal["position"]["x"]
             y = goal["position"]["y"]
             pose = Pose2D(x, y)
 
+            ring_containers = self.__parse_ring_containers(goal["ring_containers"])
+
             tipped = goal["tipped"]
+
+            self.goals.append(Goal(color, pose, ring_containers, tipped))
+
+    def __parse_red_platform(self, red_platform_dict: dict) -> None:
+        pass # TODO
+
+    def __parse_blue_platform(self, blue_platform_dict: dict) -> None:
+        pass # TODO
+
+    def __parse_robots(self, robots_dict: dict) -> None:
+        pass # TODO
+
+    def parse_representation(self, representation: str):
+        self.__parse_rings(representation["rings"])
+
+        self.__parse_goals(representation["goals"])
+
+        self.__parse_red_platform(representation["red_platform"])
+        
+        self.__parse_blue_platform(representation["blue_platform"])
+
+        self.__parse_robots(representation["robots"])
 
     def as_json(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -65,7 +99,6 @@ class FieldState(ISerializable):
         self.potential_score = (0, 0)
         self.current_time = time
         self.field_representation = representation
-        self.classname = type(self).__name__
 
     def __calculate_potential_score(self):
         return None  # TODO

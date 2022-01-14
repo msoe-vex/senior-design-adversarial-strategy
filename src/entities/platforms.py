@@ -21,10 +21,6 @@ class Platform(AbstractDataClass, IScorable, ISerializable):
     rings: List[Ring] = field(default_factory=list)
     goals: List[Goal] = field(default_factory=list)
     robots: List[Robot] = field(default_factory=list)
-    classname: str = field(init=False)
-
-    def __post_init__(self):
-        self.classname = type(self).__name__
 
     def get_current_score(self, color: Color):
         if self.state == PlatformState.LEVEL:
@@ -40,12 +36,8 @@ class RedPlatform(Platform, ISerializable):
     def __init__(self, state: PlatformState = PlatformState.LEVEL):
         super().__init__(Color.RED, state)
 
-        self.classname = type(self).__name__
-
 
 @dataclass
 class BluePlatform(Platform, ISerializable):
     def __init__(self, state: PlatformState = PlatformState.LEVEL):
         super().__init__(Color.BLUE, state)
-
-        self.classname = type(self).__name__
