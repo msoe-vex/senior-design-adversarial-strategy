@@ -3,6 +3,7 @@
 
 # Virtual environment directories
 py-venv/
+venv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
