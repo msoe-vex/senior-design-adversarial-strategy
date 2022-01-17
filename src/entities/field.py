@@ -1,13 +1,13 @@
-import json
-from typing import List
-from dataclasses import dataclass, field
 from __future__ import annotations
+import json
+from typing import List, Tuple
+from dataclasses import dataclass, field
 from entities.enumerations import Color
 from entities.interfaces import ISerializable
 from entities.math_utils import Pose2D
 from entities.platforms import Platform, PlatformState, RedPlatform, BluePlatform
 from entities.scoring_elements import BlueGoal, GoalLevel, Goal, NeutralGoal, RedGoal, Ring, RingContainer
-from entities.robots import HostRobot, OpposingRobot, PartnerRobot, RedRobot, Robot, RobotID
+from entities.robots import HostRobot, OpposingRobot, PartnerRobot, Robot, RobotID
 
 
 @dataclass
@@ -32,12 +32,11 @@ class Field(ISerializable):
         return rings
 
     def __parse_ring_container(self, ring_container_dict: dict) -> RingContainer:
-        level = ring_container_dict["level"]
         max_storage = ring_container_dict["max_storage"]
 
         rings = self.__parse_rings(ring_container_dict["rings"])
 
-        return RingContainer(level, max_storage, rings)
+        return RingContainer(max_storage, rings)
 
     def __parse_ring_containers(self, ring_containers_dict: dict) -> dict[GoalLevel, RingContainer]:
         ring_containers = {}
@@ -119,7 +118,7 @@ class Field(ISerializable):
         else:
             return BluePlatform(state, rings=rings, goals=goals, robots=robots)
 
-    def parse_representation(self, representation: str):
+    def parse_representation(self, representation: str) -> None:
         self.rings = self.__parse_rings(representation["rings"])
 
         self.goals = self.__parse_goals(representation["goals"])
@@ -140,7 +139,7 @@ class FieldState(ISerializable):
         self.current_time = time
         self.field_representation = representation
 
-    def __calculate_potential_score(self):
+    def __calculate_potential_score(self) -> None:
         return None  # TODO
 
     def get_current_representation(self) -> Field:
@@ -149,8 +148,8 @@ class FieldState(ISerializable):
     def get_current_time(self) -> int:
         return self.current_time
 
-    def get_potential_score(self):
+    def get_potential_score(self) -> Tuple[int, int]:
         return self.potential_score
 
-    def get_current_score(self):
+    def get_current_score(self) -> Tuple[int, int]:
         return self.potential_score if self.current_time <= 0 else (0, 0)

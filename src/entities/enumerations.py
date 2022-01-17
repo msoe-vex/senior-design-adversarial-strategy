@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Color(str, Enum):
-    RED = 1
-    BLUE = 2
-    NEUTRAL = 3
+class Color(int, Enum):
+    RED = 0
+    BLUE = 1
+    NEUTRAL = 2

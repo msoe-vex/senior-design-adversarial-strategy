@@ -1,14 +1,14 @@
+from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
 from entities.math_utils import Pose2D
 from enum import Enum
-from __future__ import annotations
 from entities.interfaces import ITippable, IScorable, ISerializable
 from entities.class_utils import AbstractDataClass
 from entities.enumerations import Color
 
 
-class GoalLevel(str, Enum):
+class GoalLevel(int, Enum):
     BASE = 1
     LOW = 3
     HIGH = 10
@@ -21,8 +21,7 @@ class Ring(ISerializable):
 
 @dataclass
 class RingContainer(ISerializable):
-    level: GoalLevel
-    max_storage: int = 4
+    max_storage: int = 8
     rings: List[Ring] = field(default_factory=list)
 
     def add_ring(self, ring: Ring) -> None:

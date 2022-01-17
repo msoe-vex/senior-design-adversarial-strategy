@@ -1,0 +1,486 @@
+{
+    "blue_platform": {
+        "color": 1,
+        "goals": [],
+        "rings": {
+            "goals": [
+                {
+                    "color": 1,
+                    "current_zone": 1,
+                    "position": {
+                        "x": 0,
+                        "y": 141
+                    },
+                    "ring_containers": {
+                        "ring_containers": {
+                            "3": {
+                                "max_storage": 8,
+                                "rings": [
+                                    {
+                                        "position": {
+                                            "x": 0,
+                                            "y": 141
+                                        }
+                                    },
+                                    {
+                                        "position": {
+                                            "x": 0,
+                                            "y": 141
+                                        }
+                                    },
+                                    {
+                                        "position": {
+                                            "x": 0,
+                                            "y": 141
+                                        }
+                                    },
+                                    {
+                                        "position": {
+                                            "x": 0,
+                                            "y": 141
+                                        }
+                                    },
+                                    {
+                                        "position": {
+                                            "x": 0,
+                                            "y": 141
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "tipped": false
+                }
+            ],
+            "robots": [
+                {
+                    "color": 1,
+                    "goals": [],
+                    "id": 2,
+                    "position": {
+                        "x": -10,
+                        "y": 142
+                    },
+                    "rings": {},
+                    "tipped": false
+                },
+                {
+                    "color": 1,
+                    "goals": [],
+                    "id": 2,
+                    "position": {
+                        "x": 14,
+                        "y": 141
+                    },
+                    "rings": {
+                        "goals": [
+                            {
+                                "color": 1,
+                                "current_zone": 1,
+                                "position": {
+                                    "x": 14,
+                                    "y": 141
+                                },
+                                "ring_containers": {},
+                                "tipped": false
+                            }
+                        ]
+                    },
+                    "tipped": false
+                }
+            ]
+        },
+        "robots": [],
+        "state": 2
+    },
+    "goals": [
+        {
+            "color": 0,
+            "current_zone": 0,
+            "position": {
+                "x": 25,
+                "y": -63
+            },
+            "ring_containers": {
+                "ring_containers": {
+                    "1": {
+                        "max_storage": 8,
+                        "rings": [
+                            {
+                                "position": {
+                                    "x": 25,
+                                    "y": -63
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": 25,
+                                    "y": -63
+                                }
+                            }
+                        ]
+                    },
+                    "3": {
+                        "max_storage": 8,
+                        "rings": [
+                            {
+                                "position": {
+                                    "x": 25,
+                                    "y": -63
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": 25,
+                                    "y": -63
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": 25,
+                                    "y": -63
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "tipped": false
+        },
+        {
+            "color": 0,
+            "current_zone": 0,
+            "position": {
+                "x": -49,
+                "y": 18
+            },
+            "ring_containers": {
+                "ring_containers": {
+                    "1": {
+                        "max_storage": 8,
+                        "rings": [
+                            {
+                                "position": {
+                                    "x": -49,
+                                    "y": 18
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "tipped": false
+        },
+        {
+            "color": 2,
+            "current_zone": 0,
+            "position": {
+                "x": -21,
+                "y": 38
+            },
+            "ring_containers": {
+                "ring_containers": {
+                    "1": {
+                        "max_storage": 8,
+                        "rings": [
+                            {
+                                "position": {
+                                    "x": -21,
+                                    "y": 38
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": -21,
+                                    "y": 38
+                                }
+                            }
+                        ]
+                    },
+                    "3": {
+                        "max_storage": 8,
+                        "rings": [
+                            {
+                                "position": {
+                                    "x": -21,
+                                    "y": 38
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": -21,
+                                    "y": 38
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": -21,
+                                    "y": 38
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": -21,
+                                    "y": 38
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            "tipped": false
+        },
+        {
+            "color": 2,
+            "current_zone": 2,
+            "position": {
+                "x": 0,
+                "y": 72
+            },
+            "ring_containers": {
+                "tipped": true
+            },
+            "tipped": false
+        }
+    ],
+    "red_platform": {
+        "color": 0,
+        "goals": [],
+        "rings": {
+            "robots": [
+                {
+                    "color": 0,
+                    "goals": [],
+                    "id": 0,
+                    "position": {
+                        "x": 0,
+                        "y": 4
+                    },
+                    "rings": {
+                        "goals": [
+                            {
+                                "color": 2,
+                                "current_zone": 0,
+                                "position": {
+                                    "x": 0,
+                                    "y": 4
+                                },
+                                "ring_containers": {
+                                    "ring_containers": {
+                                        "10": {
+                                            "max_storage": 8,
+                                            "rings": [
+                                                {
+                                                    "position": {
+                                                        "x": 0,
+                                                        "y": 4
+                                                    }
+                                                },
+                                                {
+                                                    "position": {
+                                                        "x": 0,
+                                                        "y": 4
+                                                    }
+                                                },
+                                                {
+                                                    "position": {
+                                                        "x": 0,
+                                                        "y": 4
+                                                    }
+                                                },
+                                                {
+                                                    "position": {
+                                                        "x": 0,
+                                                        "y": 4
+                                                    }
+                                                },
+                                                {
+                                                    "position": {
+                                                        "x": 0,
+                                                        "y": 4
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "tipped": false
+                            }
+                        ],
+                        "rings": [
+                            {
+                                "position": {
+                                    "x": 0,
+                                    "y": 4
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": 0,
+                                    "y": 4
+                                }
+                            },
+                            {
+                                "position": {
+                                    "x": 0,
+                                    "y": 4
+                                }
+                            }
+                        ]
+                    },
+                    "tipped": false
+                }
+            ]
+        },
+        "robots": [],
+        "state": 2
+    },
+    "rings": [
+        {
+            "position": {
+                "x": -69,
+                "y": 25
+            }
+        },
+        {
+            "position": {
+                "x": -62,
+                "y": 121
+            }
+        },
+        {
+            "position": {
+                "x": -55,
+                "y": 32
+            }
+        },
+        {
+            "position": {
+                "x": -44,
+                "y": 96
+            }
+        },
+        {
+            "position": {
+                "x": -25,
+                "y": 22
+            }
+        },
+        {
+            "position": {
+                "x": -17,
+                "y": 7
+            }
+        },
+        {
+            "position": {
+                "x": 9,
+                "y": 72
+            }
+        },
+        {
+            "position": {
+                "x": 19,
+                "y": 61
+            }
+        },
+        {
+            "position": {
+                "x": 6,
+                "y": 99
+            }
+        },
+        {
+            "position": {
+                "x": 48,
+                "y": 84
+            }
+        },
+        {
+            "position": {
+                "x": -28,
+                "y": 48
+            }
+        },
+        {
+            "position": {
+                "x": -25,
+                "y": 4
+            }
+        },
+        {
+            "position": {
+                "x": -22,
+                "y": 48
+            }
+        },
+        {
+            "position": {
+                "x": -3,
+                "y": 22
+            }
+        },
+        {
+            "position": {
+                "x": 26,
+                "y": 45
+            }
+        },
+        {
+            "position": {
+                "x": 0,
+                "y": 14
+            }
+        },
+        {
+            "position": {
+                "x": 0,
+                "y": 51
+            }
+        },
+        {
+            "position": {
+                "x": 23,
+                "y": 100
+            }
+        },
+        {
+            "position": {
+                "x": -3,
+                "y": 95
+            }
+        },
+        {
+            "position": {
+                "x": 32,
+                "y": 104
+            }
+        },
+        {
+            "position": {
+                "x": 22,
+                "y": 95
+            }
+        },
+        {
+            "position": {
+                "x": 8,
+                "y": 95
+            }
+        }
+    ],
+    "robots": [
+        {
+            "color": 0,
+            "goals": [],
+            "id": 1,
+            "position": {
+                "x": -49,
+                "y": 71
+            },
+            "rings": {},
+            "tipped": true
+        }
+    ]
+}
