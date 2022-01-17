@@ -6,78 +6,7 @@
         "robots": [],
         "state": 2
     },
-    "goals": [
-        {
-            "color": 0,
-            "current_zone": 2,
-            "position": {
-                "x": 55,
-                "y": 35
-            },
-            "ring_containers": {},
-            "tipped": false
-        },
-        {
-            "color": 0,
-            "current_zone": 0,
-            "position": {
-                "x": -50,
-                "y": 10
-            },
-            "ring_containers": {},
-            "tipped": false
-        },
-        {
-            "color": 1,
-            "current_zone": 0,
-            "position": {
-                "x": -55,
-                "y": 105
-            },
-            "ring_containers": {},
-            "tipped": false
-        },
-        {
-            "color": 1,
-            "current_zone": 2,
-            "position": {
-                "x": 50,
-                "y": 134
-            },
-            "ring_containers": {},
-            "tipped": false
-        },
-        {
-            "color": 2,
-            "current_zone": 0,
-            "position": {
-                "x": -48,
-                "y": 72
-            },
-            "ring_containers": {},
-            "tipped": false
-        },
-        {
-            "color": 2,
-            "current_zone": 0,
-            "position": {
-                "x": 0,
-                "y": 72
-            },
-            "ring_containers": {},
-            "tipped": false
-        },
-        {
-            "color": 2,
-            "current_zone": 0,
-            "position": {
-                "x": 48,
-                "y": 72
-            },
-            "ring_containers": {},
-            "tipped": false
-        }
-    ],
+    "goals": [],
     "red_platform": {
         "color": 0,
         "goals": [],
@@ -85,7 +14,92 @@
         "robots": [],
         "state": 2
     },
-    "rings": [],
+    "rings": [
+        {
+            "position": {
+                "x": 72,
+                "y": 72
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": 67
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": 62
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": 57
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": 20
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": 15
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": 10
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": -10
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": -15
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": -20
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": -57
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": -62
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": -67
+            }
+        },
+        {
+            "position": {
+                "x": 72,
+                "y": -72
+            }
+        }
+    ],
     "robots": [
         {
             "color": 0,

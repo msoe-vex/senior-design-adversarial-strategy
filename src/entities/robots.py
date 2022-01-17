@@ -8,10 +8,10 @@ from entities.scoring_elements import Ring, Goal
 from entities.enumerations import Color
 
 
-class RobotID(str, Enum):
-    SELF = 1,
-    PARTNER = 2,
-    OPPOSING = 3,
+class RobotID(int, Enum):
+    SELF = 0,
+    PARTNER = 1,
+    OPPOSING = 2,
 
 
 @dataclass

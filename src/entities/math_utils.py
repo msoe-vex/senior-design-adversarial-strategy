@@ -1,7 +1,7 @@
+from __future__ import annotations
 from dataclasses import dataclass
 import math
 from entities.interfaces import ISerializable
-from __future__ import annotations
 
 
 @dataclass
