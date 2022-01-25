@@ -1,0 +1,135 @@
+{
+    "blue_platform": {
+        "color": 1,
+        "goals": [],
+        "rings": {},
+        "robots": [],
+        "state": 2
+    },
+    "goals": [
+        {
+            "color": 0,
+            "current_zone": 2,
+            "position": {
+                "x": 55,
+                "y": 35
+            },
+            "ring_containers": {},
+            "tipped": false
+        },
+        {
+            "color": 0,
+            "current_zone": 0,
+            "position": {
+                "x": -50,
+                "y": 10
+            },
+            "ring_containers": {},
+            "tipped": false
+        },
+        {
+            "color": 1,
+            "current_zone": 0,
+            "position": {
+                "x": -55,
+                "y": 105
+            },
+            "ring_containers": {},
+            "tipped": false
+        },
+        {
+            "color": 1,
+            "current_zone": 2,
+            "position": {
+                "x": 50,
+                "y": 134
+            },
+            "ring_containers": {},
+            "tipped": false
+        },
+        {
+            "color": 2,
+            "current_zone": 0,
+            "position": {
+                "x": -48,
+                "y": 72
+            },
+            "ring_containers": {},
+            "tipped": false
+        },
+        {
+            "color": 2,
+            "current_zone": 0,
+            "position": {
+                "x": 0,
+                "y": 72
+            },
+            "ring_containers": {},
+            "tipped": false
+        },
+        {
+            "color": 2,
+            "current_zone": 0,
+            "position": {
+                "x": 48,
+                "y": 72
+            },
+            "ring_containers": {},
+            "tipped": false
+        }
+    ],
+    "red_platform": {
+        "color": 0,
+        "goals": [],
+        "rings": {},
+        "robots": [],
+        "state": 2
+    },
+    "rings": [],
+    "robots": [
+        {
+            "color": 0,
+            "goals": [],
+            "id": 0,
+            "position": {
+                "x": 30,
+                "y": 0
+            },
+            "rings": {},
+            "tipped": false
+        },
+        {
+            "color": 0,
+            "goals": [],
+            "id": 1,
+            "position": {
+                "x": -30,
+                "y": 0
+            },
+            "rings": {},
+            "tipped": false
+        },
+        {
+            "color": 1,
+            "goals": [],
+            "id": 2,
+            "position": {
+                "x": 30,
+                "y": 144
+            },
+            "rings": {},
+            "tipped": false
+        },
+        {
+            "color": 1,
+            "goals": [],
+            "id": 2,
+            "position": {
+                "x": -30,
+                "y": 144
+            },
+            "rings": {},
+            "tipped": false
+        }
+    ]
+}
