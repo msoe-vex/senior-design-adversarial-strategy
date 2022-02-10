@@ -109,9 +109,9 @@ def starting_representation():
     
     goal_arr = [
         RedGoal(Pose2D(60, 35)), # Bottom Red
-        RedGoal(Pose2D(-30, 10)), # Top Red
+        RedGoal(Pose2D(-36, 12)), # Top Red
         BlueGoal(Pose2D(-60, 109)), # Top Blue
-        BlueGoal(Pose2D(30, 134)), # Bottom Blue
+        BlueGoal(Pose2D(36, 132)), # Bottom Blue
         NeutralGoal(Pose2D(-35, 72)), # Top Neutral
         NeutralGoal(Pose2D(0, 72)), # Mid Neutral
         NeutralGoal(Pose2D(35, 72)), # Bottom Neutral
@@ -122,10 +122,10 @@ def starting_representation():
     blue_plat = BluePlatform(PlatformState.RIGHT)
 
     robot_arr = [
-        HostRobot(Color.RED, Pose2D(30, 0)), # Bottom Red
-        PartnerRobot(Color.RED, Pose2D(-30, 0)), # Top Red
-        OpposingRobot(Color.BLUE, Pose2D(30, 144)), # Bottom Blue
-        OpposingRobot(Color.BLUE, Pose2D(-30, 144)), # Top Blue
+        HostRobot(Color.RED, Pose2D(48, 12)), # Bottom Red
+        PartnerRobot(Color.RED, Pose2D(-48, 12)), # Top Red
+        OpposingRobot(Color.BLUE, Pose2D(48, 132)), # Bottom Blue
+        OpposingRobot(Color.BLUE, Pose2D(-48, 132)), # Top Blue
     ]
 
     return Field(rings=ring_arr, goals=goal_arr, red_platform=red_plat, blue_platform=blue_plat, robots=robot_arr)
