@@ -19,3 +19,13 @@ FIELD_WIDTH_IN = 144
 
 # Define figure size
 FIG_SIZE = (12, 12)
+
+# Randomized spawn rates
+SPAWN_GOAL_IN_ROBOT = 0.2
+ADDITIONAL_GOAL_DISCOUNT_FACTOR = 0.5 # Multiply spawn rate by discount factor for each additional
+
+SPAWN_RING_IN_ROBOT = 0.2
+ADDITIONAL_RING_DISCOUNT_FACTOR = 0.8 # Multiply spawn rate by discount factor for each additional
+
+SPAWN_RING_ON_GOAL = 0.2
+ADDITIONAL_RING_DISCOUNT_FACTOR = 0.9 # Multiply spawn rate by discount factor for each additional
