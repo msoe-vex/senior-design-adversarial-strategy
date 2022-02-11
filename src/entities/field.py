@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -133,7 +134,32 @@ class Field(ISerializable):
 
         self.robots = self.__parse_robots(representation["robots"])
 
-    def randomize(self) -> None:
+    def __generate_ring_list(self, pose: Pose2D, percentage: float, iter: int) -> List[Ring]:
+        if percentage < (percentage * (iter * ADDITIONAL_RING_DISCOUNT_FACTOR)):
+            return [Ring(pose)] + self.__generate_ring_list(percentage, iter + 1)
+        else:
+            return [Ring(pose)]
+
+    def __spawn_rings(self, pose: Pose2D) -> List[Ring]:
+        pass
+
+    def __spawn_goal(self, pose: Pose2D) -> Goal:
+        goal_num = random.randint(0, 4)
+                    
+        if goal_num < 2:
+            goal = RedGoal(pose: Pose2D) if random.random() < 0.5 else BlueGoal(pose)
+        else:
+            goal = NeutralGoal(pose: Pose2D)
+
+        if random.random() < SPAWN_RING_ON_GOAL:
+            pass
+
+        return goal
+
+    def __spawn_goals(self) -> List[Goal]:
+        pass
+
+    def randomize(self, pose: Pose2D) -> None:
         fieldMap = np.zeros((FIELD_WIDTH_IN + 1, FIELD_WIDTH_IN + 1))
 
         # Prevent things from spawning in on the ramp
@@ -144,29 +170,133 @@ class Field(ISerializable):
             for y in range(FIELD_WIDTH_IN - PLATFORM_WIDTH_IN, FIELD_WIDTH_IN):
                 fieldMap[y][x] = 1 # Block off area for ramp
 
-        for i in range(MAX_NUM_RINGS):
-            pass
+        num_rings = 0
+        num_red_goals = 0
+        num_blue_goals = 0
+        num_low_neutral_goals = 0
+        num_high_neutral_goals = 0
+        num_host_robots = 0
+        num_partner_robots = 0
+        num_opposing_robots = 0
 
-        for i in range(MAX_NUM_RED_GOALS):
-            pass
+        current_color = random.randint(0, 1)
 
-        for i in range(MAX_NUM_BLUE_GOALS):
-            pass
+        # TODO spawn elements on ramps (out of scope for now)
 
-        for i in range(MAX_NUM_LOW_NEUTRAL_GOALS):
-            pass
+        while num_host_robots < MAX_NUM_HOST_ROBOTS:
+            x = random.randint(0, FIELD_WIDTH_IN)
+            y = random.randint(0, FIELD_WIDTH_IN)
 
-        for i in range(MAX_NUM_HIGH_NEUTRAL_GOALS):
-            pass
+            if fieldMap[y][x] == 0:
+                self.robots.append(
+                    HostRobot(
+                        Color.RED if current_color == 0 else Color.BLUE,
+                        Pose2D(x, y)
+                    )
+                )
+                num_host_robots += 1
 
-        for i in range(MAX_NUM_HOST_ROBOTS):
-            pass
+                # TODO optionally spawn goals in the robot
+                    # TODO optionally spawn rings in the goal
 
-        for i in range(MAX_NUM_PARTNER_ROBOTS):
-            pass
+                # TODO optionally spawn rings in the robot
 
-        for i in range(MAX_NUM_OPPOSING_ROBOTS):
-            pass
+        while num_partner_robots < MAX_NUM_PARTNER_ROBOTS:
+            x = random.randint(0, FIELD_WIDTH_IN)
+            y = random.randint(0, FIELD_WIDTH_IN)
+            pose = Pose2D(x, y)
+
+            if fieldMap[y][x] == 0:
+                robot = PartnerRobot(
+                    Color.RED if current_color == 0 else Color.BLUE,
+                    pose
+                )
+
+                self.robots.append(robot)
+
+                if random.random() < SPAWN_GOAL_IN_ROBOT:
+                    robot.goals = robot.goals + self.__spawn_goals()
+                        
+                if random.random() < SPAWN_RING_IN_ROBOT:
+                    robot.rings = robot.rings + self.__spawn_rings()
+
+                num_partner_robots += 1
+
+        while num_opposing_robots < MAX_NUM_OPPOSING_ROBOTS:
+            x = random.randint(0, FIELD_WIDTH_IN)
+            y = random.randint(0, FIELD_WIDTH_IN)
+
+            if fieldMap[y][x] == 0:
+                self.robots.append(
+                    OpposingRobot(
+                        Color.BLUE if current_color == 0 else Color.RED,
+                        Pose2D(x, y)
+                    )
+                )
+                num_opposing_robots += 1
+
+                # TODO optionally spawn goals in the robot
+                    # TODO optionally spawn rings in the goal
+
+                # TODO optionally spawn rings in the robot
+
+        while num_red_goals < MAX_NUM_RED_GOALS:
+            x = random.randint(0, FIELD_WIDTH_IN)
+            y = random.randint(0, FIELD_WIDTH_IN)
+
+            if fieldMap[y][x] == 0:
+                self.goals.append(
+                    RedGoal(Pose2D(x, y))
+                )
+                num_red_goals += 1
+
+                # TODO optionally add rings to the goals
+
+        while num_blue_goals < MAX_NUM_BLUE_GOALS:
+            x = random.randint(0, FIELD_WIDTH_IN)
+            y = random.randint(0, FIELD_WIDTH_IN)
+
+            if fieldMap[y][x] == 0:
+                self.goals.append(
+                    BlueGoal(Pose2D(x, y))
+                )
+                num_blue_goals += 1
+
+                # TODO optionally add rings to the goals
+
+        while num_low_neutral_goals < MAX_NUM_LOW_NEUTRAL_GOALS:
+            x = random.randint(0, FIELD_WIDTH_IN)
+            y = random.randint(0, FIELD_WIDTH_IN)
+
+            if fieldMap[y][x] == 0:
+                self.goals.append(
+                    NeutralGoal(Pose2D(x, y))
+                )
+                num_low_neutral_goals += 1
+
+                # TODO optionally add rings to the goals
+
+        while num_high_neutral_goals < MAX_NUM_HIGH_NEUTRAL_GOALS:
+            x = random.randint(0, FIELD_WIDTH_IN)
+            y = random.randint(0, FIELD_WIDTH_IN)
+
+            if fieldMap[y][x] == 0:
+                self.goals.append(
+                    NeutralGoal(Pose2D(x, y))
+                )
+                num_high_neutral_goals += 1
+
+                # TODO optionally add rings to the goals
+
+        while num_rings < MAX_NUM_RINGS:
+            x = random.randint(0, FIELD_WIDTH_IN)
+            y = random.randint(0, FIELD_WIDTH_IN)
+
+            if fieldMap[y][x] == 0:
+                self.rings.append(
+                    Ring(Pose2D(x, y))
+                )
+                num_rings += 1
 
     def draw(self) -> plt.plot:
         combined_ring_arr = self.rings #+ self.red_platform.rings + self.blue_platform.rings
