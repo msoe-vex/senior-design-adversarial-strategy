@@ -68,6 +68,13 @@ class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
         else:
             return 0
 
+    def add_ring(self, ring: Ring, level: GoalLevel) -> bool:
+        if self.get_ring_container(level).get_remaining_utilization() > 0:
+            self.get_ring_container(level).add_ring(ring)
+            return True
+        else:
+            return False
+
 
 @dataclass
 class RedGoal(Goal, ISerializable):

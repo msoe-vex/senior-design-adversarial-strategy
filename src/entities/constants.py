@@ -29,3 +29,6 @@ ADDITIONAL_RING_DISCOUNT_FACTOR = 0.8 # Multiply spawn rate by discount factor f
 
 SPAWN_RING_ON_GOAL = 0.2
 ADDITIONAL_RING_DISCOUNT_FACTOR = 0.9 # Multiply spawn rate by discount factor for each additional
+
+SPAWN_RING_ON_HIGH_BRANCH = 0.1
+SPAWN_RING_ON_LOW_BRANCH = 0.5

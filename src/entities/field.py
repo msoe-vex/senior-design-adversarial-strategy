@@ -134,11 +134,22 @@ class Field(ISerializable):
 
         self.robots = self.__parse_robots(representation["robots"])
 
-    def __generate_ring_list(self, pose: Pose2D, percentage: float, iter: int) -> List[Ring]:
-        if percentage < (percentage * (iter * ADDITIONAL_RING_DISCOUNT_FACTOR)):
-            return [Ring(pose)] + self.__generate_ring_list(percentage, iter + 1)
+    def __generate_ring_list(self, pose: Pose2D, percentage: float, iter: int, max: int) -> List[Ring]:
+        if percentage < (percentage * (iter * ADDITIONAL_RING_DISCOUNT_FACTOR)) and max > 1:
+            return [Ring(pose)] + self.__generate_ring_list(percentage, iter + 1, max - 1)
         else:
             return [Ring(pose)]
+
+    def __add_rings_to_goal(self, rings: List[Ring], goal: Goal) -> Goal:
+        for ring in rings:
+            percent = random.random()
+
+            if percent < SPAWN_RING_ON_HIGH_BRANCH and goal.get_ring_container(GoalLevel.HIGH).get_remaining_utilization() > 0:
+                goal.get_ring_container(GoalLevel.HIGH).add_ring(ring)
+            elif percent < SPAWN_RING_ON_LOW_BRANCH and goal.get_ring_container(GoalLevel.LOW).get_remaining_utilization() > 0:
+                goal.get_ring_container(GoalLevel.LOW).add_ring(ring)
+            elif goal.get_ring_container(GoalLevel.BASE).get_remaining_utilization() > 0:
+                goal.get_ring_container(GoalLevel.BASE).add_ring(ring)
 
     def __spawn_rings(self, pose: Pose2D) -> List[Ring]:
         pass
@@ -147,9 +158,9 @@ class Field(ISerializable):
         goal_num = random.randint(0, 4)
                     
         if goal_num < 2:
-            goal = RedGoal(pose: Pose2D) if random.random() < 0.5 else BlueGoal(pose)
+            goal = RedGoal(pose) if random.random() < 0.5 else BlueGoal(pose)
         else:
-            goal = NeutralGoal(pose: Pose2D)
+            goal = NeutralGoal(pose)
 
         if random.random() < SPAWN_RING_ON_GOAL:
             pass
