@@ -53,10 +53,6 @@ class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
     def is_tipped(self) -> bool:
         return self.tipped
 
-    def add_rings(self, level: GoalLevel, quantity: int) -> None:
-        for _ in range(0, quantity):
-            self.ring_containers[level].add_ring(Ring(self.position))
-
     def get_ring_container(self, level: GoalLevel) -> RingContainer:
         return self.ring_containers[level]
 
@@ -72,23 +68,27 @@ class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
         else:
             return 0
 
+    def add_ring(self, ring: Ring, level: GoalLevel) -> bool:
+        if self.get_ring_container(level).get_remaining_utilization() > 0:
+            self.get_ring_container(level).add_ring(ring)
+            return True
+        else:
+            return False
+
 
 @dataclass
 class RedGoal(Goal, ISerializable):
-    def __init__(self, position: Pose2D, **kwargs):
-        super().__init__(Color.RED, position, kwargs)
+    def __init__(self, pos: Pose2D, **kwargs):
+        super().__init__(Color.RED, pos, kwargs)
 
 
 @dataclass
 class NeutralGoal(Goal, ISerializable):
-    def __init__(self, position: Pose2D, **kwargs):
-        super().__init__(Color.NEUTRAL, position, kwargs)
-
-
-# TODO Add medium and high neutral goals
+    def __init__(self, pos: Pose2D, **kwargs):
+        super().__init__(Color.NEUTRAL, pos, kwargs)
 
 
 @dataclass
 class BlueGoal(Goal, ISerializable):
-    def __init__(self, position: Pose2D, **kwargs):
-        super().__init__(Color.BLUE, position, kwargs)
+    def __init__(self, pos: Pose2D, **kwargs):
+        super().__init__(Color.BLUE, pos, kwargs)

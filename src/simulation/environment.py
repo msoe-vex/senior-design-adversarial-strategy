@@ -29,30 +29,30 @@ class TippingPointEnv(gym.Env):
 
     State Space:
 
-        - Box
-                - Dim0: X-Dimension (bounded between 0 and 144)
-                - Dim1: Y-Dimension (bounded between 0 and 144)
-                - Dim2: Z-Dimension (bounded between 0 and 4)
-                        - Dim0: Ring Dimension
-                                - Value: 
-                                        - 0: No Ring
-                                        - 1-255: Ring
-                        - Dim1: Red Goal Dimension
-                                - Value:
-                                        - 0: No Goal
-                                        - 1-255: Goal, Ring Score=n-1 
-                        - Dim2: Blue Goal Dimension
-                                - Value:
-                                        - 0: No Goal
-                                        - 1-255: Goal, Ring Score=n-1 
-                        - Dim3: Neutral Goal Dimension
-                                - Value:
-                                        - 0: No Goal
-                                        - 1-255: Goal, Ring Score=n-1 
-                        - Dim4: Agent Dimension
-                                - Value:
-                                        - 0: No Agent
-                                        - 1: Red Host Agent
+	- Box
+		- Dim0: X-Dimension (bounded between 0 and 144)
+		- Dim1: Y-Dimension (bounded between 0 and 144)
+		- Dim2: Z-Dimension (bounded between 0 and 4)
+			- Dim0: Ring Dimension
+				- Value: 
+					- 0: No Ring
+					- 1-255: Ring
+			- Dim1: Red Goal Dimension
+				- Value:
+					- 0: No Goal
+					- 1-255: Goal, Ring Score=n-1 
+			- Dim2: Blue Goal Dimension
+				- Value:
+					- 0: No Goal
+					- 1-255: Goal, Ring Score=n-1 
+			- Dim3: Neutral Goal Dimension
+				- Value:
+					- 0: No Goal
+					- 1-255: Goal, Ring Score=n-1 
+			- Dim4: Agent Dimension
+				- Value:
+					- 0: No Agent
+					- 1: Red Host Agent
                     - 2: Blue Host Agent
                     - 3: Red Partner Agent
                     - 4: Blue Partner Agent
