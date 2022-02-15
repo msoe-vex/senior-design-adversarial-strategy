@@ -174,12 +174,13 @@ class Field(ISerializable):
         fieldMap = np.zeros((FIELD_WIDTH_IN + 1, FIELD_WIDTH_IN + 1))
 
         # Prevent things from spawning in on the ramp
-        for x in range(70 - (PLATFORM_LENGTH_IN / 2), 70 + (PLATFORM_LENGTH_IN / 2)):
-            for y in range(0, PLATFORM_WIDTH_IN):
-                fieldMap[y][x] = 1 # Block off area for ramp
+        # FIXME: range requires int
+        # for x in range(round(70 - (PLATFORM_LENGTH_IN / 2), 70 + (PLATFORM_LENGTH_IN / 2))):
+        #     for y in range(0, PLATFORM_WIDTH_IN):
+        #         fieldMap[y][x] = 1 # Block off area for ramp
 
-            for y in range(FIELD_WIDTH_IN - PLATFORM_WIDTH_IN, FIELD_WIDTH_IN):
-                fieldMap[y][x] = 1 # Block off area for ramp
+        #     for y in range(FIELD_WIDTH_IN - PLATFORM_WIDTH_IN, FIELD_WIDTH_IN):
+        #         fieldMap[y][x] = 1 # Block off area for ramp
 
         num_rings = 0
         num_red_goals = 0
@@ -224,12 +225,12 @@ class Field(ISerializable):
                 )
 
                 self.robots.append(robot)
-
+                
                 if random.random() < SPAWN_GOAL_IN_ROBOT:
                     robot.goals = robot.goals + self.__spawn_goals()
-                        
+                
                 if random.random() < SPAWN_RING_IN_ROBOT:
-                    robot.rings = robot.rings + self.__spawn_rings()
+                    robot.rings = robot.rings + self.__spawn_rings(pose)
 
                 num_partner_robots += 1
 
@@ -386,6 +387,41 @@ class Field(ISerializable):
         ax.set_ylim([0, 144])
 
         return ax
+
+    def export_to_matrix(self) -> np.ndarray:
+        arr = np.zeros((145, 145, 5))
+
+        for ring in self.rings:
+            x = max(min(round(ring.position.x), 144), 0)
+            y = max(min(round(ring.position.y), 144), 0)
+
+            arr[x][y][0] = 1
+
+        for goal in self.goals:
+            x = max(min(round(goal.position.x), 144), 0)
+            y = max(min(round(goal.position.y), 144), 0)
+
+            if isinstance(goal, RedGoal):
+                arr[x][y][1] = goal.get_ring_score() + 1
+            elif isinstance(goal, BlueGoal):
+                arr[x][y][2] = goal.get_ring_score() + 1
+            else: # Neutral Goal
+                arr[x][y][3] = goal.get_ring_score() + 1
+
+        for robot in self.robots:
+            x = max(min(round(robot.position.x), 144), 0)
+            y = max(min(round(robot.position.y), 144), 0)
+            color_offset = 1 if robot.color == Color.BLUE else 0
+
+            if isinstance(robot, HostRobot):
+                arr[x][y][4] = 1 + color_offset
+            elif isinstance(robot, PartnerRobot):
+                arr[x][y][4] = 3 + color_offset
+            else: # Host Robot
+                arr[x][y][4] = 5 + color_offset
+
+    def as_json(self) -> str:
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def as_json(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
