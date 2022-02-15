@@ -28,6 +28,7 @@ class TippingPointEnv(gym.Env):
         Ring In [7], Ring Out [8], Ring Place[9]
 
     State Space:
+
         - Box
                 - Dim0: X-Dimension (bounded between 0 and 144)
                 - Dim1: Y-Dimension (bounded between 0 and 144)
@@ -48,10 +49,16 @@ class TippingPointEnv(gym.Env):
                                 - Value:
                                         - 0: No Goal
                                         - 1-255: Goal, Ring Score=n-1 
-                        - Dim4: Opposing Agent Dimension
+                        - Dim4: Agent Dimension
                                 - Value:
                                         - 0: No Agent
-                                        - 1-255: Agent
+                                        - 1: Red Host Agent
+                    - 2: Blue Host Agent
+                    - 3: Red Partner Agent
+                    - 4: Blue Partner Agent
+                    - 5: Red Opposing Agent
+                    - 6-255: Blue Opposing Agent
+
     """
     metadata = {"render.modes": ["human"]}
 
