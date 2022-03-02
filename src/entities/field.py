@@ -11,7 +11,7 @@ from entities.enumerations import Color, convertColorToRGBA
 from entities.interfaces import ISerializable
 from entities.math_utils import Pose2D
 from entities.platforms import Platform, PlatformState, RedPlatform, BluePlatform
-from entities.scoring_elements import BlueGoal, GoalLevel, Goal, NeutralGoal, RedGoal, Ring, RingContainer
+from entities.scoring_elements import BlueGoal, GoalLevel, Goal, HighNeutralGoal, LowNeutralGoal, RedGoal, Ring, RingContainer
 from entities.robots import HostRobot, OpposingRobot, PartnerRobot, Robot, RobotID
 
 
@@ -66,7 +66,8 @@ class Field(ISerializable):
     def __parse_goals(self, goal_dict: dict) -> List[Goal]:
         goals = []
         for goal in goal_dict:
-            color = goal["color"]         
+            color = goal["color"]    
+            level = goal["level"]     
 
             pose = self.__parse_position(goal["position"])
 
@@ -78,8 +79,10 @@ class Field(ISerializable):
                 goals.append(RedGoal(pose, ring_containers=ring_containers, tipped=tipped))
             elif color == Color.BLUE:
                 goals.append(BlueGoal(pose, ring_containers=ring_containers, tipped=tipped))
-            else:
-                goals.append(NeutralGoal(pose, ring_containers=ring_containers, tipped=tipped))
+            elif color == Color.NEUTRAL and level == GoalLevel.LOW:
+                goals.append(LowNeutralGoal(pose, ring_containers=ring_containers, tipped=tipped))
+            elif color == Color.NEUTRAL and level == GoalLevel.HIGH:
+                goals.append(HighNeutralGoal(pose, ring_containers=ring_containers, tipped=tipped))
 
         return goals
 
@@ -134,9 +137,9 @@ class Field(ISerializable):
 
         self.robots = self.__parse_robots(representation["robots"])
 
-    def __generate_ring_list(self, pose: Pose2D, percentage: float, iter: int, max: int) -> List[Ring]:
-        if percentage < (percentage * (iter * ADDITIONAL_RING_DISCOUNT_FACTOR)) and max > 1:
-            return [Ring(pose)] + self.__generate_ring_list(percentage, iter + 1, max - 1)
+    def __generate_ring_list(self, pose: Pose2D, percentage: float, current_iter: int, max: int) -> List[Ring]:
+        if percentage < (percentage * (current_iter * ADDITIONAL_RING_DISCOUNT_FACTOR)) and max > 1:
+            return [Ring(pose)] + self.__generate_ring_list(percentage, current_iter + 1, max - 1)
         else:
             return [Ring(pose)]
 
