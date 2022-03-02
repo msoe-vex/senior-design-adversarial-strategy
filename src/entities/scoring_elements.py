@@ -83,12 +83,22 @@ class RedGoal(Goal, ISerializable):
 
 
 @dataclass
-class NeutralGoal(Goal, ISerializable):
+class BlueGoal(Goal, ISerializable):
+    def __init__(self, pos: Pose2D, **kwargs):
+        super().__init__(Color.BLUE, pos, kwargs)
+
+
+@dataclass
+class HighNeutralGoal(Goal, ISerializable):
+    level: GoalLevel = GoalLevel.HIGH
+
     def __init__(self, pos: Pose2D, **kwargs):
         super().__init__(Color.NEUTRAL, pos, kwargs)
 
 
 @dataclass
-class BlueGoal(Goal, ISerializable):
+class LowNeutralGoal(Goal, ISerializable):
+    level: GoalLevel = GoalLevel.LOW
+
     def __init__(self, pos: Pose2D, **kwargs):
-        super().__init__(Color.BLUE, pos, kwargs)
+        super().__init__(Color.NEUTRAL, pos, kwargs)
