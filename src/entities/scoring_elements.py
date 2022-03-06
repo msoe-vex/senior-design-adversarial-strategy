@@ -5,13 +5,7 @@ from entities.math_utils import Pose2D
 from enum import Enum
 from entities.interfaces import ITippable, IScorable, ISerializable
 from entities.class_utils import AbstractDataClass
-from entities.enumerations import Color
-
-
-class GoalLevel(int, Enum):
-    BASE = 1
-    LOW = 3
-    HIGH = 10
+from entities.enumerations import Color, GoalLevel
 
 
 @dataclass
@@ -24,8 +18,17 @@ class RingContainer(ISerializable):
     max_storage: int = 8
     rings: List[Ring] = field(default_factory=list)
 
-    def add_ring(self, ring: Ring) -> None:
-        self.rings.append(ring)
+    def add_ring(self, ring: Ring) -> bool:
+        if self.get_remaining_utilization() > 0:
+            self.rings.append(ring)
+            return True
+        return False
+
+    def add_rings(self, rings: List[Ring]) -> bool:
+        if self.get_remaining_utilization() > len(rings):
+            self.rings = self.rings + rings
+            return True
+        return False
 
     def get_utilization(self) -> int:
         return len(self.rings)
@@ -65,15 +68,13 @@ class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
     def get_current_score(self, color: Color) -> int:
         if self.current_zone == color or self.color == Color.NEUTRAL:
             return 20 + self.get_ring_score()
-        else:
-            return 0
+        return 0
 
     def add_ring(self, ring: Ring, level: GoalLevel) -> bool:
         if self.get_ring_container(level).get_remaining_utilization() > 0:
             self.get_ring_container(level).add_ring(ring)
             return True
-        else:
-            return False
+        return False
 
 
 @dataclass
@@ -81,11 +82,19 @@ class RedGoal(Goal, ISerializable):
     def __init__(self, pos: Pose2D, **kwargs):
         super().__init__(Color.RED, pos, kwargs)
 
+        self.ring_containers[GoalLevel.BASE] = RingContainer()
+        self.ring_containers[GoalLevel.LOW] = RingContainer()
+        self.ring_containers[GoalLevel.HIGH] = RingContainer(0)
+
 
 @dataclass
 class BlueGoal(Goal, ISerializable):
     def __init__(self, pos: Pose2D, **kwargs):
         super().__init__(Color.BLUE, pos, kwargs)
+
+        self.ring_containers[GoalLevel.BASE] = RingContainer()
+        self.ring_containers[GoalLevel.LOW] = RingContainer()
+        self.ring_containers[GoalLevel.HIGH] = RingContainer(0)
 
 
 @dataclass
@@ -95,6 +104,10 @@ class HighNeutralGoal(Goal, ISerializable):
     def __init__(self, pos: Pose2D, **kwargs):
         super().__init__(Color.NEUTRAL, pos, kwargs)
 
+        self.ring_containers[GoalLevel.BASE] = RingContainer()
+        self.ring_containers[GoalLevel.LOW] = RingContainer()
+        self.ring_containers[GoalLevel.HIGH] = RingContainer()
+
 
 @dataclass
 class LowNeutralGoal(Goal, ISerializable):
@@ -102,3 +115,7 @@ class LowNeutralGoal(Goal, ISerializable):
 
     def __init__(self, pos: Pose2D, **kwargs):
         super().__init__(Color.NEUTRAL, pos, kwargs)
+
+        self.ring_containers[GoalLevel.BASE] = RingContainer()
+        self.ring_containers[GoalLevel.LOW] = RingContainer()
+        self.ring_containers[GoalLevel.HIGH] = RingContainer(0)
