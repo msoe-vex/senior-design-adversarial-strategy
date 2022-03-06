@@ -32,3 +32,7 @@ ADDITIONAL_RING_DISCOUNT_FACTOR = 0.9 # Multiply spawn rate by discount factor f
 
 SPAWN_RING_ON_HIGH_BRANCH = 0.1
 SPAWN_RING_ON_LOW_BRANCH = 0.5
+
+# Define logger settings
+REPRESENTATION_LOGGER_NAME = "app/representation"
+SIMULATION_LOGGER_NAME = "app/simulation"

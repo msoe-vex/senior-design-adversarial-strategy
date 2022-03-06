@@ -1,12 +1,8 @@
-from asyncio.log import logger
-from dataclasses import dataclass
-from logging import Logger
+import logging
+from entities.constants import REPRESENTATION_LOGGER_NAME, SIMULATION_LOGGER_NAME
 
+representation_logger = logging.getLogger(REPRESENTATION_LOGGER_NAME)
+representation_logger.setLevel(logging.INFO)
 
-@dataclass
-class LoggingManager():
-    logger: Logger = Logger()
-
-    @classmethod
-    def get_logger(cls):
-        return logger
+simulation_logger = logging.getLogger(SIMULATION_LOGGER_NAME)
+simulation_logger.setLevel(logging.INFO)

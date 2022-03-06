@@ -208,12 +208,14 @@ class Field(ISerializable):
                         Pose2D(x, y)
                     )
                 )
+
+                if random.random() < SPAWN_GOAL_IN_ROBOT:
+                    robot.goals = robot.goals + self.__spawn_goals()
+                        
+                if random.random() < SPAWN_RING_IN_ROBOT:
+                    robot.rings = robot.rings + self.__spawn_rings()
+
                 num_host_robots += 1
-
-                # TODO optionally spawn goals in the robot
-                    # TODO optionally spawn rings in the goal
-
-                # TODO optionally spawn rings in the robot
 
         while num_partner_robots < MAX_NUM_PARTNER_ROBOTS:
             x = random.randint(0, FIELD_WIDTH_IN)
@@ -228,11 +230,10 @@ class Field(ISerializable):
 
                 self.robots.append(robot)
 
-                if random.random() < SPAWN_GOAL_IN_ROBOT:
-                    robot.goals = robot.goals + self.__spawn_goals()
-                        
-                if random.random() < SPAWN_RING_IN_ROBOT:
-                    robot.rings = robot.rings + self.__spawn_rings()
+                # TODO optionally spawn goals in the robot
+                    # TODO optionally spawn rings in the goal
+
+                # TODO optionally spawn rings in the robot
 
                 num_partner_robots += 1
 
@@ -284,7 +285,7 @@ class Field(ISerializable):
 
             if fieldMap[y][x] == 0:
                 self.goals.append(
-                    NeutralGoal(Pose2D(x, y))
+                    LowNeutralGoal(Pose2D(x, y))
                 )
                 num_low_neutral_goals += 1
 
@@ -296,7 +297,7 @@ class Field(ISerializable):
 
             if fieldMap[y][x] == 0:
                 self.goals.append(
-                    NeutralGoal(Pose2D(x, y))
+                    HighNeutralGoal(Pose2D(x, y))
                 )
                 num_high_neutral_goals += 1
 
@@ -325,7 +326,9 @@ class Field(ISerializable):
 
         blue_goal_arr = np.array([[goal.position.x, goal.position.y] for goal in combined_goal_arr if isinstance(goal, BlueGoal)])
 
-        neutral_goal_arr = np.array([[goal.position.x, goal.position.y] for goal in combined_goal_arr if isinstance(goal, NeutralGoal)])
+        low_neutral_goal_arr = np.array([[goal.position.x, goal.position.y] for goal in combined_goal_arr if isinstance(goal, LowNeutralGoal)])
+
+        high_neutral_goal_arr = np.array([[goal.position.x, goal.position.y] for goal in combined_goal_arr if isinstance(goal, HighNeutralGoal)])
 
         # Calculate robot positions
         host_robot_arr = np.array([[robot.position.x, robot.position.y, convertColorToRGBA(robot.color)] for robot in combined_robot_arr if isinstance(robot, HostRobot)], dtype=object)
@@ -348,8 +351,12 @@ class Field(ISerializable):
         if np.any(blue_goal_arr):
             ax.scatter(blue_goal_arr[:,0], blue_goal_arr[:,1], color="blue", marker="H", s=2000)
 
-        if np.any(neutral_goal_arr):
-            ax.scatter(neutral_goal_arr[:,0], neutral_goal_arr[:,1], color="yellow", marker="H", s=2000)
+        if np.any(low_neutral_goal_arr):
+            ax.scatter(low_neutral_goal_arr[:,0], low_neutral_goal_arr[:,1], color="yellow", marker="H", s=2000)
+
+        if np.any(high_neutral_goal_arr):
+            ax.scatter(high_neutral_goal_arr[:,0], high_neutral_goal_arr[:,1], color="yellow", marker="H", s=2000)
+
 
         # Draw robots
         if np.any(host_robot_arr):
