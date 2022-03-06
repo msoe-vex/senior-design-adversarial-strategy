@@ -14,6 +14,49 @@ from entities.platforms import Platform, PlatformState, RedPlatform, BluePlatfor
 from entities.scoring_elements import BlueGoal, GoalLevel, Goal, HighNeutralGoal, LowNeutralGoal, RedGoal, Ring, RingContainer
 from entities.robots import HostRobot, OpposingRobot, PartnerRobot, Robot, RobotID
 
+@dataclass
+class FieldCounts():
+    red_goals: int = 0
+    max_red_goals: int = MAX_NUM_RED_GOALS
+    blue_goals: int = 0
+    max_blue_goals: int = MAX_NUM_BLUE_GOALS
+    low_neutral_goals: int = 0
+    max_low_neutral_goals: int = MAX_NUM_LOW_NEUTRAL_GOALS
+    high_neutral_goals: int = 0
+    max_high_neutral_goals: int = MAX_NUM_HIGH_NEUTRAL_GOALS
+    rings: int = 0
+    max_rings: int = MAX_NUM_RINGS
+    host_robots: int = 0
+    max_host_robots: int = MAX_NUM_HOST_ROBOTS
+    partner_robots: int = 0
+    max_partner_robots: int = MAX_NUM_PARTNER_ROBOTS
+    opposing_robots: int = 0
+    max_opposing_robots: int = MAX_NUM_OPPOSING_ROBOTS
+
+    def get_remaining_red_goals(self) -> int:
+        return self.max_red_goals - self.red_goals
+
+    def get_remaining_blue_goals(self) -> int:
+        return self.max_blue_goals - self.blue_goals
+
+    def get_remaining_low_neutral_goals(self) -> int:
+        return self.max_low_neutral_goals - self.low_neutral_goals
+
+    def get_remaining_high_neutral_goals(self) -> int:
+        return self.max_high_neutral_goals - self.high_neutral_goals
+
+    def get_remaining_rings(self) -> int:
+        return self.max_rings - self.rings
+
+    def get_remaining_host_robots(self) -> int:
+        return self.max_host_robots - self.host_robots
+
+    def get_remaining_partner_robots(self) -> int:
+        return self.max_partner_robots - self.partner_robots
+
+    def get_remaining_opposing_robots(self) -> int:
+        return self.max_opposing_robots - self.opposing_robots
+
 
 @dataclass
 class Field(ISerializable):
@@ -22,6 +65,7 @@ class Field(ISerializable):
     rings: List[Ring] = field(default_factory=list)
     goals: List[Goal] = field(default_factory=list)
     robots: List[Robot] = field(default_factory=list)
+    field_counts: FieldCounts = FieldCounts()
 
     def __parse_position(self, position_dict: dict) -> Pose2D:
         x = position_dict["x"]
@@ -33,6 +77,7 @@ class Field(ISerializable):
         for ring in ring_dict:
             pose = self.__parse_position(ring["position"])
             rings.append(Ring(pose))
+            self.field_counts.rings += 1
 
         return rings
 
@@ -44,27 +89,34 @@ class Field(ISerializable):
         return RingContainer(max_storage, rings)
 
     def __parse_ring_containers(self, ring_containers_dict: dict) -> dict[GoalLevel, RingContainer]:
-        ring_containers = {}
+        ring_containers = dict()
 
         base_ring_container = ring_containers_dict.get("BASE")
 
         if base_ring_container:
             ring_containers[GoalLevel.BASE] = self.__parse_ring_container(base_ring_container)
+        else:
+            ring_containers[GoalLevel.BASE] = RingContainer()
 
-        low_ring_container =ring_containers_dict.get("LOW")
+        low_ring_container = ring_containers_dict.get("LOW")
 
         if low_ring_container:
             ring_containers[GoalLevel.LOW] = self.__parse_ring_container(low_ring_container)
+        else:
+            ring_containers[GoalLevel.LOW] = RingContainer()
 
         high_ring_container = ring_containers_dict.get("HIGH")
 
         if high_ring_container:
             ring_containers[GoalLevel.HIGH] = self.__parse_ring_container(high_ring_container)
+        else:
+            ring_containers[GoalLevel.HIGH] = RingContainer()
 
         return ring_containers
 
     def __parse_goals(self, goal_dict: dict) -> List[Goal]:
         goals = []
+        
         for goal in goal_dict:
             color = goal["color"]    
             level = goal["level"]     
@@ -77,12 +129,16 @@ class Field(ISerializable):
 
             if color == Color.RED:
                 goals.append(RedGoal(pose, ring_containers=ring_containers, tipped=tipped))
+                self.field_counts.red_goals += 1
             elif color == Color.BLUE:
                 goals.append(BlueGoal(pose, ring_containers=ring_containers, tipped=tipped))
+                self.field_counts.blue_goals += 1
             elif color == Color.NEUTRAL and level == GoalLevel.LOW:
                 goals.append(LowNeutralGoal(pose, ring_containers=ring_containers, tipped=tipped))
+                self.field_counts.low_neutral_goals += 1
             elif color == Color.NEUTRAL and level == GoalLevel.HIGH:
                 goals.append(HighNeutralGoal(pose, ring_containers=ring_containers, tipped=tipped))
+                self.field_counts.high_neutral_goals += 1
 
         return goals
 
@@ -103,10 +159,13 @@ class Field(ISerializable):
 
             if id == RobotID.SELF:
                 robots.append(HostRobot(color, pose, rings=rings, goals=goals, tipped=tipped))
+                self.field_counts.host_robots += 1
             elif id == RobotID.PARTNER:
                 robots.append(PartnerRobot(color, pose, rings=rings, goals=goals, tipped=tipped))
+                self.field_counts.partner_robots += 1
             else:
                 robots.append(OpposingRobot(color, pose, rings=rings, goals=goals, tipped=tipped))
+                self.field_counts.opposing_robots += 1
 
         return robots
 
@@ -127,6 +186,8 @@ class Field(ISerializable):
             return BluePlatform(state, rings=rings, goals=goals, robots=robots)
 
     def parse_representation(self, representation: str) -> None:
+        self.field_counts = FieldCounts()
+
         self.rings = self.__parse_rings(representation["rings"])
 
         self.goals = self.__parse_goals(representation["goals"])
@@ -137,16 +198,18 @@ class Field(ISerializable):
 
         self.robots = self.__parse_robots(representation["robots"])
 
-    def __generate_ring_list(self, pose: Pose2D, percentage: float, current_iter: int, max: int) -> List[Ring]:
-        if percentage < (percentage * (current_iter * ADDITIONAL_RING_DISCOUNT_FACTOR)) and max > 1:
-            return [Ring(pose)] + self.__generate_ring_list(percentage, current_iter + 1, max - 1)
+    def __generate_ring_list(self, pose: Pose2D, percentage: float, current_iter: int, max_rings: int) -> List[Ring]:
+        if percentage < (percentage * (current_iter * ADDITIONAL_RING_DISCOUNT_FACTOR)) and max_rings > 1:
+            return [Ring(pose)] + self.__generate_ring_list(percentage, current_iter + 1, max_rings - 1)
         else:
             return [Ring(pose)]
 
-    def __add_rings_to_goal(self, rings: List[Ring], goal: Goal) -> Goal:
-        for ring in rings:
-            percent = random.random()
+    def __add_rings_to_goal(self, goal: Goal, max_rings: int) -> Goal:
+        percent = random.random()
 
+        rings = self.__generate_ring_list(goal.position, SPAWN_RING_ON_GOAL, 0, max_rings)
+
+        for ring in rings:
             if percent < SPAWN_RING_ON_HIGH_BRANCH and goal.get_ring_container(GoalLevel.HIGH).get_remaining_utilization() > 0:
                 goal.get_ring_container(GoalLevel.HIGH).add_ring(ring)
             elif percent < SPAWN_RING_ON_LOW_BRANCH and goal.get_ring_container(GoalLevel.LOW).get_remaining_utilization() > 0:
@@ -154,26 +217,37 @@ class Field(ISerializable):
             elif goal.get_ring_container(GoalLevel.BASE).get_remaining_utilization() > 0:
                 goal.get_ring_container(GoalLevel.BASE).add_ring(ring)
 
-    def __spawn_rings(self, pose: Pose2D) -> List[Ring]:
-        pass
+    def __generate_goal_list(self, pose: Pose2D, percentage: float, current_iter: int, max_rings: int) -> Goal:
+        goal_num = random.randint(0, 3)
 
-    def __spawn_goal(self, pose: Pose2D) -> Goal:
-        goal_num = random.randint(0, 4)
-                    
-        if goal_num < 2:
-            goal = RedGoal(pose) if random.random() < 0.5 else BlueGoal(pose)
+        if goal_num == 0:
+            goal = RedGoal(pose)
+        elif goal_num == 1:
+            goal = BlueGoal(pose)
+        elif goal_num == 2:
+            goal = HighNeutralGoal(pose)
         else:
-            goal = NeutralGoal(pose)
+            goal = LowNeutralGoal(pose)
 
         if random.random() < SPAWN_RING_ON_GOAL:
-            pass
+            self.__add_rings_to_goal(goal, max_rings)
 
-        return goal
+        if percentage < (percentage * (current_iter * ADDITIONAL_GOAL_DISCOUNT_FACTOR)) and max_rings > 1:
+            return [goal] + self.__generate_ring_list(percentage, current_iter + 1, max_rings - 1)
+        else:
+            return [goal]
 
-    def __spawn_goals(self) -> List[Goal]:
+    def __spawn_rings(self, max_rings: int) -> List[Ring]:
         pass
 
+    def __spawn_goals(self, max_rings: int, field_counts: FieldCounts) -> List[Goal]:
+        percent = random.random()
+
+        remaining_red_goals = MAX_NUM_RED_GOALS - field_counts.num_red_goals
+        remaining_blue_goals = MAX_NUM_BLUE_GOALS - field_counts.num_blue_goals
+
     def randomize(self, pose: Pose2D) -> None:
+        self.field_counts = FieldCounts()
         fieldMap = np.zeros((FIELD_WIDTH_IN + 1, FIELD_WIDTH_IN + 1))
 
         # Prevent things from spawning in on the ramp
@@ -183,15 +257,6 @@ class Field(ISerializable):
 
             for y in range(FIELD_WIDTH_IN - PLATFORM_WIDTH_IN, FIELD_WIDTH_IN):
                 fieldMap[y][x] = 1 # Block off area for ramp
-
-        num_rings = 0
-        num_red_goals = 0
-        num_blue_goals = 0
-        num_low_neutral_goals = 0
-        num_high_neutral_goals = 0
-        num_host_robots = 0
-        num_partner_robots = 0
-        num_opposing_robots = 0
 
         current_color = random.randint(0, 1)
 
