@@ -5,7 +5,9 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from typing import List, Tuple
+from typing import Tuple
+from dataclasses import field
+from entities.classUtils import nested_dataclass
 from entities.constants import *
 from entities.enumerations import Color, convertColorToRGBA
 from entities.interfaces import ISerializable
@@ -14,42 +16,24 @@ from entities.platforms import PlatformState, RedPlatform, BluePlatform
 from entities.scoring_elements import BlueGoal, GoalLevel, Goal, HighNeutralGoal, LowNeutralGoal, RedGoal, Ring
 from entities.robots import HostRobot, OpposingRobot, PartnerRobot, Robot
 
-
+@nested_dataclass
 class FieldCounts():
-    def __init__(
-            self, 
-            red_goals: int=0,
-            max_red_goals: int=MAX_NUM_RED_GOALS, 
-            blue_goals: int=0, 
-            max_blue_goals: int=MAX_NUM_BLUE_GOALS, 
-            low_neutral_goals: int=0, 
-            max_low_neutral_goals: int=MAX_NUM_LOW_NEUTRAL_GOALS,
-            high_neutral_goals: int=0,
-            max_high_neutral_goals: int=MAX_NUM_HIGH_NEUTRAL_GOALS,
-            rings: int=0,
-            max_rings: int=MAX_NUM_RINGS,
-            host_robots: int=0,
-            max_host_robots: int=MAX_NUM_HOST_ROBOTS,
-            partner_robots: int=0,
-            max_partner_robots: int=MAX_NUM_PARTNER_ROBOTS,
-            opposing_robots: int=0,
-            max_opposing_robots: int=MAX_NUM_OPPOSING_ROBOTS):
-        self.red_goals = red_goals
-        self.max_red_goals = max_red_goals
-        self.blue_goals = blue_goals
-        self.max_blue_goals = max_blue_goals
-        self.low_neutral_goals = low_neutral_goals
-        self.max_low_neutral_goals = max_low_neutral_goals
-        self.high_neutral_goals = high_neutral_goals
-        self.max_high_neutral_goals = max_high_neutral_goals
-        self.rings = rings
-        self.max_rings = max_rings
-        self.host_robots = host_robots
-        self.max_host_robots = max_host_robots
-        self.partner_robots = partner_robots
-        self.max_partner_robots = max_partner_robots
-        self.opposing_robots = opposing_robots
-        self.max_opposing_robots = max_opposing_robots
+    red_goals: int = 0
+    max_red_goals: int = MAX_NUM_RED_GOALS
+    blue_goals: int = 0
+    max_blue_goals: int = MAX_NUM_BLUE_GOALS
+    low_neutral_goals: int = 0
+    max_low_neutral_goals: int = MAX_NUM_LOW_NEUTRAL_GOALS
+    high_neutral_goals: int = 0
+    max_high_neutral_goals: int = MAX_NUM_HIGH_NEUTRAL_GOALS
+    rings: int = 0
+    max_rings: int = MAX_NUM_RINGS
+    host_robots: int = 0
+    max_host_robots: int = MAX_NUM_HOST_ROBOTS
+    partner_robots: int = 0
+    max_partner_robots: int = MAX_NUM_PARTNER_ROBOTS
+    opposing_robots: int = 0
+    max_opposing_robots: int = MAX_NUM_OPPOSING_ROBOTS
 
     def get_remaining_red_goals(self) -> int:
         remaining = self.max_red_goals - self.red_goals
@@ -137,28 +121,21 @@ class FieldCounts():
         return remaining
 
 
+@nested_dataclass
 class FieldRepresentation(ISerializable):
-    def __init__(
-            self, 
-            red_platform: RedPlatform=RedPlatform(PlatformState.LEVEL),
-            blue_platform: BluePlatform=BluePlatform(PlatformState.LEVEL),
-            rings: list[Ring]=[],
-            goals: list[Goal]=[],
-            robots: list[Robot]=[],
-            field_counts: FieldCounts=FieldCounts()):
-        self.red_platform = red_platform
-        self.blue_platform = blue_platform
-        self.rings = rings
-        self.goals = goals
-        self.robots = robots
-        self.field_counts = field_counts
+    red_platform: RedPlatform = RedPlatform(PlatformState.LEVEL)
+    blue_platform: BluePlatform = BluePlatform(PlatformState.LEVEL)
+    rings: list[Ring] = field(default_factory=list)
+    goals: list[Goal] = field(default_factory=list)
+    robots: list[Robot] = field(default_factory=list)
+    field_counts: FieldCounts = FieldCounts()
 
     def __get_alliance_color(random_color: int, host_alliance: bool = True) -> Color:
         if host_alliance:
             return Color.RED if random_color == 0 else Color.BLUE
         return Color.BLUE if random_color == 0 else Color.RED
 
-    def __generate_ring_list(self, pose: Pose2D, percentage: float, discount: float, current_iter: int = 0) -> List[Ring]:
+    def __generate_ring_list(self, pose: Pose2D, percentage: float, discount: float, current_iter: int = 0) -> list[Ring]:
         self.field_counts.rings += 1
 
         if percentage < (percentage * ((current_iter + 1) * discount)) and self.field_counts.get_remaining_rings() > 1:
@@ -179,7 +156,7 @@ class FieldRepresentation(ISerializable):
             elif goal.get_ring_container(GoalLevel.BASE).get_remaining_utilization() > 0:
                 goal.get_ring_container(GoalLevel.BASE).add_ring(ring)
 
-    def __generate_goal_list(self, pose: Pose2D, percentage: float, discount: float, current_iter: int = 0) -> List[Goal]:
+    def __generate_goal_list(self, pose: Pose2D, percentage: float, discount: float, current_iter: int = 0) -> list[Goal]:
         goal_num = random.randint(0, 3)
 
         if goal_num == 0 and self.field_counts.get_remaining_low_neutral_goals() > 0:
@@ -205,7 +182,7 @@ class FieldRepresentation(ISerializable):
         else:
             return [goal] 
 
-    def __generate_robot_list(self, random_color: int, pose: Pose2D, percentage: float, discount: float, current_iter: int = 0) -> List[Robot]:
+    def __generate_robot_list(self, random_color: int, pose: Pose2D, percentage: float, discount: float, current_iter: int = 0) -> list[Robot]:
         robot_num = random.randint(0, 1, 2)
 
         if robot_num == 0 and self.field_counts.get_remaining_host_robots() > 0:
