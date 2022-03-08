@@ -5,12 +5,13 @@ from entities.fieldConfigurations import (
     ending_representation,
     starting_representation,
 )
+from loggingManager import configure_loggers
 
 if __name__ == "__main__":
+    configure_loggers()
+    
     fieldRep = starting_representation()
-    print(fieldRep.as_json())
-    # fig = fieldRep.draw()
-    # plt.show()
+    fieldRep.randomize()
 
-    # plat = RedPlatform(PlatformState.LEVEL)
-    # print(plat)
+    fig = fieldRep.draw()
+    plt.show()

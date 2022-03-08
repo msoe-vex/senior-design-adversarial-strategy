@@ -1,5 +1,5 @@
 # Define rings
-MAX_NUM_RINGS = 0
+MAX_NUM_RINGS = 72
 
 # Define goals
 MAX_NUM_RED_GOALS = 2
