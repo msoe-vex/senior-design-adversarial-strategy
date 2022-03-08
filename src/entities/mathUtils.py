@@ -1,13 +1,12 @@
 from __future__ import annotations
-from dataclasses import dataclass
 import math
 from entities.interfaces import ISerializable
 
 
-@dataclass
 class Pose2D(ISerializable):
-    x: float
-    y: float
+    def __init__(self, x: float, y: float):
+        self.x = x
+        self.y = y
 
     def distTo(self, pose: Pose2D) -> float:
         x_dist = (pose.x - self.x) ** 2
@@ -15,5 +14,5 @@ class Pose2D(ISerializable):
         return math.sqrt(x_dist + y_dist)
 
 
-def distanceBetweenPoints(p1: Pose2D, p2: Pose2D) -> float:
+def distance_between_points(p1: Pose2D, p2: Pose2D) -> float:
     return p1.distTo(p2)
