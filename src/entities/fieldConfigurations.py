@@ -214,7 +214,7 @@ def ending_representation():
         PlatformState.LEVEL,
         robots=[
             HostRobot(
-                Color.RED, 
+                Color.RED,
                 Pose2D(0, 4), 
                 rings=[
                     Ring(Pose2D(0, 4)),

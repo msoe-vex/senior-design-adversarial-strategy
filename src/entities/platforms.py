@@ -1,6 +1,7 @@
-from entities.classUtils import AbstractClass
+from entities.classUtils import AbstractDataClass, nested_dataclass
 from entities.interfaces import IScorable, ISerializable
 from enum import Enum
+from dataclasses import field
 from entities.enumerations import Color
 from entities.scoring_elements import Ring, Goal
 from entities.robots import Robot
@@ -12,13 +13,13 @@ class PlatformState(int, Enum):
     LEVEL = 2
 
 
-class Platform(AbstractClass, IScorable, ISerializable):
-    def __init__(self, color: Color, state: PlatformState, rings: list[Ring]=[], goals: list[Goal]=[], robots: list[Robot]=[]):
-        self.color = color
-        self.state = state
-        self.rings = rings
-        self.goals = goals
-        self.robots = robots
+@nested_dataclass
+class Platform(AbstractDataClass, IScorable, ISerializable):
+    color: Color
+    state: PlatformState
+    rings: list[Ring] = field(default_factory=list)
+    goals: list[Goal] = field(default_factory=list)
+    robots: list[Robot] = field(default_factory=list)
 
     def __get_current_score(self, color: Color):
         if self.state == PlatformState.LEVEL:
@@ -29,6 +30,7 @@ class Platform(AbstractClass, IScorable, ISerializable):
             return 0
 
 
+@nested_dataclass
 class RedPlatform(Platform, ISerializable):
     def __init__(self, state: PlatformState, **kwargs):
         super().__init__(Color.RED, state, **kwargs)
@@ -37,6 +39,7 @@ class RedPlatform(Platform, ISerializable):
         return self.__get_current_score(Color.RED)
 
 
+@nested_dataclass
 class BluePlatform(Platform, ISerializable):
     def __init__(self, state: PlatformState, **kwargs):
         super().__init__(Color.BLUE, state, **kwargs)
