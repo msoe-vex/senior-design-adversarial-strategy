@@ -75,7 +75,7 @@ class Goal(AbstractClass, ITippable, IScorable, ISerializable):
 
 class RedGoal(Goal, ISerializable):
     def __init__(self, pos: Pose2D, **kwargs):
-        super().__init__(Color.RED, pos, kwargs)
+        super().__init__(Color.RED, pos, **kwargs)
 
         self.ring_containers[GoalLevel.BASE] = RingContainer()
         self.ring_containers[GoalLevel.LOW] = RingContainer()
@@ -84,7 +84,7 @@ class RedGoal(Goal, ISerializable):
 
 class BlueGoal(Goal, ISerializable):
     def __init__(self, pos: Pose2D, **kwargs):
-        super().__init__(Color.BLUE, pos, kwargs)
+        super().__init__(Color.BLUE, pos, **kwargs)
 
         self.ring_containers[GoalLevel.BASE] = RingContainer()
         self.ring_containers[GoalLevel.LOW] = RingContainer()
@@ -95,7 +95,7 @@ class HighNeutralGoal(Goal, ISerializable):
     level: GoalLevel = GoalLevel.HIGH
 
     def __init__(self, pos: Pose2D, **kwargs):
-        super().__init__(Color.NEUTRAL, pos, kwargs)
+        super().__init__(Color.NEUTRAL, pos, **kwargs)
 
         self.ring_containers[GoalLevel.BASE] = RingContainer()
         self.ring_containers[GoalLevel.LOW] = RingContainer()
@@ -106,7 +106,7 @@ class LowNeutralGoal(Goal, ISerializable):
     level: GoalLevel = GoalLevel.LOW
 
     def __init__(self, pos: Pose2D, **kwargs):
-        super().__init__(Color.NEUTRAL, pos, kwargs)
+        super().__init__(Color.NEUTRAL, pos, **kwargs)
 
         self.ring_containers[GoalLevel.BASE] = RingContainer()
         self.ring_containers[GoalLevel.LOW] = RingContainer()

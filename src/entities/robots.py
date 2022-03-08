@@ -27,14 +27,14 @@ class Robot(AbstractClass, ITippable, ISerializable):
 
 class HostRobot(Robot, ISerializable):
     def __init__(self, color: Color, pos: Pose2D, **kwargs):
-        super().__init__(color, RobotID.SELF, pos, kwargs)
+        super().__init__(color, RobotID.SELF, pos, **kwargs)
 
 
 class PartnerRobot(Robot, ISerializable):
     def __init__(self, color: Color, pos: Pose2D, **kwargs):
-        super().__init__(color, RobotID.PARTNER, pos, kwargs)
+        super().__init__(color, RobotID.PARTNER, pos, **kwargs)
 
 
 class OpposingRobot(Robot, ISerializable):
     def __init__(self, color: Color, pos: Pose2D, **kwargs):
-        super().__init__(color, RobotID.OPPOSING, pos, kwargs)
+        super().__init__(color, RobotID.OPPOSING, pos, **kwargs)
