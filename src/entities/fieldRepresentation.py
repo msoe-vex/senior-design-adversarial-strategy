@@ -159,7 +159,7 @@ class FieldRepresentation(ISerializable):
     robots: list[Robot] = field(default_factory=list)
     field_counts: FieldCounts = FieldCounts()
 
-    def __get_alliance_color(random_color: int, host_alliance: bool = True) -> Color:
+    def __get_alliance_color(self, random_color: int, host_alliance: bool = True) -> Color:
         if host_alliance:
             return Color.RED if random_color == 0 else Color.BLUE
         return Color.BLUE if random_color == 0 else Color.RED
@@ -186,6 +186,10 @@ class FieldRepresentation(ISerializable):
             goal.position, SPAWN_RING_ON_GOAL, ADDITIONAL_RING_ON_GOAL_DISCOUNT_FACTOR
         )
 
+        getLogger(REPRESENTATION_LOGGER_NAME).info(
+            f"Spawned {len(rings)} rings on {type(goal).__name__} goal at ({goal.position.x},{goal.position.y})"
+        )
+
         for ring in rings:
             if (
                 percent < SPAWN_RING_ON_HIGH_BRANCH
@@ -209,6 +213,7 @@ class FieldRepresentation(ISerializable):
     ) -> list[Goal]:
         goal_num = random.randint(0, 3)
 
+        goal = None
         if goal_num == 0 and self.field_counts.get_remaining_low_neutral_goals() > 0:
             goal = LowNeutralGoal(pose)
             self.field_counts.low_neutral_goals += 1
@@ -226,18 +231,24 @@ class FieldRepresentation(ISerializable):
                 f"Attempting to spawn goal of number {goal_num} when all goals are spawned"
             )
 
-        if random.random() < SPAWN_RING_ON_GOAL:
-            self.__add_rings_to_goal(goal)
-
-        if (
-            percentage < (percentage * ((current_iter + 1) * discount))
-            and self.field_counts.get_remaining_goals() > 1
-        ):
-            return [goal] + self.__generate_goal_list(
-                pose, percentage, discount, current_iter + 1
+        if goal is not None:
+            getLogger(REPRESENTATION_LOGGER_NAME).info(
+                f"Spawned {type(goal).__name__} at ({pose.x},{pose.y})"
             )
-        else:
-            return [goal]
+
+            if random.random() < SPAWN_RING_ON_GOAL:
+                self.__add_rings_to_goal(goal)
+
+            if (
+                percentage < (percentage * ((current_iter + 1) * discount))
+                and self.field_counts.get_remaining_goals() > 1
+            ):
+                return [goal] + self.__generate_goal_list(
+                    pose, percentage, discount, current_iter + 1
+                )
+            else:
+                return [goal]
+        return []
 
     def __generate_robot_list(
         self,
@@ -247,8 +258,9 @@ class FieldRepresentation(ISerializable):
         discount: float,
         current_iter: int = 0,
     ) -> list[Robot]:
-        robot_num = random.randint(0, 1, 2)
+        robot_num = random.randint(0, 2)
 
+        robot = None
         if robot_num == 0 and self.field_counts.get_remaining_host_robots() > 0:
             robot = HostRobot(self.__get_alliance_color(random_color), pose)
             self.field_counts.host_robots += 1
@@ -263,39 +275,65 @@ class FieldRepresentation(ISerializable):
                 f"Attempting to spawn robot of number {robot_num} when all robots are spawned"
             )
 
-        if random.random() < SPAWN_GOAL_IN_ROBOT:
-            robot.goals = robot.goals + self.__generate_goal_list(
-                pose, SPAWN_GOAL_IN_ROBOT, ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR
+        if robot is not None:
+            getLogger(REPRESENTATION_LOGGER_NAME).info(
+                f"Spawned {type(robot).__name__} of color {robot.color} at ({robot.position.x},{robot.position.y})"
             )
 
-        if random.random() < SPAWN_RING_IN_ROBOT:
-            robot.rings = robot.rings + self.__generate_ring_list(
-                pose, SPAWN_RING_IN_ROBOT, ADDITIONAL_RING_IN_ROBOT_DISCOUNT_FACTOR
-            )
+            if random.random() < SPAWN_GOAL_IN_ROBOT:
+                robot.goals = robot.goals + self.__generate_goal_list(
+                    pose, SPAWN_GOAL_IN_ROBOT, ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR
+                )
 
-        if (
-            percentage < (percentage * ((current_iter + 1) * discount))
-            and self.field_counts.get_remaining_robots() > 1
-        ):
-            return [robot] + self.__generate_robot_list(
-                random_color, pose, percentage, discount, current_iter + 1
-            )
-        else:
-            return [robot]
+            if random.random() < SPAWN_RING_IN_ROBOT:
+                robot.rings = robot.rings + self.__generate_ring_list(
+                    pose, SPAWN_RING_IN_ROBOT, ADDITIONAL_RING_IN_ROBOT_DISCOUNT_FACTOR
+                )
 
-    def randomize(self, pose: Pose2D) -> None:
+            if (
+                percentage < (percentage * ((current_iter + 1) * discount))
+                and self.field_counts.get_remaining_robots() > 1
+            ):
+                return [robot] + self.__generate_robot_list(
+                    random_color, pose, percentage, discount, current_iter + 1
+                )
+            else:
+                return [robot]
+        return []
+
+    def randomize(self) -> None:
+        # Reset field       
+        self.red_platform.state = PlatformState.LEVEL
+        self.red_platform.robots = []
+        self.red_platform.goals = []
+        self.red_platform.rings = []
+
+        self.blue_platform.state = PlatformState.LEVEL
+        self.blue_platform.robots = []
+        self.blue_platform.goals = []
+        self.blue_platform.rings = []
+
+        self.robots = []
+        self.goals = []
+        self.rings = []
+
         self.field_counts = FieldCounts()
-        fieldMap = np.zeros((FIELD_WIDTH_IN + 1, FIELD_WIDTH_IN + 1))
+
+        # Randomize field
+        field_map = np.zeros((FIELD_WIDTH_IN + 1, FIELD_WIDTH_IN + 1))
 
         # Prevent things from spawning in on the ramp
-        for x in range(70 - (PLATFORM_LENGTH_IN / 2), 70 + (PLATFORM_LENGTH_IN / 2)):
-            for y in range(0, PLATFORM_WIDTH_IN):
-                fieldMap[y][x] = 1  # Block off area for ramp
+        mid_field = int(FIELD_WIDTH_IN / 2)
+        for x in range(mid_field - int(PLATFORM_LENGTH_IN / 2), mid_field + int(PLATFORM_LENGTH_IN / 2)):
+            for y in range(0, PLATFORM_WIDTH_IN + 1):
+                field_map[y][x] = 1  # Block off area for ramp
 
-            for y in range(FIELD_WIDTH_IN - PLATFORM_WIDTH_IN, FIELD_WIDTH_IN):
-                fieldMap[y][x] = 1  # Block off area for ramp
+            for y in range(FIELD_WIDTH_IN - PLATFORM_WIDTH_IN, FIELD_WIDTH_IN + 1):
+                field_map[y][x] = 1  # Block off area for ramp
 
         current_color = random.randint(0, 1)
+
+        # TODO fix when entities are stacked
 
         for ramp_color in [Color.RED, Color.BLUE]:
             x_pos = (0 - (PLATFORM_LENGTH_IN / 2)) + 5
@@ -305,7 +343,8 @@ class FieldRepresentation(ISerializable):
                 else (144 - (PLATFORM_WIDTH_IN / 3))
             )
 
-            # TODO fix when entities are stacked
+            # TODO add logging to ramp generated elements
+
             robots = []
             if random.random() < SPAWN_ROBOT_ON_RAMP:
                 pose = Pose2D(x_pos, y_pos)
@@ -342,15 +381,19 @@ class FieldRepresentation(ISerializable):
                 state = PlatformState.RIGHT
 
             if ramp_color == Color.RED:
-                self.red_platform(state, robots=robots, goals=goals, rings=rings)
+                self.red_platform = RedPlatform(state, robots=robots, goals=goals, rings=rings)
             else:
-                self.blue_platform(state, robots=robots, goals=goals, rings=rings)
+                self.blue_platform = BluePlatform(state, robots=robots, goals=goals, rings=rings)
 
         while self.field_counts.get_remaining_host_robots() > 0:
-            x = random.randint(0, FIELD_WIDTH_IN)
+            grid_x = random.randint(0, FIELD_WIDTH_IN)
+            x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
+            pose = Pose2D(x, y)
 
-            if fieldMap[y][x] == 0:
+            if field_map[y][grid_x] == 0:
+                field_map[y][grid_x] = 1
+
                 robot = HostRobot(
                     self.__get_alliance_color(current_color), Pose2D(x, y)
                 )
@@ -377,11 +420,14 @@ class FieldRepresentation(ISerializable):
                 )
 
         while self.field_counts.get_remaining_partner_robots() > 0:
-            x = random.randint(0, FIELD_WIDTH_IN)
+            grid_x = random.randint(0, FIELD_WIDTH_IN)
+            x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
             pose = Pose2D(x, y)
 
-            if fieldMap[y][x] == 0:
+            if field_map[y][grid_x] == 0:
+                field_map[y][grid_x] = 1
+
                 robot = PartnerRobot(self.__get_alliance_color(current_color), pose)
 
                 if random.random() < SPAWN_GOAL_IN_ROBOT:
@@ -405,13 +451,17 @@ class FieldRepresentation(ISerializable):
                     f"Spawned Partner Robot at ({x},{y})"
                 )
 
-        while self.field_counts.get_remaining_opposing_robots():
-            x = random.randint(0, FIELD_WIDTH_IN)
+        while self.field_counts.get_remaining_opposing_robots() > 0:
+            grid_x = random.randint(0, FIELD_WIDTH_IN)
+            x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
+            pose = Pose2D(x, y)
 
-            if fieldMap[y][x] == 0:
+            if field_map[y][grid_x] == 0:
+                field_map[y][grid_x] = 1
+
                 robot = OpposingRobot(
-                    self.__get_alliance_color(current_color, False), Pose2D(x, y)
+                    self.__get_alliance_color(current_color, False), pose
                 )
 
                 if random.random() < SPAWN_GOAL_IN_ROBOT:
@@ -435,12 +485,16 @@ class FieldRepresentation(ISerializable):
                     f"Spawned Opposing Robot at ({x},{y})"
                 )
 
-        while self.field_counts.get_remaining_red_goals():
-            x = random.randint(0, FIELD_WIDTH_IN)
+        while self.field_counts.get_remaining_red_goals() > 0:
+            grid_x = random.randint(0, FIELD_WIDTH_IN)
+            x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
+            pose = Pose2D(x, y)
 
-            if fieldMap[y][x] == 0:
-                goal = RedGoal(Pose2D(x, y))
+            if field_map[y][grid_x] == 0:
+                field_map[y][grid_x] = 1
+
+                goal = RedGoal(pose)
 
                 if random.random() < SPAWN_RING_ON_GOAL:
                     self.__add_rings_to_goal(goal)
@@ -452,12 +506,16 @@ class FieldRepresentation(ISerializable):
                     f"Spawned Red Goal at ({x},{y})"
                 )
 
-        while self.field_counts.get_remaining_blue_goals():
-            x = random.randint(0, FIELD_WIDTH_IN)
+        while self.field_counts.get_remaining_blue_goals() > 0:
+            grid_x = random.randint(0, FIELD_WIDTH_IN)
+            x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
+            pose = Pose2D(x, y)
 
-            if fieldMap[y][x] == 0:
-                self.goals.append(BlueGoal(Pose2D(x, y)))
+            if field_map[y][grid_x] == 0:
+                field_map[y][grid_x] = 1
+
+                goal = BlueGoal(pose)
 
                 if random.random() < SPAWN_RING_ON_GOAL:
                     self.__add_rings_to_goal(goal)
@@ -469,12 +527,16 @@ class FieldRepresentation(ISerializable):
                     f"Spawned Blue Goal at ({x},{y})"
                 )
 
-        while self.field_counts.get_remaining_low_neutral_goals():
-            x = random.randint(0, FIELD_WIDTH_IN)
+        while self.field_counts.get_remaining_low_neutral_goals() > 0:
+            grid_x = random.randint(0, FIELD_WIDTH_IN)
+            x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
+            pose = Pose2D(x, y)
 
-            if fieldMap[y][x] == 0:
-                self.goals.append(LowNeutralGoal(Pose2D(x, y)))
+            if field_map[y][grid_x] == 0:
+                field_map[y][grid_x] = 1
+
+                goal = LowNeutralGoal(pose)
 
                 if random.random() < SPAWN_RING_ON_GOAL:
                     self.__add_rings_to_goal(goal)
@@ -486,12 +548,16 @@ class FieldRepresentation(ISerializable):
                     f"Spawned Low Neutral Goal at ({x},{y})"
                 )
 
-        while self.field_counts.get_remaining_high_neutral_goals():
-            x = random.randint(0, FIELD_WIDTH_IN)
+        while self.field_counts.get_remaining_high_neutral_goals() > 0:
+            grid_x = random.randint(0, FIELD_WIDTH_IN)
+            x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
+            pose = Pose2D(x, y)
 
-            if fieldMap[y][x] == 0:
-                self.goals.append(HighNeutralGoal(Pose2D(x, y)))
+            if field_map[y][grid_x] == 0:
+                field_map[y][grid_x] = 1
+
+                goal = HighNeutralGoal(pose)
 
                 if random.random() < SPAWN_RING_ON_GOAL:
                     self.__add_rings_to_goal(goal)
@@ -503,13 +569,16 @@ class FieldRepresentation(ISerializable):
                     f"Spawned High Neutral Goal at ({x},{y})"
                 )
 
-        while self.field_counts.get_remaining_rings():
-            x = random.randint(0, FIELD_WIDTH_IN)
+        while self.field_counts.get_remaining_rings() > 0:
+            grid_x = random.randint(0, FIELD_WIDTH_IN)
+            x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
+            pose = Pose2D(x, y)
 
-            if fieldMap[y][x] == 0:
-                self.rings.append(Ring(Pose2D(x, y)))
+            if field_map[y][grid_x] == 0:
+                field_map[y][grid_x] = 1
 
+                self.rings.append(Ring(pose))
                 self.field_counts.rings += 1
 
                 getLogger(REPRESENTATION_LOGGER_NAME).info(f"Spawned Ring at ({x},{y})")
@@ -524,6 +593,8 @@ class FieldRepresentation(ISerializable):
         combined_robot_arr = (
             self.robots + self.red_platform.robots + self.blue_platform.robots
         )
+
+        # TODO determine how to draw rings and goals that are posessed by a robot
 
         # Calculate ring positions
         ring_arr = np.array(
@@ -594,9 +665,62 @@ class FieldRepresentation(ISerializable):
         # Draw elements
         fig, ax = plt.subplots(figsize=FIG_SIZE)
 
-        # Draw rings
-        if np.any(ring_arr):
-            ax.scatter(ring_arr[:, 0], ring_arr[:, 1], color="purple")
+        # Draw platforms
+        red_plat = mpatches.Rectangle(
+            (0 - (PLATFORM_LENGTH_IN / 2), 0),
+            PLATFORM_LENGTH_IN,
+            PLATFORM_WIDTH_IN,
+            fill=True,
+            fc=(1, 0, 0, 0.2),
+            ec=(1, 0, 0, 0),
+            linewidth=2,
+        )
+
+        blue_plat = mpatches.Rectangle(
+            (
+                0 - (PLATFORM_LENGTH_IN / 2),
+                (FIELD_WIDTH_IN - PLATFORM_WIDTH_IN),
+            ),  # x, y of bottom left corner
+            PLATFORM_LENGTH_IN,
+            PLATFORM_WIDTH_IN,
+            fill=True,
+            fc=(0, 0, 1, 0.2),
+            ec=(0, 0, 1, 0),
+            linewidth=2,
+        )
+
+        ax.add_patch(red_plat)
+        ax.add_patch(blue_plat)
+
+        # Draw robots
+        if np.any(host_robot_arr):
+            ax.scatter(
+                host_robot_arr[:, 0],
+                host_robot_arr[:, 1],
+                color=host_robot_arr[:, 2],
+                ec="black",
+                linewidth=4,
+                marker="s",
+                s=3000,
+            )
+
+        if np.any(partner_robot_arr):
+            ax.scatter(
+                partner_robot_arr[:, 0],
+                partner_robot_arr[:, 1],
+                color=partner_robot_arr[:, 2],
+                marker="s",
+                s=3000,
+            )
+
+        if np.any(opposing_robot_arr):
+            ax.scatter(
+                opposing_robot_arr[:, 0],
+                opposing_robot_arr[:, 1],
+                color=opposing_robot_arr[:, 2],
+                marker="s",
+                s=3000,
+            )
 
         # Draw goals
         if np.any(red_goal_arr):
@@ -631,62 +755,9 @@ class FieldRepresentation(ISerializable):
                 s=2000,
             )
 
-        # Draw robots
-        if np.any(host_robot_arr):
-            ax.scatter(
-                host_robot_arr[:, 0],
-                host_robot_arr[:, 1],
-                color=host_robot_arr[:, 2],
-                ec="black",
-                linewidth=4,
-                marker="s",
-                s=3000,
-            )
-
-        if np.any(partner_robot_arr):
-            ax.scatter(
-                partner_robot_arr[:, 0],
-                partner_robot_arr[:, 1],
-                color=partner_robot_arr[:, 2],
-                marker="s",
-                s=3000,
-            )
-
-        if np.any(opposing_robot_arr):
-            ax.scatter(
-                opposing_robot_arr[:, 0],
-                opposing_robot_arr[:, 1],
-                color=opposing_robot_arr[:, 2],
-                marker="s",
-                s=3000,
-            )
-
-        # Draw platforms
-        red_plat = mpatches.Rectangle(
-            (0 - (PLATFORM_LENGTH_IN / 2), 0),
-            PLATFORM_LENGTH_IN,
-            PLATFORM_WIDTH_IN,
-            fill=True,
-            fc=(1, 0, 0, 0.2),
-            ec=(1, 0, 0, 0),
-            linewidth=2,
-        )
-
-        blue_plat = mpatches.Rectangle(
-            (
-                0 - (PLATFORM_LENGTH_IN / 2),
-                (FIELD_WIDTH_IN - PLATFORM_WIDTH_IN),
-            ),  # x, y of bottom left corner
-            PLATFORM_LENGTH_IN,
-            PLATFORM_WIDTH_IN,
-            fill=True,
-            fc=(0, 0, 1, 0.2),
-            ec=(0, 0, 1, 0),
-            linewidth=2,
-        )
-
-        ax.add_patch(red_plat)
-        ax.add_patch(blue_plat)
+        # Draw rings
+        if np.any(ring_arr):
+            ax.scatter(ring_arr[:, 0], ring_arr[:, 1], color="purple")
 
         ax.set_xlim([-72, 72])
         ax.set_ylim([0, 144])
