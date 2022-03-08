@@ -1,13 +1,17 @@
 import matplotlib.pyplot as plt
-from entities.math_utils import Pose2D
-from entities.platforms import BluePlatform, PlatformState, RedPlatform
-from entities.scoring_elements import Ring
-from examples.fieldRepresentation.field_representations import basic_goal_representation, basic_ring_representation, ending_representation, starting_representation
+from entities.fieldConfigurations import (
+    basic_goal_representation,
+    basic_ring_representation,
+    ending_representation,
+    starting_representation,
+)
+from loggingManager import configure_loggers
 
 if __name__ == "__main__":
-    fieldRep = ending_representation()
+    configure_loggers()
+    
+    fieldRep = starting_representation()
+    fieldRep.randomize()
+
     fig = fieldRep.draw()
     plt.show()
-
-    # plat = RedPlatform(PlatformState.LEVEL)
-    # print(plat)

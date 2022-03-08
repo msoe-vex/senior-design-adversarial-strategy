@@ -9,6 +9,12 @@ class Color(int, Enum):
     NEUTRAL = 2
 
 
+class GoalLevel(int, Enum):
+    BASE = 1
+    LOW = 3
+    HIGH = 10
+
+
 def convertColorToRGBA(color: Color) -> Tuple[float, float, float, float]:
     """
     Maps between the color enum and an RGBA value

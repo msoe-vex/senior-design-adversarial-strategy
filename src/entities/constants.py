@@ -1,5 +1,5 @@
 # Define rings
-MAX_NUM_RINGS = 0
+MAX_NUM_RINGS = 72
 
 # Define goals
 MAX_NUM_RED_GOALS = 2
@@ -21,14 +21,34 @@ FIELD_WIDTH_IN = 144
 FIG_SIZE = (12, 12)
 
 # Randomized spawn rates
+SPAWN_ROBOT_ON_RAMP = 0.05
+ADDITIONAL_ROBOT_ON_RAMP_DISCOUNT_FACTOR = 0.1
+
+SPAWN_GOAL_ON_RAMP = 0.2
+ADDITIONAL_GOAL_ON_RAMP_DISCOUNT_FACTOR = 0.3
+
+SPAWN_RING_ON_RAMP = 0.01
+ADDITIONAL_RING_ON_RAMP_DISCOUNT_FACTOR = 0.001
+
 SPAWN_GOAL_IN_ROBOT = 0.2
-ADDITIONAL_GOAL_DISCOUNT_FACTOR = 0.5 # Multiply spawn rate by discount factor for each additional
+ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR = (
+    0.5  # Multiply spawn rate by discount factor for each additional
+)
 
 SPAWN_RING_IN_ROBOT = 0.2
-ADDITIONAL_RING_DISCOUNT_FACTOR = 0.8 # Multiply spawn rate by discount factor for each additional
+ADDITIONAL_RING_IN_ROBOT_DISCOUNT_FACTOR = (
+    0.8  # Multiply spawn rate by discount factor for each additional
+)
 
 SPAWN_RING_ON_GOAL = 0.2
-ADDITIONAL_RING_DISCOUNT_FACTOR = 0.9 # Multiply spawn rate by discount factor for each additional
+ADDITIONAL_RING_ON_GOAL_DISCOUNT_FACTOR = (
+    0.9  # Multiply spawn rate by discount factor for each additional
+)
 
 SPAWN_RING_ON_HIGH_BRANCH = 0.1
 SPAWN_RING_ON_LOW_BRANCH = 0.5
+
+# Define logger settings
+PARSER_LOGGER_NAME = "app/parser"
+REPRESENTATION_LOGGER_NAME = "app/representation"
+SIMULATION_LOGGER_NAME = "app/simulation"
