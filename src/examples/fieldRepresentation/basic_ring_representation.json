@@ -2,101 +2,167 @@
     "blue_platform": {
         "color": 1,
         "goals": [],
-        "rings": {},
+        "rings": [],
         "robots": [],
         "state": 2
+    },
+    "field_counts": {
+        "blue_goals": 0,
+        "high_neutral_goals": 0,
+        "host_robots": 0,
+        "low_neutral_goals": 0,
+        "max_blue_goals": 2,
+        "max_high_neutral_goals": 1,
+        "max_host_robots": 1,
+        "max_low_neutral_goals": 2,
+        "max_opposing_robots": 2,
+        "max_partner_robots": 1,
+        "max_red_goals": 2,
+        "max_rings": 0,
+        "opposing_robots": 0,
+        "partner_robots": 0,
+        "red_goals": 0,
+        "rings": 0
     },
     "goals": [],
     "red_platform": {
         "color": 0,
         "goals": [],
-        "rings": {},
+        "rings": [],
         "robots": [],
         "state": 2
     },
     "rings": [
         {
             "position": {
-                "x": 72,
+                "x": -69,
                 "y": 72
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": 67
+                "x": -62,
+                "y": 72
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": 62
+                "x": -55,
+                "y": 72
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": 57
+                "x": -48,
+                "y": 72
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": 20
+                "x": -48,
+                "y": 78
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": 15
+                "x": -48,
+                "y": 84
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": 10
+                "x": -48,
+                "y": 90
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": -10
+                "x": -48,
+                "y": 96
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": -15
+                "x": -25,
+                "y": 72
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": -20
+                "x": -17,
+                "y": 72
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": -57
+                "x": -9,
+                "y": 72
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": -62
+                "x": 9,
+                "y": 72
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": -67
+                "x": 17,
+                "y": 72
             }
         },
         {
             "position": {
-                "x": 72,
-                "y": -72
+                "x": 25,
+                "y": 72
+            }
+        },
+        {
+            "position": {
+                "x": 69,
+                "y": 72
+            }
+        },
+        {
+            "position": {
+                "x": 62,
+                "y": 72
+            }
+        },
+        {
+            "position": {
+                "x": 55,
+                "y": 72
+            }
+        },
+        {
+            "position": {
+                "x": 48,
+                "y": 72
+            }
+        },
+        {
+            "position": {
+                "x": 48,
+                "y": 66
+            }
+        },
+        {
+            "position": {
+                "x": 48,
+                "y": 60
+            }
+        },
+        {
+            "position": {
+                "x": 48,
+                "y": 54
+            }
+        },
+        {
+            "position": {
+                "x": 48,
+                "y": 48
             }
         }
     ],
@@ -109,7 +175,7 @@
                 "x": 30,
                 "y": 0
             },
-            "rings": {},
+            "rings": [],
             "tipped": false
         },
         {
@@ -120,7 +186,7 @@
                 "x": -30,
                 "y": 0
             },
-            "rings": {},
+            "rings": [],
             "tipped": false
         },
         {
@@ -131,7 +197,7 @@
                 "x": 30,
                 "y": 144
             },
-            "rings": {},
+            "rings": [],
             "tipped": false
         },
         {
@@ -142,7 +208,7 @@
                 "x": -30,
                 "y": 144
             },
-            "rings": {},
+            "rings": [],
             "tipped": false
         }
     ]

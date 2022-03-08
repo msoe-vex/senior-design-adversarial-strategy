@@ -8,9 +8,9 @@ from entities.enumerations import Color
 
 
 class RobotID(int, Enum):
-    SELF = 0,
-    PARTNER = 1,
-    OPPOSING = 2,
+    SELF = (0,)
+    PARTNER = (1,)
+    OPPOSING = (2,)
 
 
 @nested_dataclass
