@@ -1,5 +1,6 @@
 from dataclasses import field
 from enum import Enum
+from typing import List
 from entities.classUtils import AbstractDataClass, nested_dataclass
 from entities.interfaces import ITippable, ISerializable
 from entities.mathUtils import Pose2D
@@ -18,8 +19,8 @@ class Robot(AbstractDataClass, ITippable, ISerializable):
     color: Color = Color.RED
     id: RobotID = RobotID.SELF
     position: Pose2D = Pose2D(0, 0)
-    rings: list[Ring] = field(default_factory=list)
-    goals: list[Goal] = field(default_factory=list)
+    rings: List[Ring] = field(default_factory=list)
+    goals: List[Goal] = field(default_factory=list)
     tipped: bool = False
 
     def is_tipped(self) -> bool:

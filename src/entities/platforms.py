@@ -1,6 +1,7 @@
 from entities.classUtils import AbstractDataClass, nested_dataclass
 from entities.interfaces import IScorable, ISerializable
 from enum import Enum
+from typing import List
 from dataclasses import field
 from entities.enumerations import Color
 from entities.scoring_elements import Ring, Goal
@@ -17,9 +18,9 @@ class PlatformState(int, Enum):
 class Platform(AbstractDataClass, IScorable, ISerializable):
     color: Color
     state: PlatformState
-    rings: list[Ring] = field(default_factory=list)
-    goals: list[Goal] = field(default_factory=list)
-    robots: list[Robot] = field(default_factory=list)
+    rings: List[Ring] = field(default_factory=list)
+    goals: List[Goal] = field(default_factory=list)
+    robots: List[Robot] = field(default_factory=list)
 
     def __get_current_score(self, color: Color):
         if self.state == PlatformState.LEVEL:
