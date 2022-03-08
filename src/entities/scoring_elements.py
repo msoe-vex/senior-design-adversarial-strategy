@@ -1,22 +1,20 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
 from typing import List
-from entities.math_utils import Pose2D
-from enum import Enum
+from entities.mathUtils import Pose2D
 from entities.interfaces import ITippable, IScorable, ISerializable
-from entities.class_utils import AbstractDataClass
+from entities.classUtils import AbstractClass
 from entities.enumerations import Color, GoalLevel
 
 
-@dataclass
 class Ring(ISerializable):
-    position: Pose2D
+    def __init__(self, position: Pose2D):
+        self.position = position
 
 
-@dataclass
 class RingContainer(ISerializable):
-    max_storage: int = 8
-    rings: List[Ring] = field(default_factory=list)
+    def __init__(self, max_storage: int=8, rings: list[Ring]=[]):
+        self.max_storage = max_storage
+        self.rings = rings
 
     def add_ring(self, ring: Ring) -> bool:
         if self.get_remaining_utilization() > 0:
@@ -37,21 +35,19 @@ class RingContainer(ISerializable):
         return self.max_storage - self.get_utilization()
 
 
-@dataclass
-class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
-    color: Color = Color.NEUTRAL
-    position: Pose2D = Pose2D(0, 0)
-    ring_containers: dict[GoalLevel, RingContainer] = field(default_factory=dict)
-    tipped: bool = False
-    current_zone: Color = field(init=False)
-
-    def __post_init__(self):
+class Goal(AbstractClass, ITippable, IScorable, ISerializable):
+    def __init__(self, color: Color, position: Pose2D, ring_containers: dict[GoalLevel, RingContainer]={}, tipped: bool=False):
+        self.color = color
+        self.position = position
+        self.ring_containers = ring_containers
+        self.tipped = tipped
+        
         if self.position.y <= 48:
             self.current_zone = Color.RED
         elif self.position.y >= 96:
             self.current_zone = Color.BLUE
         else:
-            self.current_zone = Color.NEUTRAL
+            self.current_zone = Color.NEUTRAL        
 
     def is_tipped(self) -> bool:
         return self.tipped
@@ -77,7 +73,6 @@ class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
         return False
 
 
-@dataclass
 class RedGoal(Goal, ISerializable):
     def __init__(self, pos: Pose2D, **kwargs):
         super().__init__(Color.RED, pos, kwargs)
@@ -87,7 +82,6 @@ class RedGoal(Goal, ISerializable):
         self.ring_containers[GoalLevel.HIGH] = RingContainer(0)
 
 
-@dataclass
 class BlueGoal(Goal, ISerializable):
     def __init__(self, pos: Pose2D, **kwargs):
         super().__init__(Color.BLUE, pos, kwargs)
@@ -97,7 +91,6 @@ class BlueGoal(Goal, ISerializable):
         self.ring_containers[GoalLevel.HIGH] = RingContainer(0)
 
 
-@dataclass
 class HighNeutralGoal(Goal, ISerializable):
     level: GoalLevel = GoalLevel.HIGH
 
@@ -109,7 +102,6 @@ class HighNeutralGoal(Goal, ISerializable):
         self.ring_containers[GoalLevel.HIGH] = RingContainer()
 
 
-@dataclass
 class LowNeutralGoal(Goal, ISerializable):
     level: GoalLevel = GoalLevel.LOW
 
