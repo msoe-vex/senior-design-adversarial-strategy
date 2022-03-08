@@ -1,5 +1,10 @@
 import logging
-from entities.constants import PARSER_LOGGER_NAME, REPRESENTATION_LOGGER_NAME, SIMULATION_LOGGER_NAME
+from entities.constants import (
+    PARSER_LOGGER_NAME,
+    REPRESENTATION_LOGGER_NAME,
+    SIMULATION_LOGGER_NAME,
+)
+
 
 def configure_loggers() -> None:
     parser_logger = logging.getLogger(PARSER_LOGGER_NAME)

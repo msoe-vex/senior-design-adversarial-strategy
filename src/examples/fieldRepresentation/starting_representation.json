@@ -2,86 +2,202 @@
     "blue_platform": {
         "color": 1,
         "goals": [],
-        "rings": {},
+        "rings": [],
         "robots": [],
         "state": 1
+    },
+    "field_counts": {
+        "blue_goals": 0,
+        "high_neutral_goals": 0,
+        "host_robots": 0,
+        "low_neutral_goals": 0,
+        "max_blue_goals": 2,
+        "max_high_neutral_goals": 1,
+        "max_host_robots": 1,
+        "max_low_neutral_goals": 2,
+        "max_opposing_robots": 2,
+        "max_partner_robots": 1,
+        "max_red_goals": 2,
+        "max_rings": 0,
+        "opposing_robots": 0,
+        "partner_robots": 0,
+        "red_goals": 0,
+        "rings": 0
     },
     "goals": [
         {
             "color": 0,
             "current_zone": 0,
+            "level": 3,
             "position": {
                 "x": 60,
                 "y": 35
             },
-            "ring_containers": {},
+            "ring_containers": {
+                "1": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "3": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "10": {
+                    "max_storage": 0,
+                    "rings": []
+                }
+            },
             "tipped": false
         },
         {
             "color": 0,
             "current_zone": 0,
+            "level": 3,
             "position": {
-                "x": -30,
-                "y": 10
+                "x": -36,
+                "y": 12
             },
-            "ring_containers": {},
+            "ring_containers": {
+                "1": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "3": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "10": {
+                    "max_storage": 0,
+                    "rings": []
+                }
+            },
             "tipped": false
         },
         {
             "color": 1,
             "current_zone": 1,
+            "level": 3,
             "position": {
                 "x": -60,
                 "y": 109
             },
-            "ring_containers": {},
+            "ring_containers": {
+                "1": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "3": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "10": {
+                    "max_storage": 0,
+                    "rings": []
+                }
+            },
             "tipped": false
         },
         {
             "color": 1,
             "current_zone": 1,
+            "level": 3,
             "position": {
-                "x": 30,
-                "y": 134
+                "x": 36,
+                "y": 132
             },
-            "ring_containers": {},
+            "ring_containers": {
+                "1": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "3": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "10": {
+                    "max_storage": 0,
+                    "rings": []
+                }
+            },
             "tipped": false
         },
         {
             "color": 2,
             "current_zone": 2,
+            "level": 3,
             "position": {
                 "x": -35,
                 "y": 72
             },
-            "ring_containers": {},
+            "ring_containers": {
+                "1": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "3": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "10": {
+                    "max_storage": 0,
+                    "rings": []
+                }
+            },
             "tipped": false
         },
         {
             "color": 2,
             "current_zone": 2,
+            "level": 10,
             "position": {
                 "x": 0,
                 "y": 72
             },
-            "ring_containers": {},
+            "ring_containers": {
+                "1": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "3": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "10": {
+                    "max_storage": 8,
+                    "rings": []
+                }
+            },
             "tipped": false
         },
         {
             "color": 2,
             "current_zone": 2,
+            "level": 3,
             "position": {
                 "x": 35,
                 "y": 72
             },
-            "ring_containers": {},
+            "ring_containers": {
+                "1": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "3": {
+                    "max_storage": 8,
+                    "rings": []
+                },
+                "10": {
+                    "max_storage": 0,
+                    "rings": []
+                }
+            },
             "tipped": false
         }
     ],
     "red_platform": {
         "color": 0,
         "goals": [],
-        "rings": {},
+        "rings": [],
         "robots": [],
         "state": 0
     },
@@ -345,10 +461,10 @@
             "goals": [],
             "id": 0,
             "position": {
-                "x": 30,
-                "y": 0
+                "x": 48,
+                "y": 12
             },
-            "rings": {},
+            "rings": [],
             "tipped": false
         },
         {
@@ -356,10 +472,10 @@
             "goals": [],
             "id": 1,
             "position": {
-                "x": -30,
-                "y": 0
+                "x": -48,
+                "y": 12
             },
-            "rings": {},
+            "rings": [],
             "tipped": false
         },
         {
@@ -367,10 +483,10 @@
             "goals": [],
             "id": 2,
             "position": {
-                "x": 30,
-                "y": 144
+                "x": 48,
+                "y": 132
             },
-            "rings": {},
+            "rings": [],
             "tipped": false
         },
         {
@@ -378,10 +494,10 @@
             "goals": [],
             "id": 2,
             "position": {
-                "x": -30,
-                "y": 144
+                "x": -48,
+                "y": 132
             },
-            "rings": {},
+            "rings": [],
             "tipped": false
         }
     ]

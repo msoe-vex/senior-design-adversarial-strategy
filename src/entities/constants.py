@@ -31,13 +31,19 @@ SPAWN_RING_ON_RAMP = 0.01
 ADDITIONAL_RING_ON_RAMP_DISCOUNT_FACTOR = 0.001
 
 SPAWN_GOAL_IN_ROBOT = 0.2
-ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR = 0.5 # Multiply spawn rate by discount factor for each additional
+ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR = (
+    0.5  # Multiply spawn rate by discount factor for each additional
+)
 
 SPAWN_RING_IN_ROBOT = 0.2
-ADDITIONAL_RING_IN_ROBOT_DISCOUNT_FACTOR = 0.8 # Multiply spawn rate by discount factor for each additional
+ADDITIONAL_RING_IN_ROBOT_DISCOUNT_FACTOR = (
+    0.8  # Multiply spawn rate by discount factor for each additional
+)
 
 SPAWN_RING_ON_GOAL = 0.2
-ADDITIONAL_RING_ON_GOAL_DISCOUNT_FACTOR = 0.9 # Multiply spawn rate by discount factor for each additional
+ADDITIONAL_RING_ON_GOAL_DISCOUNT_FACTOR = (
+    0.9  # Multiply spawn rate by discount factor for each additional
+)
 
 SPAWN_RING_ON_HIGH_BRANCH = 0.1
 SPAWN_RING_ON_LOW_BRANCH = 0.5

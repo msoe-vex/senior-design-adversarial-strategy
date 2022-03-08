@@ -91,8 +91,10 @@ class RedGoal(Goal, ISerializable):
             self.ring_containers[GoalLevel.LOW] = RingContainer()
 
         if self.ring_containers.get(GoalLevel.HIGH, None):
-            getLogger(REPRESENTATION_LOGGER_NAME).error(f"Error in RedGoal initialization: Rings placed on non-existent high branch")
-        
+            getLogger(REPRESENTATION_LOGGER_NAME).error(
+                f"Error in RedGoal initialization: Rings placed on non-existent high branch"
+            )
+
         self.ring_containers[GoalLevel.HIGH] = RingContainer(0)
 
 
@@ -108,8 +110,10 @@ class BlueGoal(Goal, ISerializable):
             self.ring_containers[GoalLevel.LOW] = RingContainer()
 
         if self.ring_containers.get(GoalLevel.HIGH, None):
-            getLogger(REPRESENTATION_LOGGER_NAME).error(f"Error in BlueGoal initialization: Rings placed on non-existent high branch")
-        
+            getLogger(REPRESENTATION_LOGGER_NAME).error(
+                f"Error in BlueGoal initialization: Rings placed on non-existent high branch"
+            )
+
         self.ring_containers[GoalLevel.HIGH] = RingContainer(0)
 
 
@@ -140,6 +144,8 @@ class LowNeutralGoal(Goal, ISerializable):
             self.ring_containers[GoalLevel.LOW] = RingContainer()
 
         if self.ring_containers.get(GoalLevel.HIGH, None):
-            getLogger(REPRESENTATION_LOGGER_NAME).error(f"Error in LowNeutralGoal initialization: Rings placed on non-existent high branch")
-        
+            getLogger(REPRESENTATION_LOGGER_NAME).error(
+                f"Error in LowNeutralGoal initialization: Rings placed on non-existent high branch"
+            )
+
         self.ring_containers[GoalLevel.HIGH] = RingContainer(0)
