@@ -1,7 +1,7 @@
-from entities.field import FieldState
-from entities.math_utils import Pose2D
+from entities.fieldRepresentation import FieldState
+from entities.mathUtils import Pose2D
 from entities.robots import HostRobot
-from examples.fieldRepresentation.field_representations import starting_representation
+from entities.fieldConfigurations import starting_representation
 import gym
 import numpy as np
 from gym import spaces
