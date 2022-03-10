@@ -764,6 +764,40 @@ class FieldRepresentation(ISerializable):
 
         return ax
 
+    def export_to_matrix(self) -> np.ndarray:
+        arr = np.zeros((145, 145, 5))
+
+        for ring in self.rings:
+            x = max(min(round(ring.position.x), 144), 0)
+            y = max(min(round(ring.position.y), 144), 0)
+
+            arr[x][y][0] = 1
+
+        for goal in self.goals:
+            x = max(min(round(goal.position.x), 144), 0)
+            y = max(min(round(goal.position.y), 144), 0)
+
+            if isinstance(goal, RedGoal):
+                arr[x][y][1] = goal.get_ring_score() + 1
+            elif isinstance(goal, BlueGoal):
+                arr[x][y][2] = goal.get_ring_score() + 1
+            else: # Neutral Goal
+                arr[x][y][3] = goal.get_ring_score() + 1
+
+        for robot in self.robots:
+            x = max(min(round(robot.position.x), 144), 0)
+            y = max(min(round(robot.position.y), 144), 0)
+            color_offset = 1 if robot.color == Color.BLUE else 0
+
+            if isinstance(robot, HostRobot):
+                arr[x][y][4] = 1 + color_offset
+            elif isinstance(robot, PartnerRobot):
+                arr[x][y][4] = 3 + color_offset
+            else: # Host Robot
+                arr[x][y][4] = 5 + color_offset
+
+        return arr
+
     def as_json(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 

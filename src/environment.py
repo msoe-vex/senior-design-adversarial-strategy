@@ -13,52 +13,14 @@ class TippingPointEnv(gym.Env):
     OpenAI Gym Environment for the VEX Tipping Point Game.
 
     Action Space:
-    - MultiDiscrete
-        - No-Op [0], Up [1], Down [2], Left [3], Right [4] 
-        - No-Op [0], Goal In [1], Goal Out [2] 
-        - No-Op [0], Ring In [1], Ring Out [2], Ring Place[3]
-
-    # The issue with MultiDiscrete in this case is it assumes
-    # Multi actions are temporally grouped with single ones
-    # An example is that moving and picking up a goal would
-    # most likely take longer than just moving
-    # 
     - Discrete
         - No-Op [0], Up [1], Down [2], Left [3], Right [4], 
         Goal In [5], Goal Out [6], 
         Ring In [7], Ring Out [8], Ring Place[9]
 
-    State Space:
+    Observation Space:
+    - Dict
 
-	- Box
-		- Dim0: X-Dimension (bounded between 0 and 144)
-		- Dim1: Y-Dimension (bounded between 0 and 144)
-		- Dim2: Z-Dimension (bounded between 0 and 4)
-			- Dim0: Ring Dimension
-				- Value: 
-					- 0: No Ring
-					- 1-255: Ring
-			- Dim1: Red Goal Dimension
-				- Value:
-					- 0: No Goal
-					- 1-255: Goal, Ring Score=n-1 
-			- Dim2: Blue Goal Dimension
-				- Value:
-					- 0: No Goal
-					- 1-255: Goal, Ring Score=n-1 
-			- Dim3: Neutral Goal Dimension
-				- Value:
-					- 0: No Goal
-					- 1-255: Goal, Ring Score=n-1 
-			- Dim4: Agent Dimension
-				- Value:
-					- 0: No Agent
-					- 1: Red Host Agent
-                    - 2: Blue Host Agent
-                    - 3: Red Partner Agent
-                    - 4: Blue Partner Agent
-                    - 5: Red Opposing Agent
-                    - 6-255: Blue Opposing Agent
 
     """
     metadata = {"render.modes": ["human"]}
@@ -78,6 +40,7 @@ class TippingPointEnv(gym.Env):
         # TODO: Calculate time
         self.field_state = FieldState(
             starting_representation(), steps)
+        self.MAX_STEPS = steps
 
     def step(self, action):
         # Execute one time step within the environment
@@ -92,9 +55,9 @@ class TippingPointEnv(gym.Env):
         if action > 0:
             # movement
             if action < 5:
-                does_collide, new_pos = self._collision(
+                no_collision, new_pos = self._collision(
                     host.position, self._map_movement(action), rep.robots)
-                if does_collide:
+                if no_collision:
                     host.position = new_pos
             # goal capture
             elif action == 5 and len(adjacent_goals) > 0:
@@ -134,10 +97,10 @@ class TippingPointEnv(gym.Env):
         # FIXME: save state for continuous
         obs = rep.export_to_matrix()
 
-        return obs, reward, done, {}
+        return obs, reward, False, {}
 
     def _collision(self, org_pos, direction, entities):
-        coords = np.array(org_pos.x, org_pos.y)
+        coords = np.array([org_pos.x, org_pos.y])
         coords += direction
         new_pos = Pose2D(coords[0], coords[1])
         colliding_ens = [
@@ -161,6 +124,7 @@ class TippingPointEnv(gym.Env):
 
     def render(self, mode="human", close=False):
         # Render the environment to the screen
-        fig = self.field_state.get_current_representation().draw()
-        plt.show()
+        ax = self.field_state.get_current_representation().draw()
+        # if(self.field_state.current_time == self.MAX_STEPS-1):
+        #     ax.redraw_in_frame()
         plt.pause(.001)
