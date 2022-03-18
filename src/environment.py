@@ -97,7 +97,7 @@ class TippingPointEnv(gym.Env):
         # FIXME: save state for continuous
         obs = rep.export_to_matrix()
 
-        return obs, reward, False, {}
+        return obs, reward, done, {}
 
     def _collision(self, org_pos, direction, entities):
         coords = np.array([org_pos.x, org_pos.y])

@@ -1,3 +1,5 @@
+logs/
+
 # User-defined files
 .vscode/*
 !.vscode/launch.json
