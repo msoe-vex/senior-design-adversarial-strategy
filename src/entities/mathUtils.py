@@ -14,5 +14,13 @@ class Pose2D(ISerializable):
         return math.sqrt(x_dist + y_dist)
 
 
+class ICollisionsEnabled:
+    pose: Pose2D = Pose2D(0, 0)
+    radius: float = 0.
+
+    def is_colliding(self, other_obj: "ICollisionsEnabled"):
+        return other_obj.pose.distTo(self.pose) < max(self.radius, other_obj.radius)
+
+
 def distance_between_points(p1: Pose2D, p2: Pose2D) -> float:
     return p1.distTo(p2)

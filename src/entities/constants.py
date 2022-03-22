@@ -1,4 +1,7 @@
 # Define rings
+import math
+
+
 MAX_NUM_RINGS = 72
 
 # Define goals
@@ -52,3 +55,11 @@ SPAWN_RING_ON_LOW_BRANCH = 0.5
 PARSER_LOGGER_NAME = "app/parser"
 REPRESENTATION_LOGGER_NAME = "app/representation"
 SIMULATION_LOGGER_NAME = "app/simulation"
+
+
+# Object radius sizes
+# Sourced from the field specification manual: https://content.vexrobotics.com/docs/21-22/tipping-point/2021-VRC-AppendixA-2.2.pdf
+RING_RADIUS = 12.97
+GOAL_RADIUS = 4.
+ROBOT_LENGTH = 15. # Arbitrary robot size for smaller robot
+ROBOT_RADIUS = math.sqrt(2 * (ROBOT_LENGTH ** 2)) / 2
