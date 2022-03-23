@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 from logging import getLogger
 import random
+from cv2 import idct
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -159,7 +160,9 @@ class FieldRepresentation(ISerializable):
     robots: list[Robot] = field(default_factory=list)
     field_counts: FieldCounts = FieldCounts()
 
-    def __get_alliance_color(self, random_color: int, host_alliance: bool = True) -> Color:
+    def __get_alliance_color(
+        self, random_color: int, host_alliance: bool = True
+    ) -> Color:
         if host_alliance:
             return Color.RED if random_color == 0 else Color.BLUE
         return Color.BLUE if random_color == 0 else Color.RED
@@ -302,7 +305,7 @@ class FieldRepresentation(ISerializable):
         return []
 
     def randomize(self) -> None:
-        # Reset field       
+        # Reset field
         self.red_platform.state = PlatformState.LEVEL
         self.red_platform.robots = []
         self.red_platform.goals = []
@@ -324,7 +327,10 @@ class FieldRepresentation(ISerializable):
 
         # Prevent things from spawning in on the ramp
         mid_field = int(FIELD_WIDTH_IN / 2)
-        for x in range(mid_field - int(PLATFORM_LENGTH_IN / 2), mid_field + int(PLATFORM_LENGTH_IN / 2)):
+        for x in range(
+            mid_field - int(PLATFORM_LENGTH_IN / 2),
+            mid_field + int(PLATFORM_LENGTH_IN / 2),
+        ):
             for y in range(0, PLATFORM_WIDTH_IN + 1):
                 field_map[y][x] = 1  # Block off area for ramp
 
@@ -381,9 +387,13 @@ class FieldRepresentation(ISerializable):
                 state = PlatformState.RIGHT
 
             if ramp_color == Color.RED:
-                self.red_platform = RedPlatform(state, robots=robots, goals=goals, rings=rings)
+                self.red_platform = RedPlatform(
+                    state, robots=robots, goals=goals, rings=rings
+                )
             else:
-                self.blue_platform = BluePlatform(state, robots=robots, goals=goals, rings=rings)
+                self.blue_platform = BluePlatform(
+                    state, robots=robots, goals=goals, rings=rings
+                )
 
         while self.field_counts.get_remaining_host_robots() > 0:
             grid_x = random.randint(0, FIELD_WIDTH_IN)
@@ -597,9 +607,7 @@ class FieldRepresentation(ISerializable):
         # TODO determine how to draw rings and goals that are posessed by a robot
 
         # Calculate ring positions
-        ring_arr = np.array(
-            [[ring.pose.x, ring.pose.y] for ring in combined_ring_arr]
-        )
+        ring_arr = np.array([[ring.pose.x, ring.pose.y] for ring in combined_ring_arr])
 
         # Calculate goal positions
         red_goal_arr = np.array(
@@ -765,7 +773,79 @@ class FieldRepresentation(ISerializable):
         return ax
 
     def export_to_dict(self) -> dict:
-        ...
+        loc = np.zeros((145, 145, 100))
+        pos = np.zeros((100, 3, 2))
+        col = np.zeros((100))
+        val = np.zeros((100))
+        opp = np.zeros((100))
+
+        # TODO: add platforms
+        ent_lst = [*self.rings, *self.goals, *self.robots]
+        pose_lam = lambda en: (
+            max(min(round(en.pose.x), 144), 0),
+            max(min(round(en.pose.y), 144), 0),
+        )
+
+        def type_map(ent):
+            val = 2
+            if isinstance(ent, HighNeutralGoal):
+                val = 0
+            elif isinstance(ent, Goal):
+                val = 1
+            elif isinstance(ent, Ring):
+                val = 2
+            elif isinstance(ent, Robot):
+                val = 3
+            return val
+
+        def point_map(ent):
+            val = 0
+            # TODO: compress util funcs into field rep class
+            host_col = [robot for robot in self.robots if type(robot) is HostRobot][
+                0
+            ].color
+            if isinstance(ent, HighNeutralGoal):
+                val = 0
+            elif isinstance(ent, Goal):
+                val = ent.get_current_score(host_col)
+            elif isinstance(ent, Ring):
+                val = 1
+            elif isinstance(ent, Robot):
+                val = sum([goal.get_current_score(host_col) for goal in ent.goals])
+                val += len(ent.rings)
+            return val
+
+        for i, ent in enumerate(ent_lst):
+            # id = i
+            # location
+            x, y = pose_lam(ent)
+            loc[x][y][i] = type_map(ent)
+
+            # possesion and opposing
+            if isinstance(ent, Goal):
+                for level, cont in ent.ring_containers.items():
+                    ldx = 0
+                    if level == GoalLevel.BASE:
+                        ldx = 0
+                    elif level == GoalLevel.LOW:
+                        ldx = 1
+                    elif level == GoalLevel.HIGH:
+                        ldx = 2
+                    pos[i][ldx][0] = cont.get_utilization()
+            if isinstance(ent, Robot):
+                pos[i][0][1] = len(ent.rings)
+                pos[i][0][0] = len(ent.goals)
+
+                opp[i] = ent.id
+
+            # color
+            if not isinstance(ent, Ring):
+                col[i] = ent.color.value
+
+            # value
+            val[i] = point_map(ent)
+
+        return dict(location=loc, possesion=pos, color=col, value=val, is_opposing=opp)
 
     def as_json(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

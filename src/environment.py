@@ -20,8 +20,34 @@ class TippingPointEnv(gym.Env):
 
     Observation Space:
     - Dict
+        {
+        "location": Box(145, 145, 100), low=0 high=4 (#entity type)
+            idx[x][y][id] = entity_type
+            0=high_goals
+            1=goals
+            2=rings
+            3=robot
+            4=platform
 
+        "possesion": Box(100, 3, 2), low=0 high=75 (#count)
+            idx[id][poss_level][poss_type]= count
+            poss_level:
+            0=base, 1=low, 2=high
+            poss_type:
+            0=goal, 1=ring
 
+        "color": Box(100), low=0 high=2 (#color)
+            0=red
+            1=blue
+            2=neutral
+
+        "value": Box(100), low=0 high=255 (#point value)
+
+        "is_opposing": Box(100), low=0 high=2 (#bool)
+            0=n/a
+            1=no
+            2=yes
+        }
     """
 
     metadata = {"render.modes": ["human"]}
@@ -31,11 +57,18 @@ class TippingPointEnv(gym.Env):
 
         self.action_space = spaces.Discrete(10)
 
-        self.observation_space = spaces.Box(
-            low=0,
-            high=255,
-            shape=(145, 145, 5),
-            dtype=np.uint8,
+        self.observation_space = spaces.Dict(
+            {
+                "location": spaces.Box(
+                    low=0, high=4, shape=(145, 145, 100), dtype=np.uint8
+                ),
+                "possesion": spaces.Box(
+                    low=0, high=100, shape=(100, 3, 2), dtype=np.uint8
+                ),
+                "color": spaces.Box(low=0, high=2, shape=(100,), dtype=np.uint8),
+                "value": spaces.Box(low=0, high=255, shape=(100,), dtype=np.uint8),
+                "is_opposing": spaces.Box(low=0, high=2, shape=(100,), dtype=np.uint8),
+            }
         )
 
         # TODO: Calculate time
@@ -131,7 +164,7 @@ class TippingPointEnv(gym.Env):
         rep = self.field_state.get_current_representation()
         rep.randomize()
 
-        return rep.export_to_matrix()
+        return rep.export_to_dict()
 
     def render(self, mode="human", close=False):
         # Render the environment to the screen

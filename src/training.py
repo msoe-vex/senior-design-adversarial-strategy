@@ -14,14 +14,16 @@ os.makedirs(log_dir, exist_ok=True)
 
 # Environment
 env = TippingPointEnv(100)
-check_env(env)
+# check_env(env)
 env = Monitor(env)
 env = DummyVecEnv([lambda: env])
 env = VecTransposeImage(env)
 
 # Policy network
 timesteps = 1e4
-model = PPO("MlpPolicy", env, verbose=2, tensorboard_log=log_dir+"/tensorboard")
+model = PPO(
+    "MultiInputPolicy", env, verbose=2, tensorboard_log=log_dir + "/tensorboard"
+)
 model.learn(total_timesteps=int(timesteps))
 
 # Rendering example:
@@ -31,5 +33,5 @@ model.learn(total_timesteps=int(timesteps))
 #     action = env.action_space.sample()
 #     obs, rewards, done, info = env.step(action)
 #     env.render()
-    
+
 # plt.show()
