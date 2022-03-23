@@ -1,5 +1,5 @@
 import unittest
-# from entities.mathUtils import Pose2D, distance_between_points
+from src.entities.mathUtils import Pose2D, distance_between_points
 
 class TestMathUtils(unittest.TestCase):
     def test_pose2d(self):
