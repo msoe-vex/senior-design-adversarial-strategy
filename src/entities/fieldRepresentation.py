@@ -183,11 +183,11 @@ class FieldRepresentation(ISerializable):
         percent = random.random()
 
         rings = self.__generate_ring_list(
-            goal.position, SPAWN_RING_ON_GOAL, ADDITIONAL_RING_ON_GOAL_DISCOUNT_FACTOR
+            goal.pose, SPAWN_RING_ON_GOAL, ADDITIONAL_RING_ON_GOAL_DISCOUNT_FACTOR
         )
 
         getLogger(REPRESENTATION_LOGGER_NAME).info(
-            f"Spawned {len(rings)} rings on {type(goal).__name__} goal at ({goal.position.x},{goal.position.y})"
+            f"Spawned {len(rings)} rings on {type(goal).__name__} goal at ({goal.pose.x},{goal.pose.y})"
         )
 
         for ring in rings:
@@ -277,7 +277,7 @@ class FieldRepresentation(ISerializable):
 
         if robot is not None:
             getLogger(REPRESENTATION_LOGGER_NAME).info(
-                f"Spawned {type(robot).__name__} of color {robot.color} at ({robot.position.x},{robot.position.y})"
+                f"Spawned {type(robot).__name__} of color {robot.color} at ({robot.pose.x},{robot.pose.y})"
             )
 
             if random.random() < SPAWN_GOAL_IN_ROBOT:
@@ -598,13 +598,13 @@ class FieldRepresentation(ISerializable):
 
         # Calculate ring positions
         ring_arr = np.array(
-            [[ring.position.x, ring.position.y] for ring in combined_ring_arr]
+            [[ring.pose.x, ring.pose.y] for ring in combined_ring_arr]
         )
 
         # Calculate goal positions
         red_goal_arr = np.array(
             [
-                [goal.position.x, goal.position.y]
+                [goal.pose.x, goal.pose.y]
                 for goal in combined_goal_arr
                 if isinstance(goal, RedGoal)
             ]
@@ -612,7 +612,7 @@ class FieldRepresentation(ISerializable):
 
         blue_goal_arr = np.array(
             [
-                [goal.position.x, goal.position.y]
+                [goal.pose.x, goal.pose.y]
                 for goal in combined_goal_arr
                 if isinstance(goal, BlueGoal)
             ]
@@ -620,7 +620,7 @@ class FieldRepresentation(ISerializable):
 
         low_neutral_goal_arr = np.array(
             [
-                [goal.position.x, goal.position.y]
+                [goal.pose.x, goal.pose.y]
                 for goal in combined_goal_arr
                 if isinstance(goal, LowNeutralGoal)
             ]
@@ -628,7 +628,7 @@ class FieldRepresentation(ISerializable):
 
         high_neutral_goal_arr = np.array(
             [
-                [goal.position.x, goal.position.y]
+                [goal.pose.x, goal.pose.y]
                 for goal in combined_goal_arr
                 if isinstance(goal, HighNeutralGoal)
             ]
@@ -637,7 +637,7 @@ class FieldRepresentation(ISerializable):
         # Calculate robot positions
         host_robot_arr = np.array(
             [
-                [robot.position.x, robot.position.y, convertColorToRGBA(robot.color)]
+                [robot.pose.x, robot.pose.y, convertColorToRGBA(robot.color)]
                 for robot in combined_robot_arr
                 if isinstance(robot, HostRobot)
             ],
@@ -646,7 +646,7 @@ class FieldRepresentation(ISerializable):
 
         partner_robot_arr = np.array(
             [
-                [robot.position.x, robot.position.y, convertColorToRGBA(robot.color)]
+                [robot.pose.x, robot.pose.y, convertColorToRGBA(robot.color)]
                 for robot in combined_robot_arr
                 if isinstance(robot, PartnerRobot)
             ],
@@ -655,7 +655,7 @@ class FieldRepresentation(ISerializable):
 
         opposing_robot_arr = np.array(
             [
-                [robot.position.x, robot.position.y, convertColorToRGBA(robot.color)]
+                [robot.pose.x, robot.pose.y, convertColorToRGBA(robot.color)]
                 for robot in combined_robot_arr
                 if isinstance(robot, OpposingRobot)
             ],
@@ -763,40 +763,6 @@ class FieldRepresentation(ISerializable):
         ax.set_ylim([0, 144])
 
         return ax
-
-    def export_to_matrix(self) -> np.ndarray:
-        arr = np.zeros((145, 145, 5))
-
-        for ring in self.rings:
-            x = max(min(round(ring.position.x), 144), 0)
-            y = max(min(round(ring.position.y), 144), 0)
-
-            arr[x][y][0] = 1
-
-        for goal in self.goals:
-            x = max(min(round(goal.position.x), 144), 0)
-            y = max(min(round(goal.position.y), 144), 0)
-
-            if isinstance(goal, RedGoal):
-                arr[x][y][1] = goal.get_ring_score() + 1
-            elif isinstance(goal, BlueGoal):
-                arr[x][y][2] = goal.get_ring_score() + 1
-            else: # Neutral Goal
-                arr[x][y][3] = goal.get_ring_score() + 1
-
-        for robot in self.robots:
-            x = max(min(round(robot.position.x), 144), 0)
-            y = max(min(round(robot.position.y), 144), 0)
-            color_offset = 1 if robot.color == Color.BLUE else 0
-
-            if isinstance(robot, HostRobot):
-                arr[x][y][4] = 1 + color_offset
-            elif isinstance(robot, PartnerRobot):
-                arr[x][y][4] = 3 + color_offset
-            else: # Host Robot
-                arr[x][y][4] = 5 + color_offset
-
-        return arr
 
     def as_json(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

@@ -3,25 +3,27 @@ from enum import Enum
 from typing import List
 from entities.classUtils import AbstractDataClass, nested_dataclass
 from entities.interfaces import ITippable, ISerializable
-from entities.mathUtils import Pose2D
+from entities.mathUtils import Pose2D, ICollisionsEnabled
 from entities.scoring_elements import Ring, Goal
 from entities.enumerations import Color
+from entities.constants import ROBOT_RADIUS
 
 
 class RobotID(int, Enum):
-    SELF = (0,)
-    PARTNER = (1,)
-    OPPOSING = (2,)
+    SELF = 0
+    PARTNER = 1
+    OPPOSING = 2
 
 
 @nested_dataclass
-class Robot(AbstractDataClass, ITippable, ISerializable):
+class Robot(AbstractDataClass, ITippable, ICollisionsEnabled, ISerializable):
     color: Color = Color.RED
     id: RobotID = RobotID.SELF
-    position: Pose2D = Pose2D(0, 0)
+    pose: Pose2D = Pose2D(0, 0)
     rings: List[Ring] = field(default_factory=list)
     goals: List[Goal] = field(default_factory=list)
     tipped: bool = False
+    radius: float = ROBOT_RADIUS
 
     def is_tipped(self) -> bool:
         return self.tipped
