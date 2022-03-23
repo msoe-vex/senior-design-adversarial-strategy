@@ -764,6 +764,9 @@ class FieldRepresentation(ISerializable):
 
         return ax
 
+    def export_to_dict(self) -> dict:
+        ...
+
     def as_json(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
