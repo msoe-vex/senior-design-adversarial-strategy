@@ -1,6 +1,6 @@
 from __future__ import annotations
 import math
-from entities.interfaces import ISerializable
+from .interfaces import ISerializable
 
 
 class Pose2D(ISerializable):

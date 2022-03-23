@@ -1,11 +1,11 @@
 from dataclasses import field
 from enum import Enum
 from typing import List
-from entities.classUtils import AbstractDataClass, nested_dataclass
-from entities.interfaces import ITippable, ISerializable
-from entities.mathUtils import Pose2D
-from entities.scoring_elements import Ring, Goal
-from entities.enumerations import Color
+from .classUtils import AbstractDataClass, nested_dataclass
+from .interfaces import ITippable, ISerializable
+from .mathUtils import Pose2D
+from .scoring_elements import Ring, Goal
+from .enumerations import Color
 
 
 class RobotID(int, Enum):

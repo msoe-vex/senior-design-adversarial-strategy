@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import json
 from typing import Dict
 from logging import getLogger

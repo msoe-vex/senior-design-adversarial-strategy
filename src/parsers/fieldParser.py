@@ -1,12 +1,12 @@
 from logging import getLogger
 from typing import List, Tuple
-from entities.constants import PARSER_LOGGER_NAME
-from entities.enumerations import Color, GoalLevel
-from entities.fieldRepresentation import FieldCounts, FieldRepresentation
-from entities.mathUtils import Pose2D
-from entities.platforms import BluePlatform, Platform, RedPlatform
-from entities.robots import HostRobot, OpposingRobot, PartnerRobot, Robot, RobotID
-from entities.scoring_elements import (
+from ..entities.constants import PARSER_LOGGER_NAME
+from ..entities.enumerations import Color, GoalLevel
+from ..entities.fieldRepresentation import FieldCounts, FieldRepresentation
+from ..entities.mathUtils import Pose2D
+from ..entities.platforms import BluePlatform, Platform, RedPlatform
+from ..entities.robots import HostRobot, OpposingRobot, PartnerRobot, Robot, RobotID
+from ..entities.scoring_elements import (
     BlueGoal,
     Goal,
     HighNeutralGoal,
