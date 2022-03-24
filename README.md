@@ -1,5 +1,5 @@
 # MSOE Senior Design - Adversarial Strategy VEX Robot Program
-![Unit Tests](https://github.com/msoe-vex/senior-design-adversarial-strategy/workflows/test-ci/badge.svg)
+![Unit Tests](https://github.com/msoe-vex/senior-design-adversarial-strategy/actions/workflows/test-runner.yml/badge.svg)
 
 Adversarial strategy and game playing project for the MSOE Senior Design Team focused on bringing AI to the MSOE VEX U Team's robots.
 
