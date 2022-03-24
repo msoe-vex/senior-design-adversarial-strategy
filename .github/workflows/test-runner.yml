@@ -1,0 +1,14 @@
+name: Unit Test Runner
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    container: raiderrobotics/container-registry:rr-foxy-base
+    steps:
+    - name: ✔️ Checkout Repository and Submodules
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: 🧪 Execute unit tests
+      run: |
+        python -m unittest discover
