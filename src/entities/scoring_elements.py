@@ -3,15 +3,17 @@ from dataclasses import field
 from logging import getLogger
 from typing import List
 from .constants import REPRESENTATION_LOGGER_NAME
-from .mathUtils import Pose2D
+from .mathUtils import Pose2D, ICollisionsEnabled
 from .interfaces import ITippable, IScorable, ISerializable
 from .classUtils import AbstractDataClass, nested_dataclass
 from .enumerations import Color, GoalLevel
+from .constants import GOAL_RADIUS, RING_RADIUS
 
 
 @nested_dataclass
-class Ring(ISerializable):
-    position: Pose2D
+class Ring(ICollisionsEnabled, ISerializable):
+    pose: Pose2D
+    radius: float = RING_RADIUS
 
 
 @nested_dataclass
@@ -39,18 +41,19 @@ class RingContainer(ISerializable):
 
 
 @nested_dataclass
-class Goal(AbstractDataClass, ITippable, IScorable, ISerializable):
+class Goal(AbstractDataClass, ITippable, IScorable, ICollisionsEnabled, ISerializable):
     color: Color = Color.NEUTRAL
-    position: Pose2D = Pose2D(0, 0)
+    pose: Pose2D = Pose2D(0, 0)
     level: GoalLevel = GoalLevel.LOW
     ring_containers: dict[GoalLevel, RingContainer] = field(default_factory=dict)
     tipped: bool = False
+    radius: float = GOAL_RADIUS
     current_zone: Color = field(init=False)
 
     def __post_init__(self):
-        if self.position.y <= 48:
+        if self.pose.y <= 48:
             self.current_zone = Color.RED
-        elif self.position.y >= 96:
+        elif self.pose.y >= 96:
             self.current_zone = Color.BLUE
         else:
             self.current_zone = Color.NEUTRAL

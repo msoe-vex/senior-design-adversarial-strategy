@@ -1,5 +1,7 @@
 from __future__ import annotations
 import math
+
+from .classUtils import nested_dataclass
 from .interfaces import ISerializable
 
 
@@ -12,6 +14,23 @@ class Pose2D(ISerializable):
         x_dist = (pose.x - self.x) ** 2
         y_dist = (pose.y - self.y) ** 2
         return math.sqrt(x_dist + y_dist)
+
+
+class ICollisionsEnabled:
+    """
+    Due to bad inheritance logic, classes that implement this interface require their own instances of pose and radius to be instantiated (with the same names) for this to work.
+    """
+    pose: Pose2D = Pose2D(0, 0)
+    radius: float = 0.
+
+    def __init__(self):
+        # Empty to allow for child class constructor to work in multiple inheritance
+        # This can be fixed by modifying the class decorator to propagate the method resolution order
+        # https://stackoverflow.com/questions/3277367/how-does-pythons-super-work-with-multiple-inheritance
+        pass
+
+    def is_colliding(self, other_obj: "ICollisionsEnabled"):
+        return other_obj.pose.distTo(self.pose) < max(self.radius, other_obj.radius)
 
 
 def distance_between_points(p1: Pose2D, p2: Pose2D) -> float:
