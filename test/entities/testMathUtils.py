@@ -14,6 +14,7 @@ class TestPose2D(unittest.TestCase):
 
         self.assertEqual(poseA.distTo(poseB), 5)
         self.assertEqual(poseB.distTo(poseA), 5)
+        self.assertTrue(False)
 
 
 class TestDistanceBetweenPoints(unittest.TestCase):
