@@ -1,6 +1,6 @@
 import json
 from abc import ABC, abstractmethod
-from entities.enumerations import Color
+from .enumerations import Color
 
 
 class ITippable(ABC):

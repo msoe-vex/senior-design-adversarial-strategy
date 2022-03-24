@@ -2,11 +2,11 @@ from __future__ import annotations
 from dataclasses import field
 from logging import getLogger
 from typing import List
-from entities.constants import REPRESENTATION_LOGGER_NAME
-from entities.mathUtils import Pose2D
-from entities.interfaces import ITippable, IScorable, ISerializable
-from entities.classUtils import AbstractDataClass, nested_dataclass
-from entities.enumerations import Color, GoalLevel
+from .constants import REPRESENTATION_LOGGER_NAME
+from .mathUtils import Pose2D
+from .interfaces import ITippable, IScorable, ISerializable
+from .classUtils import AbstractDataClass, nested_dataclass
+from .enumerations import Color, GoalLevel
 
 
 @nested_dataclass

@@ -1,11 +1,11 @@
-from entities.classUtils import AbstractDataClass, nested_dataclass
-from entities.interfaces import IScorable, ISerializable
 from enum import Enum
 from typing import List
 from dataclasses import field
-from entities.enumerations import Color
-from entities.scoring_elements import Ring, Goal
-from entities.robots import Robot
+from .classUtils import AbstractDataClass, nested_dataclass
+from .interfaces import IScorable, ISerializable
+from .enumerations import Color
+from .scoring_elements import Ring, Goal
+from .robots import Robot
 
 
 class PlatformState(int, Enum):
