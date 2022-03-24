@@ -1,7 +1,7 @@
 Execute tests with the following command *from the root directory*:
 
 ```
-python -m unittest
+python -m unittest discover
 ```
 
 To run a specific directory or package, one of the following can be used:
