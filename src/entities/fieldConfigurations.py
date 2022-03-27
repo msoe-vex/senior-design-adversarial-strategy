@@ -1,6 +1,6 @@
-from entities.fieldRepresentation import FieldRepresentation
-from entities.platforms import BluePlatform, PlatformState, RedPlatform
-from entities.scoring_elements import (
+from .fieldRepresentation import FieldRepresentation
+from .platforms import BluePlatform, PlatformState, RedPlatform
+from .scoring_elements import (
     GoalLevel,
     HighNeutralGoal,
     LowNeutralGoal,
@@ -9,9 +9,9 @@ from entities.scoring_elements import (
     Ring,
     RingContainer,
 )
-from entities.robots import HostRobot, PartnerRobot, OpposingRobot
-from entities.mathUtils import Pose2D
-from entities.enumerations import Color
+from .robots import HostRobot, PartnerRobot, OpposingRobot
+from .mathUtils import Pose2D
+from .enumerations import Color
 
 
 def basic_goal_representation():

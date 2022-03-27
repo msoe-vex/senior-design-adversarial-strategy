@@ -8,13 +8,13 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from typing import Tuple
 from dataclasses import field
-from entities.classUtils import nested_dataclass
-from entities.constants import *
-from entities.enumerations import Color, convertColorToRGBA
-from entities.interfaces import ISerializable
-from entities.mathUtils import Pose2D
-from entities.platforms import PlatformState, RedPlatform, BluePlatform
-from entities.scoring_elements import (
+from .classUtils import nested_dataclass
+from .constants import *
+from .enumerations import Color, convertColorToRGBA
+from .interfaces import ISerializable
+from .mathUtils import Pose2D
+from .platforms import PlatformState, RedPlatform, BluePlatform
+from .scoring_elements import (
     BlueGoal,
     GoalLevel,
     Goal,
@@ -23,7 +23,7 @@ from entities.scoring_elements import (
     RedGoal,
     Ring,
 )
-from entities.robots import HostRobot, OpposingRobot, PartnerRobot, Robot
+from .robots import HostRobot, OpposingRobot, PartnerRobot, Robot
 
 
 @nested_dataclass
@@ -607,7 +607,9 @@ class FieldRepresentation(ISerializable):
         # TODO determine how to draw rings and goals that are posessed by a robot
 
         # Calculate ring positions
-        ring_arr = np.array([[ring.pose.x, ring.pose.y] for ring in combined_ring_arr])
+        ring_arr = np.array(
+            [[ring.pose.x, ring.pose.y] for ring in combined_ring_arr]
+        )
 
         # Calculate goal positions
         red_goal_arr = np.array(

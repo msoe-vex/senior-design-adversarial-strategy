@@ -3,6 +3,7 @@ logs/
 # User-defined files
 .vscode/*
 !.vscode/launch.json
+!.vscode/tasks.json
 
 # Virtual environment directories
 py-venv/
