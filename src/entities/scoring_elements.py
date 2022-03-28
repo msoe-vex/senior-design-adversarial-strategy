@@ -48,15 +48,6 @@ class Goal(AbstractDataClass, ITippable, IScorable, ICollisionsEnabled, ISeriali
     ring_containers: dict[GoalLevel, RingContainer] = field(default_factory=dict)
     tipped: bool = False
     radius: float = GOAL_RADIUS
-    current_zone: Color = field(init=False)
-
-    def __post_init__(self):
-        if self.pose.y <= 48:
-            self.current_zone = Color.RED
-        elif self.pose.y >= 96:
-            self.current_zone = Color.BLUE
-        else:
-            self.current_zone = Color.NEUTRAL
 
     def is_tipped(self) -> bool:
         return self.tipped
@@ -70,8 +61,18 @@ class Goal(AbstractDataClass, ITippable, IScorable, ICollisionsEnabled, ISeriali
             score += level.value * self.get_ring_container(level).get_utilization()
         return score
 
+    def get_current_zone(self) -> "Color":
+        if self.pose.y <= 48:
+            return Color.RED
+        elif self.pose.y >= 96:
+            return Color.BLUE
+        else:
+            return Color.NEUTRAL
+
     def get_current_score(self, color: Color) -> int:
-        if self.current_zone == color or self.color == Color.NEUTRAL:
+        if self.get_current_zone() == color and (
+            self.color == color or self.color == Color.NEUTRAL
+        ):
             return 20 + self.get_ring_score()
         return 0
 

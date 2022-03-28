@@ -90,11 +90,13 @@ class TippingPointEnv(gym.Env):
             goal
             for goal in rep.goals
             if distance_between_entities(goal, host) <= adjacent_distance
+            and goal not in host.goals
         ]
         adjacent_rings = [
             ring
             for ring in rep.rings
             if distance_between_entities(ring, host) <= adjacent_distance
+            and ring not in host.rings
         ]
 
         if action > 0:
@@ -105,7 +107,7 @@ class TippingPointEnv(gym.Env):
             elif action == 5 and len(adjacent_goals) > 0:
                 goal = adjacent_goals.pop()
                 host.goals.append(goal)
-                reward = goal.get_current_score()
+                reward = goal.get_ring_score()
             # goal release
             elif action == 6 and len(host.goals) > 0:
                 # FIXME: be released according to orientation
@@ -115,7 +117,7 @@ class TippingPointEnv(gym.Env):
                 goal = host.goals.pop()
                 offset = host.pose.y + host.radius + goal.radius + 1
                 goal.pose = Pose2D(host.pose.x, offset)
-                reward = goal.get_current_score()
+                reward = goal.get_current_score(host.color)
             # ring capture
             elif action == 7 and len(adjacent_rings) > 0:
                 # FIXME: number of rings picked up in a step
@@ -132,10 +134,14 @@ class TippingPointEnv(gym.Env):
             # ring placement
             elif len(host.rings) > 0 and len(adjacent_goals) > 0:
                 # FIXME: allow multiple rings?
-                #      : select goal strategically?
+                #      : encode selection in action space
+                #      : survey adjacent goals for vacancy
+                # FIXME: account for level difficulty
                 ring = host.rings.pop()
-                adjacent_goals[0].add_ring(ring)
-                reward += 1
+                selected_goal = adjacent_goals[0]
+                goal_levels = list(selected_goal.ring_containers.keys())
+                if selected_goal.add_ring(ring, goal_levels[-1]):
+                    reward += 1
 
         self.field_state.current_time -= 1
         done = self.field_state.current_time == 0
