@@ -13,11 +13,11 @@ log_dir = "logs/"
 os.makedirs(log_dir, exist_ok=True)
 
 # Environment
-env = TippingPointEnv(100)
+env = TippingPointEnv(1000)
 # check_env(env)
 env = Monitor(env)
 env = DummyVecEnv([lambda: env])
-env = VecTransposeImage(env)
+# env = VecTransposeImage(env)
 
 # Policy network
 timesteps = 1e4

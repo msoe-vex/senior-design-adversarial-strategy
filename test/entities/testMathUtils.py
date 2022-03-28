@@ -2,7 +2,7 @@ import math
 import unittest
 from src.entities.constants import GOAL_RADIUS, RING_RADIUS, ROBOT_RADIUS
 from src.entities.enumerations import Color
-from src.entities.mathUtils import Pose2D, distance_between_points
+from src.entities.mathUtils import Pose2D, distance_between_points, distance_between_entities
 from src.entities.robots import HostRobot, OpposingRobot, PartnerRobot
 from src.entities.scoring_elements import BlueGoal, HighNeutralGoal, RedGoal, Ring
 
@@ -81,6 +81,21 @@ class TestCollisionsEnabled(unittest.TestCase):
         self.assertFalse(r1.is_colliding(g1))
         self.assertFalse(g1.is_colliding(r1))
 
+
+class TestDistanceBetweenEntities(unittest.TestCase):
+    def test_distance_between_entities(self):
+        ent1 = Ring(Pose2D(0, 1))
+        ent2 = HostRobot(Color.BLUE, Pose2D(ROBOT_RADIUS + 8, 1))
+
+        dist = distance_between_entities(ent1, ent2)
+        self.assertEqual(dist, 4)
+
+    def test_distance_between_collding(self):
+        g1 = RedGoal(Pose2D(0, 0))
+        g2 = BlueGoal(Pose2D(GOAL_RADIUS * 0.5, GOAL_RADIUS * 0.5))
+        
+        dist = distance_between_entities(g1, g2)
+        self.assertEqual(dist, 0)
 
 if __name__ == "__main__":
     unittest.main()

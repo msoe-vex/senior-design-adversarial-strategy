@@ -12,7 +12,7 @@ To view all training benchmarks in tensorboard:
 ```
 python -m tensorboard.main --logdir logs/tensorboard/
 ```
-Interpret results here[https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval]
+![Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
 ## Running Locally
 Running this project locally requires installing some Pip packages to get all dependencies sorted. We **highly** recommend utilizing a Python virtual environment, which can be set up with one of the following command sets running in the project root:
 

@@ -1,5 +1,9 @@
 from entities.fieldRepresentation import FieldState
-from entities.mathUtils import Pose2D, distance_between_points
+from entities.mathUtils import (
+    Pose2D,
+    distance_between_points,
+    distance_between_entities,
+)
 from entities.robots import HostRobot
 from entities.fieldConfigurations import starting_representation
 import gym
@@ -81,22 +85,22 @@ class TippingPointEnv(gym.Env):
         reward = 0
         host = [robot for robot in rep.robots if type(robot) is HostRobot][0]
         # FIXME find correct action distances
-        adjacent_distance = 2
+        adjacent_distance = 4
         adjacent_goals = [
             goal
             for goal in rep.goals
-            if distance_between_points(goal.pose, host.pose) <= adjacent_distance
+            if distance_between_entities(goal, host) <= adjacent_distance
         ]
         adjacent_rings = [
             ring
             for ring in rep.rings
-            if distance_between_points(ring.pose, host.pose) <= adjacent_distance
+            if distance_between_entities(ring, host) <= adjacent_distance
         ]
 
         if action > 0:
             # movement
             if action < 5:
-                self._collision(host, self._map_movement(action), rep)
+                self._move_collision(host, self._map_movement(action), rep)
             # goal capture
             elif action == 5 and len(adjacent_goals) > 0:
                 goal = adjacent_goals.pop()
@@ -107,8 +111,10 @@ class TippingPointEnv(gym.Env):
                 # FIXME: be released according to orientation
                 # FIXME: scale by distance from boundary, other robots etc.
                 # FIXME: need zone boundaries to determine discount
+                # FIXME: prevent goal-entity collision
                 goal = host.goals.pop()
-                goal.pose = Pose2D(host.pose.x, host.pose.y + host.pose.radius)
+                offset = host.pose.y + host.radius + goal.radius + 1
+                goal.pose = Pose2D(host.pose.x, offset)
                 reward = goal.get_current_score()
             # ring capture
             elif action == 7 and len(adjacent_rings) > 0:
@@ -120,7 +126,8 @@ class TippingPointEnv(gym.Env):
             #     # FIXME: is this action necessary?
             #     #       number of rings released up in a step
             #     ring = host.rings.pop()
-            #     ring.pose = host.pose
+            #     offset = host.pose.y + host.radius + ring.radius + 1
+            #     ring.pose = Pose2D(host.pose.x, offset)
             #     reward -= 1
             # ring placement
             elif len(host.rings) > 0 and len(adjacent_goals) > 0:
@@ -138,7 +145,7 @@ class TippingPointEnv(gym.Env):
 
         return obs, reward, done, {}
 
-    def _collision(self, host, direction, field_rep):
+    def _move_collision(self, host, direction, field_rep):
         # FIXME: add platforms to collision
         ent_lst = [*field_rep.robots, *field_rep.goals, *field_rep.rings]
         org_pos = host.pose
@@ -147,6 +154,7 @@ class TippingPointEnv(gym.Env):
         new_pos = Pose2D(coords[0], coords[1])
         host.pose = new_pos
         colliding_ens = [en for en in ent_lst if en.is_colliding(host)]
+
         if len(colliding_ens) != 0:
             host.pose = org_pos
 
