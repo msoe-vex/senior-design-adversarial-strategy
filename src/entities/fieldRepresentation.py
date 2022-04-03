@@ -607,9 +607,7 @@ class FieldRepresentation(ISerializable):
         # TODO determine how to draw rings and goals that are posessed by a robot
 
         # Calculate ring positions
-        ring_arr = np.array(
-            [[ring.pose.x, ring.pose.y] for ring in combined_ring_arr]
-        )
+        ring_arr = np.array([[ring.pose.x, ring.pose.y] for ring in combined_ring_arr])
 
         # Calculate goal positions
         red_goal_arr = np.array(
@@ -775,11 +773,11 @@ class FieldRepresentation(ISerializable):
         return ax
 
     def export_to_dict(self) -> dict:
-        loc = np.zeros((145, 145, 100))
-        pos = np.zeros((100, 3, 2))
-        col = np.zeros((100))
-        val = np.zeros((100))
-        opp = np.zeros((100))
+        loc = np.zeros((145, 145, 100), dtype=np.uint8)
+        pos = np.zeros((100, 3, 2), dtype=np.uint8)
+        col = np.zeros((100), dtype=np.uint8)
+        val = np.zeros((100), dtype=np.uint8)
+        opp = np.zeros((100), dtype=np.uint8)
 
         # TODO: add platforms
         ent_lst = [*self.rings, *self.goals, *self.robots]
