@@ -19,6 +19,8 @@ python -m tensorboard.main --logdir logs/tensorboard/
 ```
 ![Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
 ## Running Locally
+Python >= 3.8
+
 Running this project locally requires installing some Pip packages to get all dependencies sorted. We **highly** recommend utilizing a Python virtual environment, which can be set up with one of the following command sets running in the project root:
 
 **Executing in Bash**
