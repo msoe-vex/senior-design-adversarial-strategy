@@ -187,7 +187,7 @@ class FieldRepresentation(ISerializable):
         )
 
         getLogger(REPRESENTATION_LOGGER_NAME).info(
-            f"Spawned {len(rings)} rings on {type(goal).__name__} goal at ({goal.pose.x},{goal.pose.y})"
+            f"Spawned {len(rings)} rings on {type(goal).__name__} goal at ({goal.pose.x},{goal.pose.y},{goal.pose.angle})"
         )
 
         for ring in rings:
@@ -233,7 +233,7 @@ class FieldRepresentation(ISerializable):
 
         if goal is not None:
             getLogger(REPRESENTATION_LOGGER_NAME).info(
-                f"Spawned {type(goal).__name__} at ({pose.x},{pose.y})"
+                f"Spawned {type(goal).__name__} at ({pose.x},{pose.y},{pose.angle})"
             )
 
             if random.random() < SPAWN_RING_ON_GOAL:
@@ -277,7 +277,7 @@ class FieldRepresentation(ISerializable):
 
         if robot is not None:
             getLogger(REPRESENTATION_LOGGER_NAME).info(
-                f"Spawned {type(robot).__name__} of color {robot.color} at ({robot.pose.x},{robot.pose.y})"
+                f"Spawned {type(robot).__name__} of color {robot.color} at ({robot.pose.x},{robot.pose.y},{robot.pose.angle})"
             )
 
             if random.random() < SPAWN_GOAL_IN_ROBOT:
@@ -342,12 +342,13 @@ class FieldRepresentation(ISerializable):
                 if ramp_color == Color.RED
                 else (144 - (PLATFORM_WIDTH_IN / 3))
             )
+            angle = 0
 
             # TODO add logging to ramp generated elements
 
             robots = []
             if random.random() < SPAWN_ROBOT_ON_RAMP:
-                pose = Pose2D(x_pos, y_pos)
+                pose = Pose2D(x_pos, y_pos, angle)
                 x_pos += 10
                 robots = self.__generate_robot_list(
                     current_color,
@@ -358,7 +359,7 @@ class FieldRepresentation(ISerializable):
 
             goals = []
             if random.random() < SPAWN_GOAL_ON_RAMP:
-                pose = Pose2D(x_pos, y_pos)
+                pose = Pose2D(x_pos, y_pos, angle)
                 x_pos += 10
                 goals = self.__generate_goal_list(
                     pose, SPAWN_GOAL_ON_RAMP, ADDITIONAL_GOAL_ON_RAMP_DISCOUNT_FACTOR
@@ -366,7 +367,7 @@ class FieldRepresentation(ISerializable):
 
             rings = []
             if random.random() < SPAWN_RING_ON_RAMP:
-                pose = Pose2D(x_pos, y_pos)
+                pose = Pose2D(x_pos, y_pos, angle)
                 x_pos += 10
                 rings = self.__generate_ring_list(
                     pose, SPAWN_RING_ON_RAMP, ADDITIONAL_RING_ON_RAMP_DISCOUNT_FACTOR
@@ -389,13 +390,14 @@ class FieldRepresentation(ISerializable):
             grid_x = random.randint(0, FIELD_WIDTH_IN)
             x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
-            pose = Pose2D(x, y)
+            angle = (random.random() * 2 * math.pi) - math.pi
+            pose = Pose2D(x, y, angle)
 
             if field_map[y][grid_x] == 0:
                 field_map[y][grid_x] = 1
 
                 robot = HostRobot(
-                    self.__get_alliance_color(current_color), Pose2D(x, y)
+                    self.__get_alliance_color(current_color), pose
                 )
 
                 if random.random() < SPAWN_GOAL_IN_ROBOT:
@@ -416,14 +418,15 @@ class FieldRepresentation(ISerializable):
                 self.field_counts.host_robots += 1
 
                 getLogger(REPRESENTATION_LOGGER_NAME).info(
-                    f"Spawned Host Robot at ({x},{y})"
+                    f"Spawned Host Robot at ({x},{y},{angle})"
                 )
 
         while self.field_counts.get_remaining_partner_robots() > 0:
             grid_x = random.randint(0, FIELD_WIDTH_IN)
             x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
-            pose = Pose2D(x, y)
+            angle = (random.random() * 2 * math.pi) - math.pi
+            pose = Pose2D(x, y, angle)
 
             if field_map[y][grid_x] == 0:
                 field_map[y][grid_x] = 1
@@ -448,14 +451,15 @@ class FieldRepresentation(ISerializable):
                 self.field_counts.partner_robots += 1
 
                 getLogger(REPRESENTATION_LOGGER_NAME).info(
-                    f"Spawned Partner Robot at ({x},{y})"
+                    f"Spawned Partner Robot at ({x},{y},{angle})"
                 )
 
         while self.field_counts.get_remaining_opposing_robots() > 0:
             grid_x = random.randint(0, FIELD_WIDTH_IN)
             x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
-            pose = Pose2D(x, y)
+            angle = (random.random() * 2 * math.pi) - math.pi
+            pose = Pose2D(x, y, angle)
 
             if field_map[y][grid_x] == 0:
                 field_map[y][grid_x] = 1
@@ -482,14 +486,15 @@ class FieldRepresentation(ISerializable):
                 self.field_counts.opposing_robots += 1
 
                 getLogger(REPRESENTATION_LOGGER_NAME).info(
-                    f"Spawned Opposing Robot at ({x},{y})"
+                    f"Spawned Opposing Robot at ({x},{y},{angle})"
                 )
 
         while self.field_counts.get_remaining_red_goals() > 0:
             grid_x = random.randint(0, FIELD_WIDTH_IN)
             x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
-            pose = Pose2D(x, y)
+            angle = (random.random() * 2 * math.pi) - math.pi
+            pose = Pose2D(x, y, angle)
 
             if field_map[y][grid_x] == 0:
                 field_map[y][grid_x] = 1
@@ -503,14 +508,15 @@ class FieldRepresentation(ISerializable):
                 self.field_counts.red_goals += 1
 
                 getLogger(REPRESENTATION_LOGGER_NAME).info(
-                    f"Spawned Red Goal at ({x},{y})"
+                    f"Spawned Red Goal at ({x},{y},{angle})"
                 )
 
         while self.field_counts.get_remaining_blue_goals() > 0:
             grid_x = random.randint(0, FIELD_WIDTH_IN)
             x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
-            pose = Pose2D(x, y)
+            angle = (random.random() * 2 * math.pi) - math.pi
+            pose = Pose2D(x, y, angle)
 
             if field_map[y][grid_x] == 0:
                 field_map[y][grid_x] = 1
@@ -524,14 +530,15 @@ class FieldRepresentation(ISerializable):
                 self.field_counts.blue_goals += 1
 
                 getLogger(REPRESENTATION_LOGGER_NAME).info(
-                    f"Spawned Blue Goal at ({x},{y})"
+                    f"Spawned Blue Goal at ({x},{y},{angle})"
                 )
 
         while self.field_counts.get_remaining_low_neutral_goals() > 0:
             grid_x = random.randint(0, FIELD_WIDTH_IN)
             x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
-            pose = Pose2D(x, y)
+            angle = (random.random() * 2 * math.pi) - math.pi
+            pose = Pose2D(x, y, angle)
 
             if field_map[y][grid_x] == 0:
                 field_map[y][grid_x] = 1
@@ -545,14 +552,15 @@ class FieldRepresentation(ISerializable):
                 self.field_counts.low_neutral_goals += 1
 
                 getLogger(REPRESENTATION_LOGGER_NAME).info(
-                    f"Spawned Low Neutral Goal at ({x},{y})"
+                    f"Spawned Low Neutral Goal at ({x},{y},{angle})"
                 )
 
         while self.field_counts.get_remaining_high_neutral_goals() > 0:
             grid_x = random.randint(0, FIELD_WIDTH_IN)
             x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
-            pose = Pose2D(x, y)
+            angle = (random.random() * 2 * math.pi) - math.pi
+            pose = Pose2D(x, y, angle)
 
             if field_map[y][grid_x] == 0:
                 field_map[y][grid_x] = 1
@@ -566,14 +574,15 @@ class FieldRepresentation(ISerializable):
                 self.field_counts.high_neutral_goals += 1
 
                 getLogger(REPRESENTATION_LOGGER_NAME).info(
-                    f"Spawned High Neutral Goal at ({x},{y})"
+                    f"Spawned High Neutral Goal at ({x},{y},{angle})"
                 )
 
         while self.field_counts.get_remaining_rings() > 0:
             grid_x = random.randint(0, FIELD_WIDTH_IN)
             x = grid_x - int(FIELD_WIDTH_IN / 2)
             y = random.randint(0, FIELD_WIDTH_IN)
-            pose = Pose2D(x, y)
+            angle = (random.random() * 2 * math.pi) - math.pi
+            pose = Pose2D(x, y, angle)
 
             if field_map[y][grid_x] == 0:
                 field_map[y][grid_x] = 1
@@ -581,7 +590,7 @@ class FieldRepresentation(ISerializable):
                 self.rings.append(Ring(pose))
                 self.field_counts.rings += 1
 
-                getLogger(REPRESENTATION_LOGGER_NAME).info(f"Spawned Ring at ({x},{y})")
+                getLogger(REPRESENTATION_LOGGER_NAME).info(f"Spawned Ring at ({x},{y},{angle})")
 
     def draw(self) -> plt.plot:
         combined_ring_arr = (
@@ -598,13 +607,13 @@ class FieldRepresentation(ISerializable):
 
         # Calculate ring positions
         ring_arr = np.array(
-            [[ring.pose.x, ring.pose.y] for ring in combined_ring_arr]
+            [[ring.pose.x, ring.pose.y, ring.pose.angle] for ring in combined_ring_arr]
         )
 
         # Calculate goal positions
         red_goal_arr = np.array(
             [
-                [goal.pose.x, goal.pose.y]
+                [goal.pose.x, goal.pose.y, goal.pose.angle]
                 for goal in combined_goal_arr
                 if isinstance(goal, RedGoal)
             ]
@@ -612,7 +621,7 @@ class FieldRepresentation(ISerializable):
 
         blue_goal_arr = np.array(
             [
-                [goal.pose.x, goal.pose.y]
+                [goal.pose.x, goal.pose.y, goal.pose.angle]
                 for goal in combined_goal_arr
                 if isinstance(goal, BlueGoal)
             ]
@@ -620,7 +629,7 @@ class FieldRepresentation(ISerializable):
 
         low_neutral_goal_arr = np.array(
             [
-                [goal.pose.x, goal.pose.y]
+                [goal.pose.x, goal.pose.y, goal.pose.angle]
                 for goal in combined_goal_arr
                 if isinstance(goal, LowNeutralGoal)
             ]
@@ -628,7 +637,7 @@ class FieldRepresentation(ISerializable):
 
         high_neutral_goal_arr = np.array(
             [
-                [goal.pose.x, goal.pose.y]
+                [goal.pose.x, goal.pose.y, goal.pose.angle]
                 for goal in combined_goal_arr
                 if isinstance(goal, HighNeutralGoal)
             ]
@@ -637,7 +646,7 @@ class FieldRepresentation(ISerializable):
         # Calculate robot positions
         host_robot_arr = np.array(
             [
-                [robot.pose.x, robot.pose.y, convertColorToRGBA(robot.color)]
+                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color)]
                 for robot in combined_robot_arr
                 if isinstance(robot, HostRobot)
             ],
@@ -646,7 +655,7 @@ class FieldRepresentation(ISerializable):
 
         partner_robot_arr = np.array(
             [
-                [robot.pose.x, robot.pose.y, convertColorToRGBA(robot.color)]
+                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color)]
                 for robot in combined_robot_arr
                 if isinstance(robot, PartnerRobot)
             ],
@@ -655,7 +664,7 @@ class FieldRepresentation(ISerializable):
 
         opposing_robot_arr = np.array(
             [
-                [robot.pose.x, robot.pose.y, convertColorToRGBA(robot.color)]
+                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color)]
                 for robot in combined_robot_arr
                 if isinstance(robot, OpposingRobot)
             ],
@@ -697,67 +706,104 @@ class FieldRepresentation(ISerializable):
             ax.scatter(
                 host_robot_arr[:, 0],
                 host_robot_arr[:, 1],
-                color=host_robot_arr[:, 2],
+                color=host_robot_arr[:, 3],
                 ec="black",
                 linewidth=4,
-                marker="s",
+                marker=(4,0,math.degrees(host_robot_arr[:, 2]) - math.degrees(math.pi / 4)),
                 s=3000,
+            )
+
+            ax.scatter(
+                host_robot_arr[:, 0],
+                host_robot_arr[:, 1],
+                color="black",
+                marker=(3,0,math.degrees(host_robot_arr[:, 2]) - math.degrees(math.pi / 2)),
+                s=500,
             )
 
         if np.any(partner_robot_arr):
             ax.scatter(
                 partner_robot_arr[:, 0],
                 partner_robot_arr[:, 1],
-                color=partner_robot_arr[:, 2],
-                marker="s",
+                color=partner_robot_arr[:, 3],
+                marker=(4,0,math.degrees(partner_robot_arr[:, 2]) - math.degrees(math.pi / 4)),
                 s=3000,
+            )
+
+            ax.scatter(
+                partner_robot_arr[:, 0],
+                partner_robot_arr[:, 1],
+                color="black",
+                marker=(3,0,math.degrees(partner_robot_arr[:, 2]) - math.degrees(math.pi / 2)),
+                s=500,
             )
 
         if np.any(opposing_robot_arr):
-            ax.scatter(
-                opposing_robot_arr[:, 0],
-                opposing_robot_arr[:, 1],
-                color=opposing_robot_arr[:, 2],
-                marker="s",
-                s=3000,
-            )
+            for robot in opposing_robot_arr:
+                ax.scatter(
+                    robot[0],
+                    robot[1],
+                    color=robot[3],
+                    marker=(4,0,math.degrees(robot[2]) - math.degrees(math.pi / 4)),
+                    s=3000,
+                )
+
+                ax.scatter(
+                    robot[0],
+                    robot[1],
+                    color="black",
+                    marker=(3,0,math.degrees(robot[2]) - math.degrees(math.pi / 2)),
+                    s=500,
+                )
 
         # Draw goals
         if np.any(red_goal_arr):
-            ax.scatter(
-                red_goal_arr[:, 0], red_goal_arr[:, 1], color="red", marker="H", s=2000
-            )
+            for goal in red_goal_arr:
+                ax.scatter(
+                    goal[0], 
+                    goal[1], 
+                    color="red", 
+                    marker=(6,0,math.degrees(goal[2])), 
+                    s=2000
+                )
 
         if np.any(blue_goal_arr):
-            ax.scatter(
-                blue_goal_arr[:, 0],
-                blue_goal_arr[:, 1],
-                color="blue",
-                marker="H",
-                s=2000,
-            )
+            for goal in blue_goal_arr:
+                ax.scatter(
+                    goal[0],
+                    goal[1],
+                    color="blue",
+                    marker=(6,0,math.degrees(goal[2])),
+                    s=2000,
+                )
 
         if np.any(low_neutral_goal_arr):
-            ax.scatter(
-                low_neutral_goal_arr[:, 0],
-                low_neutral_goal_arr[:, 1],
-                color="yellow",
-                marker="H",
-                s=2000,
-            )
+            for goal in low_neutral_goal_arr:
+                ax.scatter(
+                    goal[0],
+                    goal[1],
+                    color="yellow",
+                    marker=(6,0,math.degrees(goal[2])),
+                    s=2000,
+                )
 
         if np.any(high_neutral_goal_arr):
-            ax.scatter(
-                high_neutral_goal_arr[:, 0],
-                high_neutral_goal_arr[:, 1],
-                color="yellow",
-                marker="H",
-                s=2000,
-            )
+            for goal in high_neutral_goal_arr:
+                ax.scatter(
+                    goal[0],
+                    goal[1],
+                    color="yellow",
+                    marker=(6,0,math.degrees(goal[2])),
+                    s=2000,
+                )
 
         # Draw rings
         if np.any(ring_arr):
-            ax.scatter(ring_arr[:, 0], ring_arr[:, 1], color="purple")
+            ax.scatter(
+                ring_arr[:, 0], 
+                ring_arr[:, 1], 
+                color="purple"
+            )
 
         ax.set_xlim([-72, 72])
         ax.set_ylim([0, 144])

@@ -43,7 +43,7 @@ class RingContainer(ISerializable):
 @nested_dataclass
 class Goal(AbstractDataClass, ITippable, IScorable, ICollisionsEnabled, ISerializable):
     color: Color = Color.NEUTRAL
-    pose: Pose2D = Pose2D(0, 0)
+    pose: Pose2D = Pose2D(0, 0, 0)
     level: GoalLevel = GoalLevel.LOW
     ring_containers: dict[GoalLevel, RingContainer] = field(default_factory=dict)
     tipped: bool = False
