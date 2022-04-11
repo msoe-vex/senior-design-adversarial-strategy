@@ -38,9 +38,9 @@ class ICollisionsEnabled:
         pass
 
     def is_colliding(self, other_obj: "ICollisionsEnabled"):
-        return other_obj.pose.distTo(self.pose) < max(self.radius, other_obj.radius)
+        return other_obj.pose.distTo(self.pose) <= max(self.radius, other_obj.radius)
 
-    def is_colliding_front(self, other_obj: "ICollisionsEnabled", collision_radius: float):
+    def is_colliding_front(self, other_obj: "ICollisionsEnabled", collision_radius: float=0.1):
         # Get point in front of the object, on the radius circle
         # Since our angles are based on the positive x-axis, start the point on the radius of the object, on the positive x-axis side
         new_x = ((self.pose.x + self.radius) * math.cos(self.pose.angle)) - (self.pose.y * math.sin(self.pose.angle))
@@ -49,7 +49,7 @@ class ICollisionsEnabled:
 
         return other_obj.pose.distTo(front_point) <= collision_radius
 
-    def is_colliding_rear(self, other_obj: "ICollisionsEnabled", collision_radius: float):
+    def is_colliding_rear(self, other_obj: "ICollisionsEnabled", collision_radius: float=0.1):
         # Get point behind the current object, on the radius circle
         # Since our angles are based on the positive x-axis, start the point on the radius of the object, on the positive x-axis side
         rear_angle = self.pose.angle + math.pi
