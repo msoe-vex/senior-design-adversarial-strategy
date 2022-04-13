@@ -4,11 +4,6 @@
 Adversarial strategy and game playing project for the MSOE Senior Design Team focused on bringing AI to the MSOE VEX U Team's robots.
 
 ## Get started
-Install multi-agent fork:
-```
-git clone https://github.com/ChipHennig/marl-baselines3.git
-pip install /pathto/marl-baselines3
-```
 After installing packages and activating the virtual env, run
 ```
 python src/training.py
