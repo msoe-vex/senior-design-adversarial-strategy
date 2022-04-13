@@ -64,6 +64,14 @@ class Goal(AbstractDataClass, ITippable, IScorable, ICollisionsEnabled, ISeriali
     def get_ring_container(self, level: GoalLevel) -> RingContainer:
         return self.ring_containers[level]
 
+    def get_total_rings(self) -> int:
+        total = 0
+
+        for level in self.ring_containers:
+            total += self.get_ring_container(level).get_utilization()
+
+        return total
+
     def get_ring_score(self) -> int:
         score = 0
         for level in self.ring_containers:
