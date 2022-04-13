@@ -770,7 +770,7 @@ class FieldRepresentation(ISerializable):
         ax.add_patch(blue_plat)
 
         # Draw legend label
-        self.__draw_text(ax, Pose2D(75, 130, 0), "Field:")
+        self.__draw_text(ax, Pose2D(75, 130, 0), "Robots:")
 
         # Draw robots
         if np.any(host_robot_arr):
