@@ -24,7 +24,8 @@ class FieldParser:
     def __parse_position(self, position_dict: dict) -> Pose2D:
         x = position_dict["x"]
         y = position_dict["y"]
-        return Pose2D(x, y)
+        angle = position_dict["angle"]
+        return Pose2D(x, y, angle)
 
     def __parse_rings(self, ring_dict: dict) -> List[Ring]:
         rings = []
