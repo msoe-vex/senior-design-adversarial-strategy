@@ -3,6 +3,7 @@ from entities.mathUtils import (
     Pose2D,
     distance_between_entities,
 )
+from ray.rllib.env.multi_agent_env import MultiAgentEnv
 from entities.enumerations import Color
 from entities.robots import HostRobot, OpposingRobot
 from entities.fieldConfigurations import starting_representation
@@ -12,7 +13,7 @@ from gym import spaces
 import matplotlib.pyplot as plt
 
 
-class MARLTippingPointEnv(gym.Env):
+class MARLTippingPointEnv(MultiAgentEnv):
     """
     OpenAI Gym Environment for the VEX Tipping Point Game.
 
@@ -105,15 +106,20 @@ class MARLTippingPointEnv(gym.Env):
         done = self.field_state.current_time == 0
 
         num_agents = self.num_agents
-        rewards = [0] * num_agents
+        rewards = {}
+        obs = {}
+        dones = {}
+        info = {}
+        for i in range(num_agents):
+            obs[i] = field_rep.export_to_dict()
+            dones[i] = done
+            if done:
+                dones["__all__"] = True
 
         if done:
             rewards = self._calculate_scores(agent_list, field_rep)
 
-        obs = [field_rep.export_to_dict()] * num_agents
-        dones = [done] * num_agents
-
-        return obs, rewards, dones, [{}] * num_agents
+        return obs, rewards, dones, info
 
     def _calculate_scores(self, agent_list, field_rep):
         # FIXME: add platforms to scoring
@@ -133,7 +139,7 @@ class MARLTippingPointEnv(gym.Env):
             red_score = -1
             blue_score = 1
 
-        rewards = [0] * len(agent_list)
+        rewards = {}
         for i, agent in enumerate(agent_list):
             if agent.color == Color.RED:
                 rewards[i] = red_score
@@ -221,7 +227,10 @@ class MARLTippingPointEnv(gym.Env):
         return dirs[action]
 
     def reset(self):
-        return [starting_representation().export_to_dict()] * self.num_agents
+        obs = {}
+        for i in range(self.num_agents):
+            obs[i] = starting_representation().export_to_dict()
+        return obs
 
     def render(self, mode="human", close=False):
         # Render the environment to the screen

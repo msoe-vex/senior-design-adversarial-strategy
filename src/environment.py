@@ -186,4 +186,4 @@ class TippingPointEnv(gym.Env):
         ax = self.field_state.get_current_representation().draw()
         # if(self.field_state.current_time == self.MAX_STEPS-1):
         #     ax.redraw_in_frame()
-        plt.pause(0.001)
+        plt.pause(0.01)

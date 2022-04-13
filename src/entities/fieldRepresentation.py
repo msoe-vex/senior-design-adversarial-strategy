@@ -2,7 +2,6 @@ from __future__ import annotations
 import json
 from logging import getLogger
 import random
-from cv2 import idct
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
