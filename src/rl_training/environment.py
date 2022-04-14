@@ -80,7 +80,13 @@ class TippingPointEnv(gym.Env):
         # Execute one time step within the environment
         rep = self.field_state.get_current_representation()
         reward = 0
-        host = [robot for robot in rep.robots if type(robot) is HostRobot][0]
+        host = [
+            robot
+            for robot in (
+                rep.robots + rep.red_platform.robots + rep.blue_platform.robots
+            )
+            if type(robot) is HostRobot
+        ][0]
 
         adjacent_entities = self._detect_adjacents(host, rep)
         self._do_action(action, host, adjacent_entities, rep)
