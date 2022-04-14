@@ -13,7 +13,7 @@ class Pose2D(ISerializable):
     @param y: Y-Coordinate of the position
     @param angle: Angle of the position, in radians, mapping to a unit circle
     """
-    def __init__(self, x: float, y: float, angle: float):
+    def __init__(self, x: float, y: float, angle: float=0):
         self.x = x
         self.y = y
         self.angle = angle
@@ -62,3 +62,10 @@ class ICollisionsEnabled:
 
 def distance_between_points(p1: Pose2D, p2: Pose2D) -> float:
     return p1.distTo(p2)
+
+
+def distance_between_entities(ent1: "ICollisionsEnabled", ent2: "ICollisionsEnabled") -> float:
+    dist = distance_between_points(ent1.pose, ent2.pose) - (ent1.radius + ent2.radius)
+    if dist < 0:
+        dist = 0
+    return dist
