@@ -29,7 +29,7 @@ checkpoint_callback = CheckpointCallback(
 model = PPO(
     "MultiInputPolicy", env, verbose=2, tensorboard_log=log_dir + "/tensorboard"
 )
-model.learn(total_timesteps=int(timesteps))
+model.learn(total_timesteps=int(timesteps), callback=checkpoint_callback)
 
 # Rendering example:
 # obs = env.reset()
