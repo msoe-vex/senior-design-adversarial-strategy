@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #SBATCH --partition=teaching
-#SBATCH --cpus-per-task=2
+#SBATCH --gres=gpu:t4:1
+#SBATCH --cpus-per-gpu=2
 
 module purge
 eval "$(conda shell.bash hook)"
