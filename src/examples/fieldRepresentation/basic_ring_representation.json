@@ -18,7 +18,7 @@
         "max_opposing_robots": 2,
         "max_partner_robots": 1,
         "max_red_goals": 2,
-        "max_rings": 0,
+        "max_rings": 72,
         "opposing_robots": 0,
         "partner_robots": 0,
         "red_goals": 0,
@@ -34,136 +34,180 @@
     },
     "rings": [
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -69,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -62,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -55,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -48,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -48,
                 "y": 78
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -48,
                 "y": 84
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -48,
                 "y": 90
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -48,
                 "y": 96
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -25,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -17,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -9,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 9,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 17,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 25,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 69,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 62,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 55,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 48,
                 "y": 72
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 48,
                 "y": 66
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 48,
                 "y": 60
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 48,
                 "y": 54
-            }
+            },
+            "radius": 4
         },
         {
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 48,
                 "y": 48
-            }
+            },
+            "radius": 4
         }
     ],
     "robots": [
@@ -171,10 +215,12 @@
             "color": 0,
             "goals": [],
             "id": 0,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 30,
                 "y": 0
             },
+            "radius": 10.606601717798213,
             "rings": [],
             "tipped": false
         },
@@ -182,10 +228,12 @@
             "color": 0,
             "goals": [],
             "id": 1,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -30,
                 "y": 0
             },
+            "radius": 10.606601717798213,
             "rings": [],
             "tipped": false
         },
@@ -193,10 +241,12 @@
             "color": 1,
             "goals": [],
             "id": 2,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 30,
                 "y": 144
             },
+            "radius": 10.606601717798213,
             "rings": [],
             "tipped": false
         },
@@ -204,10 +254,12 @@
             "color": 1,
             "goals": [],
             "id": 2,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -30,
                 "y": 144
             },
+            "radius": 10.606601717798213,
             "rings": [],
             "tipped": false
         }
