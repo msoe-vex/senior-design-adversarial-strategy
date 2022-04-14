@@ -1,10 +1,10 @@
 from entities.fieldRepresentation import FieldState
 from entities.mathUtils import (
     Pose2D,
-    distance_between_points,
     distance_between_entities,
 )
-from entities.robots import HostRobot
+from entities.enumerations import Color
+from entities.robots import HostRobot, OpposingRobot
 from entities.fieldConfigurations import starting_representation
 import gym
 import numpy as np
@@ -81,88 +81,116 @@ class TippingPointEnv(gym.Env):
 
     def step(self, action):
         # Execute one time step within the environment
-        rep = self.field_state.get_current_representation()
+        field_rep = self.field_state.get_current_representation()
+        agent = [robot for robot in field_rep.robots if type(robot) is HostRobot][0]
+
+        adjacent_entities = self._detect_adjacents(agent, field_rep)
+        self._do_action(action, agent, adjacent_entities, field_rep)
+
+        self.field_state.current_time -= 1
+        done = self.field_state.current_time == 0
         reward = 0
-        host = [robot for robot in rep.robots if type(robot) is HostRobot][0]
+        obs = field_rep.export_to_dict()
+
+        if done:
+            reward = self._calculate_scores(agent, field_rep)
+
+        return obs, reward, done, {}
+
+    def _calculate_scores(self, agent, field_rep):
+        # FIXME: add platforms to scoring
+        red_score = 0
+        blue_score = 0
+        for goal in field_rep.goals:
+            red_score += goal.get_current_score(Color.RED)
+            blue_score += goal.get_current_score(Color.BLUE)
+
+        if red_score > blue_score:
+            red_score = 1
+            blue_score = -1
+        elif red_score == blue_score:
+            red_score = 1 / 2
+            blue_score = 1 / 2
+        else:
+            red_score = -1
+            blue_score = 1
+
+        reward = 0
+        if agent.color == Color.RED:
+            reward = red_score
+        elif agent.color == Color.BLUE:
+            reward = blue_score
+
+        return reward
+
+    def _detect_adjacents(self, agent, field_rep):
         # FIXME find correct action distances
         adjacent_distance = 4
         adjacent_goals = [
             goal
-            for goal in rep.goals
-            if distance_between_entities(goal, host) <= adjacent_distance
-            and goal not in host.goals
+            for goal in field_rep.goals
+            if distance_between_entities(goal, agent) <= adjacent_distance
+            and goal not in agent.goals
         ]
         adjacent_rings = [
             ring
-            for ring in rep.rings
-            if distance_between_entities(ring, host) <= adjacent_distance
-            and ring not in host.rings
+            for ring in field_rep.rings
+            if distance_between_entities(ring, agent) <= adjacent_distance
+            and ring not in agent.rings
         ]
+        return adjacent_goals, adjacent_rings
 
+    def _do_action(self, action, agent, adjacent_entities, field_rep):
+        adjacent_goals = adjacent_entities[0]
+        adjacent_rings = adjacent_entities[1]
         if action > 0:
             # movement
             if action < 5:
-                self._move_collision(host, self._map_movement(action), rep)
+                self._move_collision(agent, self._map_movement(action), field_rep)
             # goal capture
             elif action == 5 and len(adjacent_goals) > 0:
                 goal = adjacent_goals.pop()
-                host.goals.append(goal)
-                reward = goal.get_ring_score()
+                agent.goals.append(goal)
             # goal release
-            elif action == 6 and len(host.goals) > 0:
+            elif action == 6 and len(agent.goals) > 0:
                 # FIXME: be released according to orientation
-                # FIXME: scale by distance from boundary, other robots etc.
-                # FIXME: need zone boundaries to determine discount
                 # FIXME: prevent goal-entity collision
-                goal = host.goals.pop()
-                offset = host.pose.y + host.radius + goal.radius + 1
-                goal.pose = Pose2D(host.pose.x, offset)
-                reward = goal.get_current_score(host.color)
+                goal = agent.goals.pop()
+                offset = agent.pose.y + agent.radius + goal.radius + 1
+                goal.pose = Pose2D(agent.pose.x, offset)
             # ring capture
             elif action == 7 and len(adjacent_rings) > 0:
                 # FIXME: number of rings picked up in a step
-                host.rings += adjacent_rings
-                reward += len(adjacent_rings)
+                agent.rings += adjacent_rings
             # # ring release
-            # elif action == 8 and len(host.rings) > 0:
-            #     # FIXME: is this action necessary?
-            #     #       number of rings released up in a step
-            #     ring = host.rings.pop()
-            #     offset = host.pose.y + host.radius + ring.radius + 1
-            #     ring.pose = Pose2D(host.pose.x, offset)
-            #     reward -= 1
+            # elif action == 8 and len(agent.rings) > 0:
+            #     # FIXME: number of rings released up in a step
+            #     ring = agent.rings.pop()
+            #     offset = agent.pose.y + agent.radius + ring.radius + 1
+            #     ring.pose = Pose2D(agent.pose.x, offset)
             # ring placement
-            elif len(host.rings) > 0 and len(adjacent_goals) > 0:
+            elif len(agent.rings) > 0 and len(adjacent_goals) > 0:
                 # FIXME: allow multiple rings?
                 #      : encode selection in action space
                 #      : survey adjacent goals for vacancy
                 # FIXME: account for level difficulty
-                ring = host.rings.pop()
+                ring = agent.rings.pop()
                 selected_goal = adjacent_goals[0]
                 goal_levels = list(selected_goal.ring_containers.keys())
-                if selected_goal.add_ring(ring, goal_levels[-1]):
-                    reward += 1
+                selected_goal.add_ring(ring, goal_levels[-1])
 
-        self.field_state.current_time -= 1
-        done = self.field_state.current_time == 0
-
-        # FIXME: save state for continuous
-        obs = rep.export_to_dict()
-
-        return obs, reward, done, {}
-
-    def _move_collision(self, host, direction, field_rep):
+    def _move_collision(self, agent, direction, field_rep):
         # FIXME: add platforms to collision
         ent_lst = [*field_rep.robots, *field_rep.goals, *field_rep.rings]
-        org_pos = host.pose
+        org_pos = agent.pose
         coords = np.array([org_pos.x, org_pos.y])
         coords += direction
         new_pos = Pose2D(coords[0], coords[1])
-        host.pose = new_pos
-        colliding_ens = [en for en in ent_lst if en.is_colliding(host)]
+        agent.pose = new_pos
+        colliding_ens = [en for en in ent_lst if en.is_colliding(agent)]
 
         if len(colliding_ens) != 0:
-            host.pose = org_pos
+            agent.pose = org_pos
 
     def _map_movement(self, action):
         dirs = {
@@ -174,11 +202,7 @@ class TippingPointEnv(gym.Env):
         return dirs[action]
 
     def reset(self):
-        # Reset the state of the environment to an initial state
-        rep = self.field_state.get_current_representation()
-        rep.randomize()
-
-        return rep.export_to_dict()
+        return starting_representation().export_to_dict()
 
     def render(self, mode="human", close=False):
         # Render the environment to the screen
