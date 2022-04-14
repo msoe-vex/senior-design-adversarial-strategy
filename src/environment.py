@@ -202,7 +202,9 @@ class TippingPointEnv(gym.Env):
         return dirs[action]
 
     def reset(self):
-        return starting_representation().export_to_dict()
+        field_rep = self.field_state.get_current_representation()
+        field_rep.randomize()
+        return field_rep.export_to_dict()
 
     def render(self, mode="human", close=False):
         # Render the environment to the screen

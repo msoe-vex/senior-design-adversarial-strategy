@@ -22,9 +22,9 @@ env = DummyVecEnv([lambda: env])
 # env = VecTransposeImage(env)
 
 # Policy network
-timesteps = 1e4
+timesteps = 1e5
 checkpoint_callback = CheckpointCallback(
-    save_freq=steps, save_path=log_dir, name_prefix="strategyrl_model"
+    save_freq=timesteps/4, save_path=log_dir, name_prefix="strategyrl_model"
 )
 model = PPO(
     "MultiInputPolicy", env, verbose=2, tensorboard_log=log_dir + "/tensorboard"
