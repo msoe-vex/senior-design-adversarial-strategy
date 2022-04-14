@@ -46,6 +46,17 @@ An example configuration, with a virtual environment called `venv` is shown belo
 }
 ```
 
+## Reinforcement Learning Components
+After installing packages and activating the virtual env, run
+```
+python src/training.py
+```
+To view all training benchmarks in tensorboard:
+```
+python -m tensorboard.main --logdir logs/tensorboard/
+```
+![Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
+
 ## Contributing
 
 Some libraries are currently used by this repository to help boost code quality and functionality. To download them, run the following line from the project root directory:
