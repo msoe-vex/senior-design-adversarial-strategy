@@ -15,14 +15,15 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from stable_baselines3.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines3.common.vec_env.vec_transpose import VecTransposeImage
 from stable_baselines3.common.env_checker import check_env
-from stable_baselines3 import PPO
+from stable_baselines3.ppo import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.monitor import Monitor
 from rl_training.environment import TippingPointEnv
+from entities.fieldConfigurations import starting_representation
 
 
-def train_model(render=False):
+def train_model(train=True, model_path=None, render=False):
     # Logging
     log_dir = "logs/"
     os.makedirs(log_dir, exist_ok=True)
@@ -31,31 +32,38 @@ def train_model(render=False):
     steps = 1000
     env = TippingPointEnv(steps)
     # check_env(env)
-    env = Monitor(env)
-    env = DummyVecEnv([lambda: env])
-    # env = VecTransposeImage(env)
+    model = None
 
-    # Policy network
-    timesteps = 1e5
-    model_dir = log_dir + "/cpu"
-    checkpoint_callback = CheckpointCallback(
-        save_freq=timesteps / 4, save_path=model_dir, name_prefix="strategyrl_model"
-    )
-    model = PPO(
-        "MultiInputPolicy", env, verbose=2, tensorboard_log=log_dir + "/tensorboard"
-    )
-    model.learn(total_timesteps=int(timesteps), callback=checkpoint_callback)
+    if train:
+        env = Monitor(env)
+        env = DummyVecEnv([lambda: env])
+        # env = VecTransposeImage(env)
 
-    if render:
+        # Policy network
+        timesteps = 1e5
+        model_dir = log_dir + "/cpu"
+        checkpoint_callback = CheckpointCallback(
+            save_freq=timesteps / 4, save_path=model_dir, name_prefix="strategyrl_model"
+        )
+        model = PPO(
+            "MultiInputPolicy", env, verbose=2, tensorboard_log=log_dir + "/tensorboard"
+        )
+        model.learn(total_timesteps=int(timesteps), callback=checkpoint_callback)
+
+    if render or model_path:
         matplotlib.use("Agg")
         imgs = []
-        obs = env.reset()
+        # obs = env.reset()
+        obs = starting_representation().export_to_dict()
         fig = plt.figure()
         canvas = FigureCanvas(fig)
 
+        if model_path:
+            model = PPO.load(log_dir + model_path)
+
         for i in range(100):
-            # action, _states = model.predict(obs)
-            action = env.action_space.sample()
+            action, _states = model.predict(obs)
+            # action = env.action_space.sample()
             obs, rewards, done, info = env.step(action)
             ax = env.render()
 
@@ -84,4 +92,4 @@ def train_model(render=False):
 
 
 if __name__ == "__main__":
-    train_model()
+    train_model(train=False, model_path="/cpu/strategyrl_model_40000_steps")
