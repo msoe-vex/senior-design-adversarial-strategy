@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 from logging import getLogger
 import random
+from matplotlib.axes import Axes
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -592,7 +593,76 @@ class FieldRepresentation(ISerializable):
 
                 getLogger(REPRESENTATION_LOGGER_NAME).info(f"Spawned Ring at ({x},{y},{angle})")
 
+    def __draw_robot(self, ax: Axes, pose: Pose2D, color: str, is_host: bool=False, is_clip_on: bool=True):
+        plot_args = {
+            "x": pose.x,
+            "y": pose.y,
+            "color": color,
+            "marker": (4,0,math.degrees(pose.angle) - math.degrees(math.pi / 4)),
+            "s": 3000,
+            "clip_on": is_clip_on
+        }
+
+        if is_host:
+            plot_args["ec"] = "black"
+            plot_args["linewidth"] = 4
+
+        ax.scatter(**plot_args)
+
+        ax.scatter(
+            pose.x,
+            pose.y,
+            color="black",
+            marker=(3,0,math.degrees(pose.angle) - math.degrees(math.pi / 2)),
+            s=500,
+            clip_on=is_clip_on
+        )
+
+    def __draw_goal(self, ax: Axes, pose: Pose2D, color: str, is_clip_on: bool=True):
+        ax.scatter(
+            pose.x, 
+            pose.y, 
+            color=color, 
+            marker=(6,0,math.degrees(pose.angle)), 
+            s=2000,
+            clip_on=is_clip_on
+        )
+
+    def __draw_ring(self, ax: Axes, pose: Pose2D, is_clip_on: bool=True):
+        ax.scatter(
+            pose.x, 
+            pose.y, 
+            color="purple",
+            clip_on=is_clip_on
+        )
+
+    def __draw_text(self, ax: Axes, pose: Pose2D, text: str, fontsize: int=20):
+        ax.text(pose.x, pose.y, text, fontsize=20)
+
+    def __draw_ring_counter(self, ax: Axes, pose: Pose2D, count: int):
+        self.__draw_ring(ax, Pose2D(pose.x + 8, pose.y + 5, pose.angle), False)
+        self.__draw_text(ax, Pose2D(pose.x + 9, pose.y + 3, pose.angle), count, 8)
+
+    def __draw_legend_goal(self, ax: Axes, pose: Pose2D, goal: Goal):
+        self.__draw_goal(ax, pose, convertColorToRGBA(goal.color), False)
+        self.__draw_ring_counter(ax, pose, goal.get_total_rings())
+
+    def __draw_legend_goals_in_robot(self, ax: Axes, pose: Pose2D, x_offset: int, robot: Robot):
+        for count, goal in enumerate(robot.goals):
+            self.__draw_legend_goal(ax, Pose2D(pose.x + (count * x_offset), pose.y, pose.angle), goal)
+
+    def __draw_legend_robot(self, ax: Axes, pose: Pose2D, color: str, robot: Robot, x_offset: int, is_host: bool=False, is_clip_on: bool=True):
+        self.__draw_robot(ax, pose, color, is_host, is_clip_on)
+        self.__draw_ring_counter(ax, pose, len(robot.rings))
+        self.__draw_legend_goals_in_robot(ax, Pose2D(pose.x + 20, pose.y, pose.angle), x_offset, robot)
+
     def draw(self) -> plt.plot:
+        # Index locations
+        legend_x = 80
+        legend_y = 120
+        legend_x_spacing = 15
+        legend_y_spacing = 20
+
         combined_ring_arr = (
             self.rings + self.red_platform.rings + self.blue_platform.rings
         )
@@ -602,8 +672,6 @@ class FieldRepresentation(ISerializable):
         combined_robot_arr = (
             self.robots + self.red_platform.robots + self.blue_platform.robots
         )
-
-        # TODO determine how to draw rings and goals that are posessed by a robot
 
         # Calculate ring positions
         ring_arr = np.array(
@@ -646,7 +714,7 @@ class FieldRepresentation(ISerializable):
         # Calculate robot positions
         host_robot_arr = np.array(
             [
-                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color)]
+                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color), robot]
                 for robot in combined_robot_arr
                 if isinstance(robot, HostRobot)
             ],
@@ -655,7 +723,7 @@ class FieldRepresentation(ISerializable):
 
         partner_robot_arr = np.array(
             [
-                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color)]
+                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color), robot]
                 for robot in combined_robot_arr
                 if isinstance(robot, PartnerRobot)
             ],
@@ -664,7 +732,7 @@ class FieldRepresentation(ISerializable):
 
         opposing_robot_arr = np.array(
             [
-                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color)]
+                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color), robot]
                 for robot in combined_robot_arr
                 if isinstance(robot, OpposingRobot)
             ],
@@ -701,109 +769,71 @@ class FieldRepresentation(ISerializable):
         ax.add_patch(red_plat)
         ax.add_patch(blue_plat)
 
+        # Draw legend label
+        self.__draw_text(ax, Pose2D(75, 130, 0), "Robots:")
+
         # Draw robots
         if np.any(host_robot_arr):
-            ax.scatter(
-                host_robot_arr[:, 0],
-                host_robot_arr[:, 1],
-                color=host_robot_arr[:, 3],
-                ec="black",
-                linewidth=4,
-                marker=(4,0,math.degrees(host_robot_arr[:, 2]) - math.degrees(math.pi / 4)),
-                s=3000,
-            )
+            robot_pose = Pose2D(host_robot_arr[:, 0], host_robot_arr[:, 1], host_robot_arr[:, 2])
+            legend_pose = Pose2D(legend_x, legend_y, host_robot_arr[:, 2])
+            legend_y -= legend_y_spacing
+            
+            # Draw on field
+            self.__draw_robot(ax, robot_pose, host_robot_arr[:, 3], True)
 
-            ax.scatter(
-                host_robot_arr[:, 0],
-                host_robot_arr[:, 1],
-                color="black",
-                marker=(3,0,math.degrees(host_robot_arr[:, 2]) - math.degrees(math.pi / 2)),
-                s=500,
-            )
+            # Draw on index
+            self.__draw_legend_robot(ax, legend_pose, host_robot_arr[:, 3], host_robot_arr[:, 4][0], legend_x_spacing, True, False)
+            
+
 
         if np.any(partner_robot_arr):
-            ax.scatter(
-                partner_robot_arr[:, 0],
-                partner_robot_arr[:, 1],
-                color=partner_robot_arr[:, 3],
-                marker=(4,0,math.degrees(partner_robot_arr[:, 2]) - math.degrees(math.pi / 4)),
-                s=3000,
-            )
+            robot_pose = Pose2D(partner_robot_arr[:, 0], partner_robot_arr[:, 1], partner_robot_arr[:, 2])
+            legend_pose = Pose2D(np.full(partner_robot_arr[:, 2].shape, legend_x), np.full(partner_robot_arr[:, 2].shape, legend_y), partner_robot_arr[:, 2])
+            legend_y -= legend_y_spacing
 
-            ax.scatter(
-                partner_robot_arr[:, 0],
-                partner_robot_arr[:, 1],
-                color="black",
-                marker=(3,0,math.degrees(partner_robot_arr[:, 2]) - math.degrees(math.pi / 2)),
-                s=500,
-            )
+            # Draw on field
+            self.__draw_robot(ax, robot_pose, partner_robot_arr[:, 3])
+
+            # Draw on index
+            self.__draw_legend_robot(ax, legend_pose, partner_robot_arr[:, 3], partner_robot_arr[:, 4][0], legend_x_spacing, False, False)
 
         if np.any(opposing_robot_arr):
             for robot in opposing_robot_arr:
-                ax.scatter(
-                    robot[0],
-                    robot[1],
-                    color=robot[3],
-                    marker=(4,0,math.degrees(robot[2]) - math.degrees(math.pi / 4)),
-                    s=3000,
-                )
+                robot_pose = Pose2D(robot[0], robot[1], robot[2])
+                legend_pose = Pose2D(legend_x, legend_y, robot[2])
+                legend_y -= legend_y_spacing
 
-                ax.scatter(
-                    robot[0],
-                    robot[1],
-                    color="black",
-                    marker=(3,0,math.degrees(robot[2]) - math.degrees(math.pi / 2)),
-                    s=500,
-                )
+                # Draw on field
+                self.__draw_robot(ax, robot_pose, robot[3])
+
+                # Draw on index
+                self.__draw_legend_robot(ax, legend_pose, robot[3], robot[4], legend_x_spacing, False, False)
 
         # Draw goals
         if np.any(red_goal_arr):
             for goal in red_goal_arr:
-                ax.scatter(
-                    goal[0], 
-                    goal[1], 
-                    color="red", 
-                    marker=(6,0,math.degrees(goal[2])), 
-                    s=2000
-                )
+                goal_pose = Pose2D(goal[0], goal[1], goal[2])
+                self.__draw_goal(ax, goal_pose, "red")
 
         if np.any(blue_goal_arr):
             for goal in blue_goal_arr:
-                ax.scatter(
-                    goal[0],
-                    goal[1],
-                    color="blue",
-                    marker=(6,0,math.degrees(goal[2])),
-                    s=2000,
-                )
+                goal_pose = Pose2D(goal[0], goal[1], goal[2])
+                self.__draw_goal(ax, goal_pose, "blue")
 
         if np.any(low_neutral_goal_arr):
             for goal in low_neutral_goal_arr:
-                ax.scatter(
-                    goal[0],
-                    goal[1],
-                    color="yellow",
-                    marker=(6,0,math.degrees(goal[2])),
-                    s=2000,
-                )
+                goal_pose = Pose2D(goal[0], goal[1], goal[2])
+                self.__draw_goal(ax, goal_pose, "yellow")
 
         if np.any(high_neutral_goal_arr):
             for goal in high_neutral_goal_arr:
-                ax.scatter(
-                    goal[0],
-                    goal[1],
-                    color="yellow",
-                    marker=(6,0,math.degrees(goal[2])),
-                    s=2000,
-                )
+                goal_pose = Pose2D(goal[0], goal[1], goal[2])
+                self.__draw_goal(ax, goal_pose, "yellow")
 
         # Draw rings
         if np.any(ring_arr):
-            ax.scatter(
-                ring_arr[:, 0], 
-                ring_arr[:, 1], 
-                color="purple"
-            )
+            ring_poses = Pose2D(ring_arr[:, 0], ring_arr[:, 1], 0)
+            self.__draw_ring(ax, ring_poses)
 
         ax.set_xlim([-72, 72])
         ax.set_ylim([0, 144])
