@@ -2,6 +2,7 @@
 .vscode/*
 !.vscode/launch.json
 !.vscode/tasks.json
+logs/
 
 # Virtual environment directories
 py-venv/
