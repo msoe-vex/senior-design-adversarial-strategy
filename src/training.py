@@ -61,7 +61,7 @@ def train_model(train=True, model_path=None, render=False):
         if model_path:
             model = PPO.load(log_dir + model_path)
 
-        for i in range(100):
+        for i in range(1000):
             action, _states = model.predict(obs)
             # action = env.action_space.sample()
             obs, rewards, done, info = env.step(action)
