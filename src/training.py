@@ -15,23 +15,24 @@ os.makedirs(log_dir, exist_ok=True)
 # Environment
 env = TippingPointEnv(1000)
 # check_env(env)
-env = Monitor(env)
-env = DummyVecEnv([lambda: env])
+# env = Monitor(env)
+# env = DummyVecEnv([lambda: env])
 # env = VecTransposeImage(env)
 
 # Policy network
-timesteps = 1e4
-model = PPO(
-    "MultiInputPolicy", env, verbose=2, tensorboard_log=log_dir + "/tensorboard"
-)
-model.learn(total_timesteps=int(timesteps))
+# timesteps = 1e4
+# model = PPO(
+#     "MultiInputPolicy", env, verbose=2, tensorboard_log=log_dir + "/tensorboard"
+# )
+# model.learn(total_timesteps=int(timesteps))
 
 # Rendering example:
-# obs = env.reset()
-# for i in range(100):
-#     action, _states = model.predict(obs)
-#     action = env.action_space.sample()
-#     obs, rewards, done, info = env.step(action)
-#     env.render()
+obs = env.reset()
+for i in range(100):
+    # action, _states = model.predict(obs)
+    action = env.action_space.sample()
+    print(action)
+    obs, rewards, done, info = env.step(action)
+    env.render()
 
-# plt.show()
+plt.show()
