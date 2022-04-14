@@ -5,6 +5,8 @@ logs/
 .vscode/*
 !.vscode/launch.json
 !.vscode/tasks.json
+logs/
+*.mp4
 
 # Virtual environment directories
 py-venv/

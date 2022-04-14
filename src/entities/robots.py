@@ -19,7 +19,7 @@ class RobotID(int, Enum):
 class Robot(AbstractDataClass, ITippable, ICollisionsEnabled, ISerializable):
     color: Color = Color.RED
     id: RobotID = RobotID.SELF
-    pose: Pose2D = Pose2D(0, 0)
+    pose: Pose2D = Pose2D(0, 0, 0)
     rings: List[Ring] = field(default_factory=list)
     goals: List[Goal] = field(default_factory=list)
     tipped: bool = False

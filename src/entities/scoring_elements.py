@@ -43,7 +43,7 @@ class RingContainer(ISerializable):
 @nested_dataclass
 class Goal(AbstractDataClass, ITippable, IScorable, ICollisionsEnabled, ISerializable):
     color: Color = Color.NEUTRAL
-    pose: Pose2D = Pose2D(0, 0)
+    pose: Pose2D = Pose2D(0, 0, 0)
     level: GoalLevel = GoalLevel.LOW
     ring_containers: dict[GoalLevel, RingContainer] = field(default_factory=dict)
     tipped: bool = False
@@ -55,13 +55,21 @@ class Goal(AbstractDataClass, ITippable, IScorable, ICollisionsEnabled, ISeriali
     def get_ring_container(self, level: GoalLevel) -> RingContainer:
         return self.ring_containers[level]
 
+    def get_total_rings(self) -> int:
+        total = 0
+
+        for level in self.ring_containers:
+            total += self.get_ring_container(level).get_utilization()
+
+        return total
+
     def get_ring_score(self) -> int:
         score = 0
         for level in self.ring_containers:
             score += level.value * self.get_ring_container(level).get_utilization()
         return score
 
-    def get_current_zone(self) -> "Color":
+    def get_current_zone(self) -> Color:
         if self.pose.y <= 48:
             return Color.RED
         elif self.pose.y >= 96:

@@ -13,6 +13,15 @@ To view all training benchmarks in tensorboard:
 python -m tensorboard.main --logdir logs/tensorboard/
 ```
 ![Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
+## Installing Through Pip
+This package can be installed through a pip package, using the following command:
+
+```
+pip install git+https://github.com/msoe-vex/senior-design-adversarial-strategy
+```
+
+To install a pip package pointing to a specific branch, append `@[BRANCH]` to the end of the command above, replacing `[BRANCH]` with your branch name.
+
 ## Running Locally
 Running this project locally requires installing some Pip packages to get all dependencies sorted. We **highly** recommend utilizing a Python virtual environment, which can be set up with one of the following command sets running in the project root:
 
@@ -46,6 +55,17 @@ An example configuration, with a virtual environment called `venv` is shown belo
     "python.pythonPath": "venv/Scripts/python.exe"
 }
 ```
+
+## Reinforcement Learning Components
+After installing packages and activating the virtual env, run
+```
+python src/training.py
+```
+To view all training benchmarks in tensorboard:
+```
+python -m tensorboard.main --logdir logs/tensorboard/
+```
+![Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
 
 ## Contributing
 
