@@ -36,7 +36,7 @@ def train_model(train=True, epochs=1, model_path=None, render=False, filename="t
     # check_env(env)
     timesteps = 1e5
     #timesteps = 5
-    model_dir = log_dir + "/cpu"
+    model_dir = log_dir + "/gpu2"
     checkpoint_callback = CheckpointCallback(
         save_freq=timesteps / 4, save_path=model_dir, name_prefix="strategyrl_model"
     )
@@ -64,7 +64,7 @@ def train_model(train=True, epochs=1, model_path=None, render=False, filename="t
                 model = PPO.load(log_dir + model_path)
 
             for i in range(1000):
-                if model_path:
+                if model_path or train:
                     action, _states = model.predict(obs)
                 else:
                     action = env.action_space.sample()
@@ -98,4 +98,4 @@ def train_model(train=True, epochs=1, model_path=None, render=False, filename="t
 
 if __name__ == "__main__":
     #train_model(train=False, model_path="/cpu/strategyrl_model_40000_steps")
-    train_model(train=True, epochs=5, render=True)
+    train_model(train=True, epochs=1, render=True)
