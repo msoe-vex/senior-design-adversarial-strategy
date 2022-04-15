@@ -18,7 +18,7 @@
         "max_opposing_robots": 2,
         "max_partner_robots": 1,
         "max_red_goals": 2,
-        "max_rings": 0,
+        "max_rings": 72,
         "opposing_robots": 0,
         "partner_robots": 0,
         "red_goals": 0,
@@ -27,12 +27,13 @@
     "goals": [
         {
             "color": 0,
-            "current_zone": 0,
             "level": 3,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 60,
                 "y": 35
             },
+            "radius": 12.97,
             "ring_containers": {
                 "1": {
                     "max_storage": 8,
@@ -51,12 +52,13 @@
         },
         {
             "color": 0,
-            "current_zone": 0,
             "level": 3,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -30,
                 "y": 10
             },
+            "radius": 12.97,
             "ring_containers": {
                 "1": {
                     "max_storage": 8,
@@ -75,12 +77,13 @@
         },
         {
             "color": 1,
-            "current_zone": 1,
             "level": 3,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -60,
                 "y": 109
             },
+            "radius": 12.97,
             "ring_containers": {
                 "1": {
                     "max_storage": 8,
@@ -99,12 +102,13 @@
         },
         {
             "color": 1,
-            "current_zone": 1,
             "level": 3,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 30,
                 "y": 134
             },
+            "radius": 12.97,
             "ring_containers": {
                 "1": {
                     "max_storage": 8,
@@ -123,12 +127,13 @@
         },
         {
             "color": 2,
-            "current_zone": 2,
             "level": 3,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -35,
                 "y": 72
             },
+            "radius": 12.97,
             "ring_containers": {
                 "1": {
                     "max_storage": 8,
@@ -147,12 +152,13 @@
         },
         {
             "color": 2,
-            "current_zone": 2,
             "level": 10,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 0,
                 "y": 72
             },
+            "radius": 12.97,
             "ring_containers": {
                 "1": {
                     "max_storage": 8,
@@ -171,12 +177,13 @@
         },
         {
             "color": 2,
-            "current_zone": 2,
             "level": 3,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 35,
                 "y": 72
             },
+            "radius": 12.97,
             "ring_containers": {
                 "1": {
                     "max_storage": 8,
@@ -207,10 +214,12 @@
             "color": 0,
             "goals": [],
             "id": 0,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 30,
                 "y": 0
             },
+            "radius": 10.606601717798213,
             "rings": [],
             "tipped": false
         },
@@ -218,10 +227,12 @@
             "color": 0,
             "goals": [],
             "id": 1,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -30,
                 "y": 0
             },
+            "radius": 10.606601717798213,
             "rings": [],
             "tipped": false
         },
@@ -229,10 +240,12 @@
             "color": 1,
             "goals": [],
             "id": 2,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": 30,
                 "y": 144
             },
+            "radius": 10.606601717798213,
             "rings": [],
             "tipped": false
         },
@@ -240,10 +253,12 @@
             "color": 1,
             "goals": [],
             "id": 2,
-            "position": {
+            "pose": {
+                "angle": 0,
                 "x": -30,
                 "y": 144
             },
+            "radius": 10.606601717798213,
             "rings": [],
             "tipped": false
         }

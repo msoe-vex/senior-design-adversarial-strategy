@@ -1,7 +1,6 @@
 # Define rings
 import math
 
-
 MAX_NUM_RINGS = 72
 
 # Define goals

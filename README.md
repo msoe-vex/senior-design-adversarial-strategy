@@ -3,6 +3,16 @@
 
 Adversarial strategy and game playing project for the MSOE Senior Design Team focused on bringing AI to the MSOE VEX U Team's robots.
 
+## Get started
+After installing packages and activating the virtual env, run
+```
+python src/training.py
+```
+To view all training benchmarks in tensorboard:
+```
+python -m tensorboard.main --logdir logs/tensorboard/
+```
+![Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
 ## Installing Through Pip
 This package can be installed through a pip package, using the following command:
 
@@ -45,6 +55,17 @@ An example configuration, with a virtual environment called `venv` is shown belo
     "python.pythonPath": "venv/Scripts/python.exe"
 }
 ```
+
+## Reinforcement Learning Components
+After installing packages and activating the virtual env, run
+```
+python src/training.py
+```
+To view all training benchmarks in tensorboard:
+```
+python -m tensorboard.main --logdir logs/tensorboard/
+```
+![Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
 
 ## Contributing
 

@@ -1,3 +1,4 @@
+import math
 from .fieldRepresentation import FieldRepresentation
 from .platforms import BluePlatform, PlatformState, RedPlatform
 from .scoring_elements import (
@@ -132,10 +133,10 @@ def starting_representation():
     blue_plat = BluePlatform(PlatformState.RIGHT)
 
     robot_arr = [
-        HostRobot(Color.RED, Pose2D(48, 12, 0)),  # Bottom Red
-        PartnerRobot(Color.RED, Pose2D(-48, 12, 0)),  # Top Red
-        OpposingRobot(Color.BLUE, Pose2D(48, 132, 0)),  # Bottom Blue
-        OpposingRobot(Color.BLUE, Pose2D(-48, 132, 0)),  # Top Blue
+        HostRobot(Color.RED, Pose2D(48, 12, math.pi / 2)),  # Bottom Red
+        PartnerRobot(Color.RED, Pose2D(-48, 12, math.pi / 2)),  # Top Red
+        OpposingRobot(Color.BLUE, Pose2D(48, 132, -math.pi / 2)),  # Bottom Blue
+        OpposingRobot(Color.BLUE, Pose2D(-48, 132, -math.pi / 2)),  # Top Blue
     ]
 
     return FieldRepresentation(
