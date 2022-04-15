@@ -108,9 +108,14 @@ class TippingPointEnv(gym.Env):
         # FIXME: add platforms to scoring
         red_score = 0
         blue_score = 0
-        for goal in field_rep.goals:
+
+        held_goals = []
+        for robot in field_rep.robots:
+            held_goals += robot.goals
+
+        for goal in (field_rep.goals + held_goals):
             red_score += goal.get_current_score(Color.RED)
-            blue_score += goal.get_current_score(Color.BLUE)
+            blue_score += goal.get_current_score(Color.BLUE)            
 
         if red_score > blue_score:
             red_score = 1

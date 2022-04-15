@@ -62,8 +62,11 @@ def train_model(train=True, model_path=None, render=False):
             model = PPO.load(log_dir + model_path)
 
         for i in range(1000):
-            action, _states = model.predict(obs)
-            # action = env.action_space.sample()
+            if model_path:
+                action, _states = model.predict(obs)
+            else:
+                action = env.action_space.sample()
+                
             obs, rewards, done, info = env.step(action)
             ax = env.render()
 
@@ -92,5 +95,5 @@ def train_model(train=True, model_path=None, render=False):
 
 
 if __name__ == "__main__":
-    train_model(train=False, model_path="/cpu/strategyrl_model_40000_steps")
-    #train_model(train=True, render=True)
+    #train_model(train=False, model_path="/cpu/strategyrl_model_40000_steps")
+    train_model(train=False, render=True)
