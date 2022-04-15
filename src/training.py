@@ -29,10 +29,12 @@ def train_model(train=True, epochs=1, model_path=None, render=False):
     os.makedirs(log_dir, exist_ok=True)
 
     # Environment
-    steps = 1000
+    #steps = 1000
+    steps = 5
     env = TippingPointEnv(steps)
     # check_env(env)
-    timesteps = 1e5
+    #timesteps = 1e5
+    timesteps = 5
     model_dir = log_dir + "/cpu"
     checkpoint_callback = CheckpointCallback(
         save_freq=timesteps / 4, save_path=model_dir, name_prefix="strategyrl_model"
@@ -41,8 +43,8 @@ def train_model(train=True, epochs=1, model_path=None, render=False):
         "MultiInputPolicy", env, verbose=2, tensorboard_log=log_dir + "/tensorboard"
     )
 
-
     for epoch in range(epochs):
+        print(f"Starting epoch {epoch + 1} of {epochs}")
         if train:
             env = Monitor(env)
             env = DummyVecEnv([lambda: env])
@@ -95,4 +97,4 @@ def train_model(train=True, epochs=1, model_path=None, render=False):
 
 if __name__ == "__main__":
     #train_model(train=False, model_path="/cpu/strategyrl_model_40000_steps")
-    train_model(train=False, render=True)
+    train_model(train=True, epochs=5, render=True)

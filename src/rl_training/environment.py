@@ -17,7 +17,7 @@ from entities.constants import FIELD_WIDTH_IN
 from entities.fieldRepresentation import FieldRepresentation
 from entities.robots import Robot
 from entities.scoring_elements import Goal, Ring
-from src.entities.mathUtils import vector_rotate
+from entities.mathUtils import vector_rotate
 
 
 class TippingPointEnv(gym.Env):
