@@ -4,6 +4,7 @@ import gym
 import matplotlib.pyplot as plt
 import io
 import os
+import sys
 import cv2
 import gym
 import matplotlib
@@ -23,18 +24,18 @@ from rl_training.environment import TippingPointEnv
 from entities.fieldConfigurations import starting_representation
 
 
-def train_model(train=True, epochs=1, model_path=None, render=False):
+def train_model(train=True, epochs=1, model_path=None, render=False, filename="training"):
     # Logging
     log_dir = "logs/"
     os.makedirs(log_dir, exist_ok=True)
 
     # Environment
-    #steps = 1000
-    steps = 5
+    steps = 1000
+    #steps = 5
     env = TippingPointEnv(steps)
     # check_env(env)
-    #timesteps = 1e5
-    timesteps = 5
+    timesteps = 1e5
+    #timesteps = 5
     model_dir = log_dir + "/cpu"
     checkpoint_callback = CheckpointCallback(
         save_freq=timesteps / 4, save_path=model_dir, name_prefix="strategyrl_model"
@@ -86,7 +87,7 @@ def train_model(train=True, epochs=1, model_path=None, render=False):
 
             im_height, im_width, im_layers = imgs[0].shape
             video = cv2.VideoWriter(
-                f"training_epoch-{epoch}.mp4", cv2.VideoWriter_fourcc(*"mp4v"), 30, (im_width, im_height)
+                f"{filename}_epoch-{epoch}.mp4", cv2.VideoWriter_fourcc(*"mp4v"), 30, (im_width, im_height)
             )
 
             for img in imgs:
