@@ -2,7 +2,7 @@ import math
 import unittest
 from src.entities.constants import GOAL_RADIUS, RING_RADIUS, ROBOT_RADIUS
 from src.entities.enumerations import Color
-from src.entities.mathUtils import Pose2D, distance_between_points, distance_between_entities
+from src.entities.mathUtils import Pose2D, distance_between_points, distance_between_entities, vector_rotate
 from src.entities.robots import HostRobot, OpposingRobot, PartnerRobot
 from src.entities.scoring_elements import BlueGoal, HighNeutralGoal, RedGoal, Ring
 
@@ -19,6 +19,76 @@ class TestPose2D(unittest.TestCase):
 
         self.assertEqual(poseA.distTo(poseB), 5, 0)
         self.assertEqual(poseB.distTo(poseA), 5, 0)
+
+
+class TestVectorRotate(unittest.TestCase):
+    def test_rotate_0(self):
+        a = Pose2D(1, 0, 0)
+
+        b = vector_rotate(0, a)
+        expected_b = Pose2D(1, 0, 0)
+
+        self.assertEqual(b, expected_b)
+
+    def test_rotate_45(self):
+        a = Pose2D(1, 0, 0)
+
+        b = vector_rotate(math.pi / 4, a)
+        expected_b = Pose2D(math.sqrt(0.5), math.sqrt(0.5), 0)
+
+        c = vector_rotate(-math.pi / 4, a)
+        expected_c = Pose2D(math.sqrt(0.5), -math.sqrt(0.5), 0)
+
+        self.assertEqual(b, expected_b)
+        self.assertEqual(c, expected_c)
+
+    def test_rotate_90(self):
+        a = Pose2D(1, 0, 0)
+
+        b = vector_rotate(math.pi / 2, a)
+        expected_b = Pose2D(0, 1, 0)
+
+        c = vector_rotate(-math.pi / 2, a)
+        expected_c = Pose2D(0, -1, 0)
+
+        self.assertEqual(b, expected_b)
+        self.assertEqual(c, expected_c)
+
+    def test_rotate_180(self):
+        a = Pose2D(1, 0, 0)
+
+        b = vector_rotate(math.pi, a)
+        expected_b = Pose2D(-1, 0, 0)
+
+        c = vector_rotate(-math.pi, a)
+        expected_c = Pose2D(-1, 0, 0)
+
+        self.assertEqual(b, expected_b)
+        self.assertEqual(c, expected_c)
+
+    def test_rotate_270(self):
+        a = Pose2D(1, 0, 0)
+
+        b = vector_rotate((3 * math.pi) / 2, a)
+        expected_b = Pose2D(0, -1, 0)
+
+        c = vector_rotate(-(3 * math.pi) / 2, a)
+        expected_c = Pose2D(0, 1, 0)
+
+        self.assertEqual(b, expected_b)
+        self.assertEqual(c, expected_c)
+
+    def test_rotate_360(self):
+        a = Pose2D(1, 0, 0)
+
+        b = vector_rotate((2 * math.pi), a)
+        expected_b = Pose2D(1, 0, 0)
+
+        c = vector_rotate((2 * math.pi), a)
+        expected_c = Pose2D(1, 0, 0)
+
+        self.assertEqual(b, expected_b)
+        self.assertEqual(c, expected_c)
 
 
 class TestDistanceBetweenPoints(unittest.TestCase):
@@ -153,7 +223,7 @@ class TestDistanceBetweenEntities(unittest.TestCase):
         ent2 = HostRobot(Color.BLUE, Pose2D(ROBOT_RADIUS + 8, 1))
 
         dist = distance_between_entities(ent1, ent2)
-        self.assertEqual(dist, 4)
+        self.assertEqual(dist, 6)
 
     def test_distance_between_collding(self):
         g1 = RedGoal(Pose2D(0, 0))

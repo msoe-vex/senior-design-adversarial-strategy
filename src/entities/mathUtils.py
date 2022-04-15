@@ -23,6 +23,11 @@ class Pose2D(ISerializable):
         y_dist = (pose.y - self.y) ** 2
         return math.sqrt(x_dist + y_dist)
 
+    def __eq__(self, obj: object, tolerance: int=1e-5) -> bool:
+        return isinstance(obj, Pose2D) and \
+            abs(obj.x - self.x) < tolerance and \
+            abs(obj.y - self.y) < tolerance and \
+            abs(obj.angle - self.angle) < tolerance
 
 class ICollisionsEnabled:
     """
@@ -60,10 +65,17 @@ class ICollisionsEnabled:
         return other_obj.pose.distTo(rear_point) <= collision_radius
 
 
+def vector_rotate(angle: float, vec: Pose2D):
+    new_x = (vec.x * math.cos(angle)) - (vec.y * math.sin(angle))
+    new_y = (vec.x * math.sin(angle)) - (vec.y * math.cos(angle))
+    return Pose2D(new_x, new_y, vec.angle)
+
+
 def distance_between_points(p1: Pose2D, p2: Pose2D) -> float:
     return p1.distTo(p2)
 
-def distance_between_entities(ent1: "ICollisionsEnabled", ent2: "ICollisionsEnabled") -> float:
+
+def distance_between_entities(ent1: ICollisionsEnabled, ent2: ICollisionsEnabled) -> float:
     dist = distance_between_points(ent1.pose, ent2.pose) - (ent1.radius + ent2.radius)
     if dist < 0:
         dist = 0

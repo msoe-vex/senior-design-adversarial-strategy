@@ -17,6 +17,7 @@ from entities.constants import FIELD_WIDTH_IN
 from entities.fieldRepresentation import FieldRepresentation
 from entities.robots import Robot
 from entities.scoring_elements import Goal, Ring
+from src.entities.mathUtils import vector_rotate
 
 
 class TippingPointEnv(gym.Env):
@@ -179,10 +180,17 @@ class TippingPointEnv(gym.Env):
                 # FIXME: need zone boundaries to determine discount
                 # FIXME: prevent goal-entity collision
                 goal = host.goals.pop()
-                offset = max(
-                    min(host.pose.y + host.radius + goal.radius + 1, FIELD_WIDTH_IN), 0
-                )
-                goal.pose = Pose2D(host.pose.x, offset)
+
+                # Create an offset vector along the x-axis
+                offset = Pose2D(host.radius + goal.radius + 1, 0, 0)
+
+                # Rotate the offset vector to the robot angle and clamp to field boundaries
+                rotated_offset = vector_rotate(host.pose.angle, offset)
+                rotated_offset.x = max(min(rotated_offset.x, FIELD_WIDTH_IN), 0)
+                rotated_offset.y = max(min(rotated_offset.y, FIELD_WIDTH_IN), 0)
+                
+                # Update pose of the goal
+                goal.pose = Pose2D(rotated_offset.x, rotated_offset.y)
 
                 # Add the goal back to the rep
                 rep.goals.append(goal)
