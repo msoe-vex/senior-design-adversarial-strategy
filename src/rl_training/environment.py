@@ -240,6 +240,7 @@ class TippingPointEnv(gym.Env):
         # Reset the state of the environment to an initial state
         rep = self.field_state.get_current_representation()
         rep.randomize()
+        self.field_state.current_time = self.MAX_STEPS
 
         return rep.export_to_dict()
 
