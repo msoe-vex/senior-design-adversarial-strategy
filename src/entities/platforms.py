@@ -1,6 +1,9 @@
 from enum import Enum
 from typing import List
 from dataclasses import field
+from src.entities.constants import FIELD_WIDTH_IN, PLATFORM_LENGTH_IN, PLATFORM_WIDTH_IN
+
+from src.entities.mathUtils import Pose2D
 from .classUtils import AbstractDataClass, nested_dataclass
 from .interfaces import IScorable, ISerializable
 from .enumerations import Color
@@ -34,6 +37,16 @@ class Platform(AbstractDataClass, IScorable, ISerializable):
             return (30 * len(robots)) + (40 * len(goals))
         else:
             return 0
+
+    def is_colliding(self, pose: Pose2D) -> bool:
+        """
+        Return True if the given pose collides with the ramps
+        """
+        if self.color == Color.RED:
+            return pose.x > (0 - (PLATFORM_LENGTH_IN / 2)) and pose.x < (PLATFORM_LENGTH_IN / 2) and \
+                pose.y < PLATFORM_WIDTH_IN
+        return pose.x > (0 - (PLATFORM_LENGTH_IN / 2)) and pose.x < (PLATFORM_LENGTH_IN / 2) and \
+                pose.y > (FIELD_WIDTH_IN- PLATFORM_WIDTH_IN)
 
 
 @nested_dataclass
