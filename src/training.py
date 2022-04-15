@@ -93,3 +93,4 @@ def train_model(train=True, model_path=None, render=False):
 
 if __name__ == "__main__":
     train_model(train=False, model_path="/cpu/strategyrl_model_40000_steps")
+    #train_model(train=True, render=True)

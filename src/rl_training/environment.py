@@ -1,4 +1,5 @@
 import math
+from typing import Tuple
 import gym
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,6 +14,9 @@ from entities.enumerations import Color
 from entities.robots import HostRobot
 from entities.fieldConfigurations import starting_representation
 from entities.constants import FIELD_WIDTH_IN
+from entities.fieldRepresentation import FieldRepresentation
+from entities.robots import Robot
+from entities.scoring_elements import Goal, Ring
 
 
 class TippingPointEnv(gym.Env):
@@ -76,7 +80,7 @@ class TippingPointEnv(gym.Env):
         self.field_state = FieldState(starting_representation(), steps)
         self.MAX_STEPS = steps
 
-    def step(self, action):
+    def step(self, action: np.ndarray):
         # Execute one time step within the environment
         rep = self.field_state.get_current_representation()
         reward = 0
@@ -100,7 +104,7 @@ class TippingPointEnv(gym.Env):
 
         return obs, reward, done, {}
 
-    def _calculate_scores(self, agent, field_rep):
+    def _calculate_scores(self, agent: Robot, field_rep: FieldRepresentation) -> int:
         # FIXME: add platforms to scoring
         red_score = 0
         blue_score = 0
@@ -126,7 +130,7 @@ class TippingPointEnv(gym.Env):
 
         return reward
 
-    def _detect_adjacents(self, agent, field_rep):
+    def _detect_adjacents(self, agent: Robot, field_rep: FieldRepresentation) -> Tuple[list[Goal], list[Ring]]:
         # FIXME find correct action distances
         adjacent_distance = 2
         adjacent_goals = [
@@ -143,7 +147,7 @@ class TippingPointEnv(gym.Env):
         ]
         return adjacent_goals, adjacent_rings
 
-    def _do_action(self, action, host, adjacent_entities, rep):
+    def _do_action(self, action: np.ndarray, host: HostRobot, adjacent_entities: Tuple[list[Goal], list[Ring]], rep: FieldRepresentation) -> None:
         adjacent_goals = adjacent_entities[0]
         adjacent_rings = adjacent_entities[1]
         if action > 0:
@@ -212,22 +216,31 @@ class TippingPointEnv(gym.Env):
                 goal_levels = list(selected_goal.ring_containers.keys())
                 selected_goal.add_ring(ring, goal_levels[-1])
 
-    def _move_collision(self, host, direction, field_rep):
-        # FIXME: add platforms to collision
+    def _move_collision(self, host: HostRobot, direction: list, field_rep: FieldRepresentation) -> None:
+        # Create list of entities on the field
         ent_lst = [*field_rep.robots, *field_rep.goals, *field_rep.rings]
+        
+        # Calculate new position
         org_pos = host.pose
         coords = np.array([org_pos.x, org_pos.y])
         coords += direction
+
+        # Ensure the robot cannot escape the field
+        coords[0] = min(max(coords[0], 0), FIELD_WIDTH_IN)
+        coords[1] = min(max(coords[1], 0), FIELD_WIDTH_IN)
+
         new_pos = Pose2D(coords[0], coords[1], math.atan2(direction[1], direction[0]))
         host.pose = new_pos
+
+        # Check for collisions with entities
         colliding_ens = [
             en for en in ent_lst if en.is_colliding(host) and en is not host
         ]
 
-        if len(colliding_ens) != 0:
+        if len(colliding_ens) != 0 or field_rep.red_platform.is_colliding(host.pose) or field_rep.blue_platform.is_colliding(host.pose):
             host.pose = org_pos
 
-    def _map_movement(self, action):
+    def _map_movement(self, action: np.ndarray) -> dict:
         dirs = {
             1: np.array([0, 1]),
             2: np.array([0, -1]),

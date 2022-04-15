@@ -1,9 +1,8 @@
 from enum import Enum
 from typing import List
 from dataclasses import field
-from src.entities.constants import FIELD_WIDTH_IN, PLATFORM_LENGTH_IN, PLATFORM_WIDTH_IN
-
-from src.entities.mathUtils import Pose2D
+from .constants import FIELD_WIDTH_IN, PLATFORM_LENGTH_IN, PLATFORM_WIDTH_IN
+from .mathUtils import Pose2D
 from .classUtils import AbstractDataClass, nested_dataclass
 from .interfaces import IScorable, ISerializable
 from .enumerations import Color

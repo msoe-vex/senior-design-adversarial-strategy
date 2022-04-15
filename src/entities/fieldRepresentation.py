@@ -759,7 +759,7 @@ class FieldRepresentation(ISerializable):
             fill=True,
             fc=(1, 0, 0, 0.2),
             ec=(1, 0, 0, 0),
-            linewidth=2,
+            linewidth=2
         )
 
         blue_plat = mpatches.Rectangle(
@@ -772,7 +772,7 @@ class FieldRepresentation(ISerializable):
             fill=True,
             fc=(0, 0, 1, 0.2),
             ec=(0, 0, 1, 0),
-            linewidth=2,
+            linewidth=2
         )
 
         ax.add_patch(red_plat)
