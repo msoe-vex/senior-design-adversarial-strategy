@@ -27,10 +27,19 @@ class Platform(AbstractDataClass, IScorable, ISerializable):
     def __get_current_score(self, color: Color):
         if self.state == PlatformState.LEVEL:
             robots = list(filter(lambda rob: rob.color == color, self.robots))
+
+            robot_goals = []
+            for robot in self.robots:
+                if robot.check_front_goal():
+                    robot_goals.append(robot.front_goal)
+
+                if robot.check_rear_goal():
+                    robot_goals.append(robot.rear_goal)
+
             goals = list(
                 filter(
                     lambda goal: goal.color == color or goal.color == Color.NEUTRAL,
-                    self.goals,
+                    self.goals + robot_goals,
                 )
             )
             return (30 * len(robots)) + (40 * len(goals))

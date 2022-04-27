@@ -1,6 +1,6 @@
 from dataclasses import field
 from enum import Enum
-from typing import List
+from typing import List, Optional
 from .classUtils import AbstractDataClass, nested_dataclass
 from .interfaces import ITippable, ISerializable
 from .mathUtils import Pose2D, ICollisionsEnabled
@@ -21,12 +21,49 @@ class Robot(AbstractDataClass, ITippable, ICollisionsEnabled, ISerializable):
     id: RobotID = RobotID.SELF
     pose: Pose2D = Pose2D(0, 0, 0)
     rings: List[Ring] = field(default_factory=list)
-    goals: List[Goal] = field(default_factory=list)
+    front_goal: Goal = None
+    rear_goal: Goal = None
     tipped: bool = False
     radius: float = ROBOT_RADIUS
 
     def is_tipped(self) -> bool:
-        return self.tipped
+        return self.tipped      
+
+    def pick_up_front_goal(self, goal: Goal) -> Optional[Goal]:
+        if self.front_goal is not None:
+            return goal
+    
+        self.front_goal = goal
+        return None
+
+    def pick_up_rear_goal(self, goal: Goal) -> Optional[Goal]:
+        if self.rear_goal is not None:
+            return goal
+
+        self.rear_goal = goal
+        return None
+
+    def check_front_goal(self) -> bool:
+        return self.front_goal is not None
+
+    def check_rear_goal(self) -> bool:
+        return self.rear_goal is not None
+
+    def drop_front_goal(self) -> Optional[Goal]:
+        if self.front_goal is not None:
+            goal = self.front_goal
+            self.front_goal = None
+            return goal
+
+        return None
+
+    def drop_rear_goal(self) -> Optional[Goal]:
+        if self.rear_goal is not None:
+            goal = self.rear_goal
+            self.rear_goal = None
+            return goal
+
+        return None
 
 
 @nested_dataclass

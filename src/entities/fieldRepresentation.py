@@ -212,7 +212,7 @@ class FieldRepresentation(ISerializable):
                 goal.get_ring_container(GoalLevel.BASE).add_ring(ring)
 
     def __generate_goal_list(
-        self, pose: Pose2D, percentage: float, discount: float, current_iter: int = 0
+        self, pose: Pose2D, percentage: float, discount: float, current_iter: int = 0, max_iter: int = None
     ) -> list[Goal]:
         goal_num = random.randint(0, 3)
 
@@ -245,6 +245,7 @@ class FieldRepresentation(ISerializable):
             if (
                 percentage < (percentage * ((current_iter + 1) * discount))
                 and self.field_counts.get_remaining_goals() > 1
+                and current_iter < max_iter 
             ):
                 return [goal] + self.__generate_goal_list(
                     pose, percentage, discount, current_iter + 1
@@ -284,9 +285,18 @@ class FieldRepresentation(ISerializable):
             )
 
             if random.random() < SPAWN_GOAL_IN_ROBOT:
-                robot.goals = robot.goals + self.__generate_goal_list(
-                    pose, SPAWN_GOAL_IN_ROBOT, ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR
+                goals = self.__generate_goal_list(
+                    pose, 
+                    SPAWN_GOAL_IN_ROBOT, 
+                    ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR, 
+                    0, 
+                    2
                 )
+
+                if len(goals) == 1:
+                    robot.rear_goal = goals[0]
+                if len(goals) == 2:
+                    robot.front_goal = goals[1]
 
             if random.random() < SPAWN_RING_IN_ROBOT:
                 robot.rings = robot.rings + self.__generate_ring_list(
@@ -411,11 +421,18 @@ class FieldRepresentation(ISerializable):
                 )
 
                 if random.random() < SPAWN_GOAL_IN_ROBOT:
-                    robot.goals = robot.goals + self.__generate_goal_list(
+                    goals = self.__generate_goal_list(
                         pose,
                         SPAWN_GOAL_IN_ROBOT,
                         ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR,
+                        0, 
+                        2
                     )
+
+                    if len(goals) == 1:
+                        robot.rear_goal = goals[0]
+                    if len(goals) == 2:
+                        robot.front_goal = goals[1]
 
                 if random.random() < SPAWN_RING_IN_ROBOT:
                     robot.rings = robot.rings + self.__generate_ring_list(
@@ -444,11 +461,18 @@ class FieldRepresentation(ISerializable):
                 robot = PartnerRobot(self.__get_alliance_color(current_color), pose)
 
                 if random.random() < SPAWN_GOAL_IN_ROBOT:
-                    robot.goals = robot.goals + self.__generate_goal_list(
+                    goals = self.__generate_goal_list(
                         pose,
                         SPAWN_GOAL_IN_ROBOT,
                         ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR,
+                        0,
+                        2
                     )
+
+                    if len(goals) == 1:
+                        robot.rear_goal = goals[0]
+                    if len(goals) == 2:
+                        robot.front_goal = goals[1]
 
                 if random.random() < SPAWN_RING_IN_ROBOT:
                     robot.rings = robot.rings + self.__generate_ring_list(
@@ -479,11 +503,18 @@ class FieldRepresentation(ISerializable):
                 )
 
                 if random.random() < SPAWN_GOAL_IN_ROBOT:
-                    robot.goals = robot.goals + self.__generate_goal_list(
+                    goals = self.__generate_goal_list(
                         pose,
                         SPAWN_GOAL_IN_ROBOT,
                         ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR,
+                        0,
+                        2
                     )
+
+                    if len(goals) == 1:
+                        robot.rear_goal = goals[0]
+                    if len(goals) == 2:
+                        robot.front_goal = goals[1]
 
                 if random.random() < SPAWN_RING_IN_ROBOT:
                     robot.rings = robot.rings + self.__generate_ring_list(
@@ -657,8 +688,10 @@ class FieldRepresentation(ISerializable):
         self.__draw_ring_counter(ax, pose, goal.get_total_rings())
 
     def __draw_legend_goals_in_robot(self, ax: Axes, pose: Pose2D, x_offset: int, robot: Robot):
-        for count, goal in enumerate(robot.goals):
-            self.__draw_legend_goal(ax, Pose2D(pose.x + (count * x_offset), pose.y, pose.angle), goal)
+        if robot.check_front_goal():
+            self.__draw_legend_goal(ax, Pose2D(pose.x, pose.y, pose.angle), robot.front_goal)
+        if robot.check_rear_goal():
+            self.__draw_legend_goal(ax, Pose2D(pose.x + x_offset, pose.y, pose.angle), robot.rear_goal)            
 
     def __draw_legend_robot(self, ax: Axes, pose: Pose2D, color: str, robot: Robot, x_offset: int, is_host: bool=False, is_clip_on: bool=True):
         self.__draw_robot(ax, pose, color, is_host, is_clip_on)
@@ -792,8 +825,6 @@ class FieldRepresentation(ISerializable):
 
             # Draw on index
             self.__draw_legend_robot(ax, legend_pose, host_robot_arr[:, 3], host_robot_arr[:, 4][0], legend_x_spacing, True, False)
-            
-
 
         if np.any(partner_robot_arr):
             robot_pose = Pose2D(partner_robot_arr[:, 0], partner_robot_arr[:, 1], partner_robot_arr[:, 2])
@@ -935,6 +966,9 @@ class FieldState(ISerializable):
         self.field_representation = representation
 
     def __calculate_potential_score(self) -> None:
+        # Add platform scoring (if goal is in the bounds of the platform, move goal to the platform)
+
+        # Calculate score
         return None  # TODO
 
     def get_current_representation(self) -> FieldRepresentation:

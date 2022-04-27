@@ -12,7 +12,7 @@ if __name__ == "__main__":
     configure_loggers()
     
     fieldRep = starting_representation()
-    #fieldRep.randomize()
+    fieldRep.randomize()
 
     fig = fieldRep.draw()
     plt.show()
