@@ -24,32 +24,39 @@ from rl_training.environment import TippingPointEnv
 from entities.fieldConfigurations import starting_representation
 
 
-def train_model(train=True, epochs=1, model_path=None, render=False, filename="training"):
+def train_model(
+    train=True, epochs=1, model_path=None, render=False, filename="training"
+):
     # Logging
     log_dir = "logs/"
     os.makedirs(log_dir, exist_ok=True)
 
     # Environment
     steps = 1000
-    #steps = 5
+    # steps = 5
     env = TippingPointEnv(steps)
     # check_env(env)
     timesteps = 1e5
-    #timesteps = 5
+    # timesteps = 5
     model_dir = log_dir + "/gpu2"
-    checkpoint_callback = CheckpointCallback(
-        save_freq=timesteps / 4, save_path=model_dir, name_prefix="strategyrl_model"
-    )
-    model = PPO(
-        "MultiInputPolicy", env, verbose=2, tensorboard_log=log_dir + "/tensorboard"
-    )
 
     for epoch in range(epochs):
         print(f"Starting epoch {epoch + 1} of {epochs}")
         if train:
-            env = Monitor(env)
-            env = DummyVecEnv([lambda: env])
-            # env = VecTransposeImage(env)                
+            train_env = Monitor(env)
+            train_env = DummyVecEnv([lambda: train_env])
+            checkpoint_callback = CheckpointCallback(
+                save_freq=timesteps / 4,
+                save_path=model_dir,
+                name_prefix="strategyrl_model",
+            )
+            model = PPO(
+                "MultiInputPolicy",
+                train_env,
+                verbose=2,
+                tensorboard_log=log_dir + "/tensorboard",
+            )
+            # env = VecTransposeImage(env)
             model.learn(total_timesteps=int(timesteps), callback=checkpoint_callback)
 
         if render or model_path:
@@ -68,7 +75,7 @@ def train_model(train=True, epochs=1, model_path=None, render=False, filename="t
                     action, _states = model.predict(obs)
                 else:
                     action = env.action_space.sample()
-                    
+
                 obs, rewards, done, info = env.step(action)
                 ax = env.render()
 
@@ -79,7 +86,11 @@ def train_model(train=True, epochs=1, model_path=None, render=False, filename="t
                 bbox = Bbox([[1.0, 1.0], [15, 10.75]])
                 buff = io.BytesIO()
                 plt.savefig(
-                    buff, format="jpg", dpi=ax.figure.dpi, bbox_inches=bbox, pad_inches=2
+                    buff,
+                    format="jpg",
+                    dpi=ax.figure.dpi,
+                    bbox_inches=bbox,
+                    pad_inches=2,
                 )
                 buff.seek(0)
                 imgs.append(cv2.cvtColor(plt.imread(buff, "jpg"), cv2.COLOR_RGB2BGR))
@@ -87,7 +98,10 @@ def train_model(train=True, epochs=1, model_path=None, render=False, filename="t
 
             im_height, im_width, im_layers = imgs[0].shape
             video = cv2.VideoWriter(
-                f"{filename}_epoch-{epoch}.mp4", cv2.VideoWriter_fourcc(*"mp4v"), 30, (im_width, im_height)
+                f"{filename}_epoch-{epoch}.mp4",
+                cv2.VideoWriter_fourcc(*"mp4v"),
+                30,
+                (im_width, im_height),
             )
 
             for img in imgs:
@@ -97,5 +111,5 @@ def train_model(train=True, epochs=1, model_path=None, render=False, filename="t
 
 
 if __name__ == "__main__":
-    #train_model(train=False, model_path="/cpu/strategyrl_model_40000_steps")
+    # train_model(train=False, model_path="/cpu/strategyrl_model_40000_steps")
     train_model(train=True, epochs=1, render=True)
