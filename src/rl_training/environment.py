@@ -131,6 +131,9 @@ class TippingPointEnv(gym.Env):
             red_score += goal.get_current_score(Color.RED)
             blue_score += goal.get_current_score(Color.BLUE)
 
+        red_score += field_rep.red_platform.get_current_score()
+        blue_score += field_rep.blue_platform.get_current_score()
+
         if red_score > blue_score:
             red_score = 1
             blue_score = -1
