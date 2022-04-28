@@ -212,7 +212,12 @@ class FieldRepresentation(ISerializable):
                 goal.get_ring_container(GoalLevel.BASE).add_ring(ring)
 
     def __generate_goal_list(
-        self, pose: Pose2D, percentage: float, discount: float, current_iter: int = 0, max_iter: int = None
+        self,
+        pose: Pose2D,
+        percentage: float,
+        discount: float,
+        current_iter: int = 0,
+        max_iter: int = None,
     ) -> list[Goal]:
         goal_num = random.randint(0, 3)
 
@@ -245,7 +250,7 @@ class FieldRepresentation(ISerializable):
             if (
                 percentage < (percentage * ((current_iter + 1) * discount))
                 and self.field_counts.get_remaining_goals() > 1
-                and current_iter < max_iter 
+                and current_iter < max_iter
             ):
                 return [goal] + self.__generate_goal_list(
                     pose, percentage, discount, current_iter + 1
@@ -286,11 +291,11 @@ class FieldRepresentation(ISerializable):
 
             if random.random() < SPAWN_GOAL_IN_ROBOT:
                 goals = self.__generate_goal_list(
-                    pose, 
-                    SPAWN_GOAL_IN_ROBOT, 
-                    ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR, 
-                    0, 
-                    2
+                    pose,
+                    SPAWN_GOAL_IN_ROBOT,
+                    ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR,
+                    0,
+                    2,
                 )
 
                 if len(goals) == 1:
@@ -416,17 +421,15 @@ class FieldRepresentation(ISerializable):
             if field_map[y][grid_x] == 0:
                 field_map[y][grid_x] = 1
 
-                robot = HostRobot(
-                    self.__get_alliance_color(current_color), pose
-                )
+                robot = HostRobot(self.__get_alliance_color(current_color), pose)
 
                 if random.random() < SPAWN_GOAL_IN_ROBOT:
                     goals = self.__generate_goal_list(
                         pose,
                         SPAWN_GOAL_IN_ROBOT,
                         ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR,
-                        0, 
-                        2
+                        0,
+                        2,
                     )
 
                     if len(goals) == 1:
@@ -466,7 +469,7 @@ class FieldRepresentation(ISerializable):
                         SPAWN_GOAL_IN_ROBOT,
                         ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR,
                         0,
-                        2
+                        2,
                     )
 
                     if len(goals) == 1:
@@ -508,7 +511,7 @@ class FieldRepresentation(ISerializable):
                         SPAWN_GOAL_IN_ROBOT,
                         ADDITIONAL_GOAL_IN_ROBOT_DISCOUNT_FACTOR,
                         0,
-                        2
+                        2,
                     )
 
                     if len(goals) == 1:
@@ -631,16 +634,25 @@ class FieldRepresentation(ISerializable):
                 self.rings.append(Ring(pose))
                 self.field_counts.rings += 1
 
-                getLogger(REPRESENTATION_LOGGER_NAME).info(f"Spawned Ring at ({x},{y},{angle})")
+                getLogger(REPRESENTATION_LOGGER_NAME).info(
+                    f"Spawned Ring at ({x},{y},{angle})"
+                )
 
-    def __draw_robot(self, ax: Axes, pose: Pose2D, color: str, is_host: bool=False, is_clip_on: bool=True):
+    def __draw_robot(
+        self,
+        ax: Axes,
+        pose: Pose2D,
+        color: str,
+        is_host: bool = False,
+        is_clip_on: bool = True,
+    ):
         plot_args = {
             "x": pose.x,
             "y": pose.y,
             "color": color,
-            "marker": (4,0,math.degrees(pose.angle) - math.degrees(math.pi / 4)),
+            "marker": (4, 0, math.degrees(pose.angle) - math.degrees(math.pi / 4)),
             "s": 3000,
-            "clip_on": is_clip_on
+            "clip_on": is_clip_on,
         }
 
         if is_host:
@@ -653,30 +665,25 @@ class FieldRepresentation(ISerializable):
             pose.x,
             pose.y,
             color="black",
-            marker=(3,0,math.degrees(pose.angle) - math.degrees(math.pi / 2)),
+            marker=(3, 0, math.degrees(pose.angle) - math.degrees(math.pi / 2)),
             s=500,
-            clip_on=is_clip_on
+            clip_on=is_clip_on,
         )
 
-    def __draw_goal(self, ax: Axes, pose: Pose2D, color: str, is_clip_on: bool=True):
+    def __draw_goal(self, ax: Axes, pose: Pose2D, color: str, is_clip_on: bool = True):
         ax.scatter(
-            pose.x, 
-            pose.y, 
-            color=color, 
-            marker=(6,0,math.degrees(pose.angle)), 
+            pose.x,
+            pose.y,
+            color=color,
+            marker=(6, 0, math.degrees(pose.angle)),
             s=2000,
-            clip_on=is_clip_on
+            clip_on=is_clip_on,
         )
 
-    def __draw_ring(self, ax: Axes, pose: Pose2D, is_clip_on: bool=True):
-        ax.scatter(
-            pose.x, 
-            pose.y, 
-            color="purple",
-            clip_on=is_clip_on
-        )
+    def __draw_ring(self, ax: Axes, pose: Pose2D, is_clip_on: bool = True):
+        ax.scatter(pose.x, pose.y, color="purple", clip_on=is_clip_on)
 
-    def __draw_text(self, ax: Axes, pose: Pose2D, text: str, fontsize: int=20):
+    def __draw_text(self, ax: Axes, pose: Pose2D, text: str, fontsize: int = 20):
         ax.text(pose.x, pose.y, text, fontsize=20)
 
     def __draw_ring_counter(self, ax: Axes, pose: Pose2D, count: int):
@@ -687,16 +694,33 @@ class FieldRepresentation(ISerializable):
         self.__draw_goal(ax, pose, convertColorToRGBA(goal.color), False)
         self.__draw_ring_counter(ax, pose, goal.get_total_rings())
 
-    def __draw_legend_goals_in_robot(self, ax: Axes, pose: Pose2D, x_offset: int, robot: Robot):
+    def __draw_legend_goals_in_robot(
+        self, ax: Axes, pose: Pose2D, x_offset: int, robot: Robot
+    ):
         if robot.check_front_goal():
-            self.__draw_legend_goal(ax, Pose2D(pose.x, pose.y, pose.angle), robot.front_goal)
+            self.__draw_legend_goal(
+                ax, Pose2D(pose.x, pose.y, pose.angle), robot.front_goal
+            )
         if robot.check_rear_goal():
-            self.__draw_legend_goal(ax, Pose2D(pose.x + x_offset, pose.y, pose.angle), robot.rear_goal)            
+            self.__draw_legend_goal(
+                ax, Pose2D(pose.x + x_offset, pose.y, pose.angle), robot.rear_goal
+            )
 
-    def __draw_legend_robot(self, ax: Axes, pose: Pose2D, color: str, robot: Robot, x_offset: int, is_host: bool=False, is_clip_on: bool=True):
+    def __draw_legend_robot(
+        self,
+        ax: Axes,
+        pose: Pose2D,
+        color: str,
+        robot: Robot,
+        x_offset: int,
+        is_host: bool = False,
+        is_clip_on: bool = True,
+    ):
         self.__draw_robot(ax, pose, color, is_host, is_clip_on)
         self.__draw_ring_counter(ax, pose, len(robot.rings))
-        self.__draw_legend_goals_in_robot(ax, Pose2D(pose.x + 20, pose.y, pose.angle), x_offset, robot)
+        self.__draw_legend_goals_in_robot(
+            ax, Pose2D(pose.x + 20, pose.y, pose.angle), x_offset, robot
+        )
 
     def draw(self) -> plt.plot:
         # Index locations
@@ -756,7 +780,13 @@ class FieldRepresentation(ISerializable):
         # Calculate robot positions
         host_robot_arr = np.array(
             [
-                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color), robot]
+                [
+                    robot.pose.x,
+                    robot.pose.y,
+                    robot.pose.angle,
+                    convertColorToRGBA(robot.color),
+                    robot,
+                ]
                 for robot in combined_robot_arr
                 if isinstance(robot, HostRobot)
             ],
@@ -765,7 +795,13 @@ class FieldRepresentation(ISerializable):
 
         partner_robot_arr = np.array(
             [
-                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color), robot]
+                [
+                    robot.pose.x,
+                    robot.pose.y,
+                    robot.pose.angle,
+                    convertColorToRGBA(robot.color),
+                    robot,
+                ]
                 for robot in combined_robot_arr
                 if isinstance(robot, PartnerRobot)
             ],
@@ -774,7 +810,13 @@ class FieldRepresentation(ISerializable):
 
         opposing_robot_arr = np.array(
             [
-                [robot.pose.x, robot.pose.y, robot.pose.angle, convertColorToRGBA(robot.color), robot]
+                [
+                    robot.pose.x,
+                    robot.pose.y,
+                    robot.pose.angle,
+                    convertColorToRGBA(robot.color),
+                    robot,
+                ]
                 for robot in combined_robot_arr
                 if isinstance(robot, OpposingRobot)
             ],
@@ -792,7 +834,7 @@ class FieldRepresentation(ISerializable):
             fill=True,
             fc=(1, 0, 0, 0.2),
             ec=(1, 0, 0, 0),
-            linewidth=2
+            linewidth=2,
         )
 
         blue_plat = mpatches.Rectangle(
@@ -805,7 +847,7 @@ class FieldRepresentation(ISerializable):
             fill=True,
             fc=(0, 0, 1, 0.2),
             ec=(0, 0, 1, 0),
-            linewidth=2
+            linewidth=2,
         )
 
         ax.add_patch(red_plat)
@@ -816,26 +858,52 @@ class FieldRepresentation(ISerializable):
 
         # Draw robots
         if np.any(host_robot_arr):
-            robot_pose = Pose2D(host_robot_arr[:, 0], host_robot_arr[:, 1], host_robot_arr[:, 2])
+            robot_pose = Pose2D(
+                host_robot_arr[:, 0], host_robot_arr[:, 1], host_robot_arr[:, 2]
+            )
             legend_pose = Pose2D(legend_x, legend_y, host_robot_arr[:, 2])
             legend_y -= legend_y_spacing
-            
+
             # Draw on field
             self.__draw_robot(ax, robot_pose, host_robot_arr[:, 3], True)
 
             # Draw on index
-            self.__draw_legend_robot(ax, legend_pose, host_robot_arr[:, 3], host_robot_arr[:, 4][0], legend_x_spacing, True, False)
+            self.__draw_legend_robot(
+                ax,
+                legend_pose,
+                host_robot_arr[:, 3],
+                host_robot_arr[:, 4][0],
+                legend_x_spacing,
+                True,
+                False,
+            )
 
         if np.any(partner_robot_arr):
-            robot_pose = Pose2D(partner_robot_arr[:, 0], partner_robot_arr[:, 1], partner_robot_arr[:, 2])
-            legend_pose = Pose2D(np.full(partner_robot_arr[:, 2].shape, legend_x), np.full(partner_robot_arr[:, 2].shape, legend_y), partner_robot_arr[:, 2])
+            robot_pose = Pose2D(
+                partner_robot_arr[:, 0],
+                partner_robot_arr[:, 1],
+                partner_robot_arr[:, 2],
+            )
+            legend_pose = Pose2D(
+                np.full(partner_robot_arr[:, 2].shape, legend_x),
+                np.full(partner_robot_arr[:, 2].shape, legend_y),
+                partner_robot_arr[:, 2],
+            )
             legend_y -= legend_y_spacing
 
             # Draw on field
             self.__draw_robot(ax, robot_pose, partner_robot_arr[:, 3])
 
             # Draw on index
-            self.__draw_legend_robot(ax, legend_pose, partner_robot_arr[:, 3], partner_robot_arr[:, 4][0], legend_x_spacing, False, False)
+            self.__draw_legend_robot(
+                ax,
+                legend_pose,
+                partner_robot_arr[:, 3],
+                partner_robot_arr[:, 4][0],
+                legend_x_spacing,
+                False,
+                False,
+            )
 
         if np.any(opposing_robot_arr):
             for robot in opposing_robot_arr:
@@ -847,7 +915,9 @@ class FieldRepresentation(ISerializable):
                 self.__draw_robot(ax, robot_pose, robot[3])
 
                 # Draw on index
-                self.__draw_legend_robot(ax, legend_pose, robot[3], robot[4], legend_x_spacing, False, False)
+                self.__draw_legend_robot(
+                    ax, legend_pose, robot[3], robot[4], legend_x_spacing, False, False
+                )
 
         # Draw goals
         if np.any(red_goal_arr):
@@ -882,6 +952,7 @@ class FieldRepresentation(ISerializable):
 
     def export_to_dict(self) -> dict:
         loc = np.zeros((145, 145, 100))
+        ori = np.zeros((100), dtype=np.float16)
         pos = np.zeros((100, 3, 2))
         col = np.zeros((100))
         val = np.zeros((100))
@@ -909,9 +980,13 @@ class FieldRepresentation(ISerializable):
         def point_map(ent):
             val = 0
             # TODO: compress util funcs into field rep class
-            host_col = [robot for robot in (self.robots + self.red_platform.robots + self.blue_platform.robots) if type(robot) is HostRobot][
-                0
-            ].color
+            host_col = [
+                robot
+                for robot in (
+                    self.robots + self.red_platform.robots + self.blue_platform.robots
+                )
+                if type(robot) is HostRobot
+            ][0].color
             if isinstance(ent, HighNeutralGoal):
                 val = 0
             elif isinstance(ent, Goal):
@@ -919,7 +994,12 @@ class FieldRepresentation(ISerializable):
             elif isinstance(ent, Ring):
                 val = 1
             elif isinstance(ent, Robot):
-                val = sum([goal.get_current_score(host_col) for goal in ent.goals])
+                score = 0
+                if ent.check_front_goal():
+                    score += ent.front_goal.get_current_score(host_col)
+                if ent.check_rear_goal():
+                    score += ent.rear_goal.get_current_score(host_col)
+                val = score
                 val += len(ent.rings)
             return val
 
@@ -928,6 +1008,9 @@ class FieldRepresentation(ISerializable):
             # location
             x, y = pose_lam(ent)
             loc[x][y][i] = type_map(ent)
+
+            # orientation
+            ori[i] = math.atan2(math.sin(ent.pose.angle), math.cos(ent.pose.angle))
 
             # possesion and opposing
             if isinstance(ent, Goal):
@@ -942,7 +1025,12 @@ class FieldRepresentation(ISerializable):
                     pos[i][ldx][0] = cont.get_utilization()
             if isinstance(ent, Robot):
                 pos[i][0][1] = len(ent.rings)
-                pos[i][0][0] = len(ent.goals)
+                num_goals = 0
+                if ent.check_front_goal():
+                    num_goals += 1
+                if ent.check_rear_goal():
+                    num_goals += 1
+                pos[i][0][0] = num_goals
 
                 opp[i] = ent.id
 
@@ -953,7 +1041,14 @@ class FieldRepresentation(ISerializable):
             # value
             val[i] = point_map(ent)
 
-        return dict(location=loc, possesion=pos, color=col, value=val, is_opposing=opp)
+        return dict(
+            location=loc,
+            orientation=ori,
+            possesion=pos,
+            color=col,
+            value=val,
+            is_opposing=opp,
+        )
 
     def as_json(self) -> str:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

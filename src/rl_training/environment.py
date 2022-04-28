@@ -1,4 +1,5 @@
 import math
+from multiprocessing.spawn import is_forking
 from typing import Tuple
 import gym
 import numpy as np
@@ -12,22 +13,27 @@ from entities.mathUtils import (
 )
 from entities.enumerations import Color
 from entities.robots import HostRobot
+from entities.platforms import PlatformState
 from entities.fieldConfigurations import starting_representation
 from entities.constants import FIELD_WIDTH_IN
 from entities.fieldRepresentation import FieldRepresentation
 from entities.robots import Robot
 from entities.scoring_elements import Goal, Ring
 from entities.mathUtils import vector_rotate
+from entities.enumerations import GoalLevel
 
 
 class TippingPointEnv(gym.Env):
     """
     OpenAI Gym Environment for the VEX Tipping Point Game.
     Action Space:
-    - Discrete
-        - No-Op [0], Up [1], Down [2], Left [3], Right [4],
-        Goal In [5], Goal Out [6],
-        Ring In [7], Ring Out [8], Ring Place[9]
+    - MultiDiscrete
+        First dim:
+        - No-Op [0], Forward [1], Backward [2], Rotate-Left [3], Rotate-Right [4],
+
+        Second dim:
+        - Goal In [0], Goal Out [1], Ring In [2], Ring Out [3], Ring Place[4]
+
     Observation Space:
     - Dict
         {
@@ -38,6 +44,7 @@ class TippingPointEnv(gym.Env):
             2=rings
             3=robot
             4=platform
+        "orientation": Box(100), low=0 high=2 (#angle)
         "possesion": Box(100, 3, 2), low=0 high=75 (#count)
             idx[id][poss_level][poss_type]= count
             poss_level:
@@ -61,12 +68,15 @@ class TippingPointEnv(gym.Env):
     def __init__(self, steps):
         super(TippingPointEnv, self).__init__()
 
-        self.action_space = spaces.Discrete(10)
+        self.action_space = spaces.MultiDiscrete([5, 5])
 
         self.observation_space = spaces.Dict(
             {
                 "location": spaces.Box(
                     low=0, high=4, shape=(145, 145, 100), dtype=np.uint8
+                ),
+                "orientation": spaces.Box(
+                    low=0, high=2, shape=(100,), dtype=np.float16
                 ),
                 "possesion": spaces.Box(
                     low=0, high=100, shape=(100, 3, 2), dtype=np.uint8
@@ -93,8 +103,8 @@ class TippingPointEnv(gym.Env):
             if type(robot) is HostRobot
         ][0]
 
-        adjacent_entities = self._detect_adjacents(host, rep)
-        self._do_action(action, host, adjacent_entities, rep)
+        colliding_entities = self._detect_collisions(host, rep)
+        self._do_action(action, host, colliding_entities, rep)
 
         self.field_state.current_time -= 1
         done = self.field_state.current_time == 0
@@ -112,11 +122,14 @@ class TippingPointEnv(gym.Env):
 
         held_goals = []
         for robot in field_rep.robots:
-            held_goals += robot.goals
+            if robot.check_front_goal():
+                held_goals += [robot.front_goal]
+            if robot.check_rear_goal():
+                held_goals += [robot.rear_goal]
 
-        for goal in (field_rep.goals + held_goals):
+        for goal in field_rep.goals + held_goals:
             red_score += goal.get_current_score(Color.RED)
-            blue_score += goal.get_current_score(Color.BLUE)            
+            blue_score += goal.get_current_score(Color.BLUE)
 
         if red_score > blue_score:
             red_score = 1
@@ -136,50 +149,87 @@ class TippingPointEnv(gym.Env):
 
         return reward
 
-    def _detect_adjacents(self, agent: Robot, field_rep: FieldRepresentation) -> Tuple[list[Goal], list[Ring]]:
-        # FIXME find correct action distances
-        adjacent_distance = 2
-        adjacent_goals = [
+    def _detect_collisions(
+        self, agent: Robot, field_rep: FieldRepresentation
+    ) -> Tuple[list[Goal], list[Ring]]:
+        pose_lam = (
+            lambda goal: goal is not agent.front_goal and goal is not agent.rear_goal
+        )
+        front_goals = [
             goal
             for goal in field_rep.goals
-            if distance_between_entities(goal, agent) <= adjacent_distance
-            and goal not in agent.goals
+            if agent.is_colliding_front(goal) and pose_lam(goal)
         ]
-        adjacent_rings = [
+        rear_goals = [
+            goal
+            for goal in field_rep.goals
+            if agent.is_colliding_rear(goal) and pose_lam(goal)
+        ]
+        front_rings = [
             ring
             for ring in field_rep.rings
-            if distance_between_entities(ring, agent) <= adjacent_distance
-            and ring not in agent.rings
+            if agent.is_colliding_front(ring) and ring not in agent.rings
         ]
-        return adjacent_goals, adjacent_rings
+        rear_rings = [
+            ring
+            for ring in field_rep.rings
+            if agent.is_colliding_rear(ring) and ring not in agent.rings
+        ]
+        return [front_goals, rear_goals, front_rings, rear_rings]
 
-    def _do_action(self, action: np.ndarray, host: HostRobot, adjacent_entities: Tuple[list[Goal], list[Ring]], rep: FieldRepresentation) -> None:
-        adjacent_goals = adjacent_entities[0]
-        adjacent_rings = adjacent_entities[1]
-        if action > 0:
+    def _do_action(
+        self,
+        action: np.ndarray,
+        host: HostRobot,
+        colliding_entities: Tuple[list[Goal], list[Ring]],
+        rep: FieldRepresentation,
+    ) -> None:
+        front_goals = colliding_entities[0]
+        rear_goals = colliding_entities[1]
+        front_rings = colliding_entities[2]
+        rear_rings = colliding_entities[3]
+        colliding_rings = front_rings + rear_rings
+
+        if action[0] > 0:
             # movement
-            if action < 5:
-                self._move_collision(host, self._map_movement(action), rep)
+            org_pos = self._map_movement(host, action[0])
+            self._move_collision(host, org_pos, rep)
+        if action[1] > 0:
             # goal capture
-            elif action == 5 and len(adjacent_goals) > 0:
-                goal = adjacent_goals.pop()
+            if action[1] == 5 and (len(front_goals) > 0 or len(rear_goals) > 0):
+                goal = None
+                success = True
+                is_rear = False
+                if len(rear_goals) > 0 and not host.check_rear_goal():
+                    goal = rear_goals.pop()
+                    is_rear = True
+                elif not host.check_front_goal():
+                    goal = front_goals.pop()
+                else:
+                    success = False
 
-                # Remove goals from the field
-                goal_idx = -1
-                for idx, rep_goal in enumerate(rep.goals):
-                    if goal.pose == rep_goal.pose:
-                        goal_idx = idx
+                if success:
+                    # Remove goals from the field
+                    goal_idx = -1
+                    for idx, rep_goal in enumerate(rep.goals):
+                        if goal.pose == rep_goal.pose:
+                            goal_idx = idx
 
-                rep.goals.pop(goal_idx)
+                    rep.goals.pop(goal_idx)
 
-                host.goals.append(goal)
+                    if is_rear:
+                        host.rear_goal = goal
+                    else:
+                        host.front_goal = goal
             # goal release
-            elif action == 6 and len(host.goals) > 0:
-                # FIXME: be released according to orientation
-                # FIXME: scale by distance from boundary, other robots etc.
-                # FIXME: need zone boundaries to determine discount
-                # FIXME: prevent goal-entity collision
-                goal = host.goals.pop()
+            elif action[1] == 6 and (host.check_front_goal() or host.check_rear_goal()):
+                goal = None
+                if host.check_front_goal():
+                    goal = host.front_goal
+                    host.front_goal = None
+                elif not host.check_front_goal():
+                    goal = host.rear_goal
+                    host.rear_goal = None
 
                 # Create an offset vector along the x-axis
                 offset = Pose2D(host.radius + goal.radius + 1, 0, 0)
@@ -188,19 +238,24 @@ class TippingPointEnv(gym.Env):
                 rotated_offset = vector_rotate(host.pose.angle, offset)
                 rotated_offset.x = max(min(rotated_offset.x, FIELD_WIDTH_IN), 0)
                 rotated_offset.y = max(min(rotated_offset.y, FIELD_WIDTH_IN), 0)
-                
+
                 # Update pose of the goal
                 goal.pose = Pose2D(rotated_offset.x, rotated_offset.y)
 
-                # Add the goal back to the rep
-                rep.goals.append(goal)
+                # check collision with platform
+                if rep.red_platform.is_colliding(goal.pose):
+                    rep.red_platform.goals.append(goal)
+                elif rep.blue_platform.is_colliding(goal.pose):
+                    rep.blue_platform.goals.append(goal)
+                else:
+                    # Add the goal back to the rep
+                    rep.goals.append(goal)
             # ring capture
-            elif action == 7 and len(adjacent_rings) > 0:
-                # FIXME: number of rings picked up in a step
-                host.rings += adjacent_rings
+            elif action[1] == 7 and len(colliding_rings) > 0:
+                host.rings += colliding_rings
 
                 ring_poses = []
-                for ring in adjacent_rings:
+                for ring in colliding_rings:
                     ring_poses.append(ring.pose)
 
                 # Remove rings from the field
@@ -212,55 +267,47 @@ class TippingPointEnv(gym.Env):
                 rep.rings = remaining_rings
             # # ring release
             # elif action == 8 and len(host.rings) > 0:
-            #     # FIXME: is this action necessary?
-            #     #       number of rings released up in a step
-            #     ring = host.rings.pop()
-            #     offset = host.pose.y + host.radius + ring.radius + 1
-            #     ring.pose = Pose2D(host.pose.x, offset)
+            #     # FIXME: add if necessary
             # ring placement
-            elif len(host.rings) > 0 and len(adjacent_goals) > 0:
-                # FIXME: allow multiple rings?
-                #      : encode selection in action space
-                #      : survey adjacent goals for vacancy
-                # FIXME: account for level difficulty
+            elif action[1] == 4 and len(host.rings) > 0 and host.check_rear_goal():
                 ring = host.rings.pop()
 
-                selected_goal = adjacent_goals[0]
-                goal_levels = list(selected_goal.ring_containers.keys())
-                selected_goal.add_ring(ring, goal_levels[-1])
+                rear_goal = host.rear_goal
+                if rear_goal.color is not Color.NEUTRAL:
+                    if not rear_goal.add_ring(ring, GoalLevel.LOW):
+                        rear_goal.add_ring(ring, GoalLevel.BASE)
+                else:
+                    rear_goal.add_ring(ring, GoalLevel.BASE)
 
-    def _move_collision(self, host: HostRobot, direction: list, field_rep: FieldRepresentation) -> None:
-        # Create list of entities on the field
-        ent_lst = [*field_rep.robots, *field_rep.goals, *field_rep.rings]
-        
-        # Calculate new position
-        org_pos = host.pose
-        coords = np.array([org_pos.x, org_pos.y])
-        coords += direction
-
+    def _move_collision(
+        self, host: HostRobot, org_pos: Pose2D, field_rep: FieldRepresentation
+    ) -> None:
         # Ensure the robot cannot escape the field
+        coords = np.array([host.pose.x, host.pose.y])
         coords[0] = min(max(coords[0], 0), FIELD_WIDTH_IN)
         coords[1] = min(max(coords[1], 0), FIELD_WIDTH_IN)
 
-        new_pos = Pose2D(coords[0], coords[1], math.atan2(direction[1], direction[0]))
+        new_pos = Pose2D(coords[0], coords[1], host.pose.angle)
         host.pose = new_pos
 
-        # Check for collisions with entities
-        colliding_ens = [
-            en for en in ent_lst if en.is_colliding(host) and en is not host
-        ]
-
-        if len(colliding_ens) != 0 or field_rep.red_platform.is_colliding(host.pose) or field_rep.blue_platform.is_colliding(host.pose):
+        if field_rep.red_platform.is_colliding(
+            host.pose
+        ) or field_rep.blue_platform.is_colliding(host.pose):
             host.pose = org_pos
 
-    def _map_movement(self, action: np.ndarray) -> dict:
-        dirs = {
-            1: np.array([0, 1]),
-            2: np.array([0, -1]),
-            3: np.array([-1, 0]),
-            4: np.array([1, 0]),
-        }
-        return dirs[action]
+    def _map_movement(self, host: HostRobot, action: np.ndarray) -> dict:
+        org_pos = host.pose
+        if action == 1:
+            host.pose.x += math.cos(host.pose.angle)
+            host.pose.y += math.sin(host.pose.angle)
+        elif action == 2:
+            host.pose.x -= math.cos(host.pose.angle)
+            host.pose.y -= math.sin(host.pose.angle)
+        elif action == 3:
+            host.pose.angle -= 0.5
+        elif action == 4:
+            host.pose.angle += 0.5
+        return org_pos
 
     def reset(self):
         # Reset the state of the environment to an initial state
@@ -272,7 +319,6 @@ class TippingPointEnv(gym.Env):
 
     def render(self, mode="human", close=False):
         # Render the environment to the screen
-        # FIXME: add live plotting
         return self.field_state.get_current_representation().draw()
         # if(self.field_state.current_time == self.MAX_STEPS-1):
         #     ax.redraw_in_frame()
