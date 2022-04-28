@@ -24,7 +24,7 @@ class Platform(AbstractDataClass, IScorable, ISerializable):
     goals: List[Goal] = field(default_factory=list)
     robots: List[Robot] = field(default_factory=list)
 
-    def __get_current_score(self, color: Color):
+    def _get_current_score(self, color: Color):
         if self.state == PlatformState.LEVEL:
             robots = list(filter(lambda rob: rob.color == color, self.robots))
 
@@ -63,7 +63,7 @@ class RedPlatform(Platform, ISerializable):
         super().__init__(Color.RED, state, **kwargs)
 
     def get_current_score(self):
-        return self.__get_current_score(Color.RED)
+        return super()._get_current_score(Color.RED)
 
 
 @nested_dataclass
@@ -72,4 +72,4 @@ class BluePlatform(Platform, ISerializable):
         super().__init__(Color.BLUE, state, **kwargs)
 
     def get_current_score(self):
-        return self.__get_current_score(Color.BLUE)
+        return super()._get_current_score(Color.BLUE)
