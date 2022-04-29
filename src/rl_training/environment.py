@@ -314,8 +314,13 @@ class TippingPointEnv(gym.Env):
 
     def reset(self):
         # Reset the state of the environment to an initial state
-        rep = self.field_state.get_current_representation()
-        rep.randomize()
+        # rep = self.field_state.get_current_representation()
+        # rep.randomize()
+
+        # should fix random angles problem
+        self.field_state.field_representation = starting_representation()
+        rep = self.field_state.field_representation
+
         self.field_state.current_time = self.MAX_STEPS
 
         return rep.export_to_dict()
