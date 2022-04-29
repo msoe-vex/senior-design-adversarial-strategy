@@ -137,9 +137,9 @@ class TippingPointEnv(gym.Env):
         if red_score > blue_score:
             red_score = 1
             blue_score = -1
-        elif red_score == blue_score:
-            red_score = 1 / 2
-            blue_score = 1 / 2
+        # elif red_score == blue_score:
+        #     red_score = 1 / 2
+        #     blue_score = 1 / 2
         else:
             red_score = -1
             blue_score = 1
@@ -196,7 +196,7 @@ class TippingPointEnv(gym.Env):
         if action[0] > 0:
             # movement
             org_pos = self._map_movement(host, action[0])
-            self._move_collision(host, org_pos, rep)
+            self._move_collision(host, org_pos, rep, front_goals, rear_goals)
         if action[1] > 0:
             # goal capture
             if action[1] == 1 and (len(front_goals) > 0 or len(rear_goals) > 0):
@@ -283,19 +283,35 @@ class TippingPointEnv(gym.Env):
                     rear_goal.add_ring(ring, GoalLevel.BASE)
 
     def _move_collision(
-        self, host: HostRobot, org_pos: Pose2D, field_rep: FieldRepresentation
+        self,
+        host: HostRobot,
+        org_pos: Pose2D,
+        field_rep: FieldRepresentation,
+        front_goals: list[Goal],
+        rear_goals: list[Goal],
     ) -> None:
         # Ensure the robot cannot escape the field
         coords = np.array([host.pose.x, host.pose.y])
-        coords[0] = min(max(coords[0], 0), FIELD_WIDTH_IN)
+        half_width = FIELD_WIDTH_IN / 2
+        coords[0] = min(max(coords[0], -half_width), half_width)
         coords[1] = min(max(coords[1], 0), FIELD_WIDTH_IN)
 
         new_pos = Pose2D(coords[0], coords[1], host.pose.angle)
         host.pose = new_pos
 
-        if field_rep.red_platform.is_colliding(
-            host.pose
-        ) or field_rep.blue_platform.is_colliding(host.pose):
+        colliding_goals = [
+            goal
+            for goal in field_rep.goals
+            if goal.is_colliding(host)
+            and goal not in front_goals
+            and goal not in rear_goals
+        ]
+
+        if (
+            len(colliding_goals) != 0
+            or field_rep.red_platform.is_colliding(host.pose)
+            or field_rep.blue_platform.is_colliding(host.pose)
+        ):
             host.pose = org_pos
 
     def _map_movement(self, host: HostRobot, action: np.ndarray) -> dict:
