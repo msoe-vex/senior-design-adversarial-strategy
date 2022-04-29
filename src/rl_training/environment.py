@@ -32,7 +32,7 @@ class TippingPointEnv(gym.Env):
         - No-Op [0], Forward [1], Backward [2], Rotate-Left [3], Rotate-Right [4],
 
         Second dim:
-        - Goal In [0], Goal Out [1], Ring In [2], Ring Out [3], Ring Place[4]
+        - No-Op [0], Goal In [1], Goal Out [2], Ring In [3], Ring Place[4]
 
     Observation Space:
     - Dict
@@ -199,7 +199,7 @@ class TippingPointEnv(gym.Env):
             self._move_collision(host, org_pos, rep)
         if action[1] > 0:
             # goal capture
-            if action[1] == 5 and (len(front_goals) > 0 or len(rear_goals) > 0):
+            if action[1] == 1 and (len(front_goals) > 0 or len(rear_goals) > 0):
                 goal = None
                 success = True
                 is_rear = False
@@ -225,7 +225,7 @@ class TippingPointEnv(gym.Env):
                     else:
                         host.front_goal = goal
             # goal release
-            elif action[1] == 6 and (host.check_front_goal() or host.check_rear_goal()):
+            elif action[1] == 2 and (host.check_front_goal() or host.check_rear_goal()):
                 goal = None
                 if host.check_front_goal():
                     goal = host.front_goal
@@ -254,7 +254,7 @@ class TippingPointEnv(gym.Env):
                     # Add the goal back to the rep
                     rep.goals.append(goal)
             # ring capture
-            elif action[1] == 7 and len(colliding_rings) > 0:
+            elif action[1] == 3 and len(colliding_rings) > 0:
                 host.rings += colliding_rings
 
                 ring_poses = []
@@ -307,9 +307,9 @@ class TippingPointEnv(gym.Env):
             host.pose.x -= math.cos(host.pose.angle)
             host.pose.y -= math.sin(host.pose.angle)
         elif action == 3:
-            host.pose.angle -= 0.5
+            host.pose.angle -= 0.5 * math.pi
         elif action == 4:
-            host.pose.angle += 0.5
+            host.pose.angle += 0.5 * math.pi
         return org_pos
 
     def reset(self):
