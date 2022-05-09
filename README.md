@@ -12,7 +12,7 @@ To view all training benchmarks in tensorboard:
 ```
 python -m tensorboard.main --logdir logs/tensorboard/
 ```
-![Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
+[Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
 ## Installing Through Pip
 This package can be installed through a pip package, using the following command:
 
@@ -65,7 +65,7 @@ To view all training benchmarks in tensorboard:
 ```
 python -m tensorboard.main --logdir logs/tensorboard/
 ```
-![Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
+[Interpret results here](https://stable-baselines3.readthedocs.io/en/master/common/logger.html?highlight=eval#eval)
 
 ## Contributing
 
